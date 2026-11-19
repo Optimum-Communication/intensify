@@ -9,7 +9,7 @@ This repository holds the open-source pieces:
 - **AI skills** (`skills/`): enrichment (draft intent from code and git history) and node implementation for coding agents.
 - **CI integration** (`action/`): a GitHub Action and a GitLab CI template for drift checks on pull requests.
 
-> **Status:** alpha (v0.1). The spec, the CLI (`init`, `validate`, `analyze` for Python and TypeScript/JavaScript, `drift`, `node`, `context`, `verify`), CI integrations, AI skills and the MCP server all work. Intensify checks itself: see its own [`intensify.yaml`](intensify.yaml).
+> **Status:** alpha (v0.1). The spec, the CLI (`init`, `validate`, `analyze` for Python and TypeScript/JavaScript, `drift`, `node`, `context`, `verify`), CI integrations, AI skills, the MCP server and Intensify Cloud sync (`login`, `project`, `sync`) all work. Intensify checks itself: see its own [`intensify.yaml`](intensify.yaml).
 
 ## Install
 
@@ -49,6 +49,13 @@ intensify node add your-repo.billing.invoices --kind module --parent your-repo.b
 intensify context your-repo.billing.invoices
 intensify skills install          # agent skills for Claude Code (or --target cursor)
 claude mcp add intensify -- intensify mcp
+```
+
+To see several repositories as one system, push them to Intensify Cloud. Only `intensify.yaml` is sent, never source code. See [docs/cloud.md](docs/cloud.md).
+
+```sh
+intensify login --api-url https://your-intensify-cloud
+intensify project create shop && intensify sync push
 ```
 
 Read the [spec](spec/v1.0/spec.md) and its [examples](spec/v1.0/examples/).

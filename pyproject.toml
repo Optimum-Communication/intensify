@@ -18,6 +18,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
+    "httpx>=0.28.1",
     "jsonschema>=4.26.0",
     "mcp>=2.3.0",
     "pathspec>=1.1.1",

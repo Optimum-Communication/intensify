@@ -31,6 +31,16 @@ NODE_KEY_ORDER = (
 )
 """Canonical node key order. Keys added to an existing node are placed accordingly."""
 
+EDGE_KEY_ORDER = (
+    "from",
+    "to",
+    "type",
+    "description",
+    "lifecycle_state",
+    "confidence",
+    "provenance",
+)
+
 _SUB_ORDERS: dict[str, tuple[str, ...]] = {
     "intent": ("summary", "rationale", "author"),
     "contract": ("inputs", "outputs", "errors"),
@@ -71,6 +81,20 @@ def put(
     mapping.insert(position, key, value)
 
 
+def canonical(value: dict[str, Any], order: tuple[str, ...]) -> dict[str, Any]:
+    """``value`` with known keys in ``order`` (recursively for node sections), others after.
+
+    Data from JSON stores (Postgres ``jsonb``) doesn't keep key order; this restores the order
+    people expect to read.
+    """
+    out = {k: value[k] for k in order if k in value}
+    out.update({k: v for k, v in value.items() if k not in out})
+    for key, sub_order in _SUB_ORDERS.items():
+        if isinstance(out.get(key), dict):
+            out[key] = canonical(out[key], sub_order)
+    return out
+
+
 def to_yaml(value: Any) -> Any:
     """Plain data -> round-trip data, using flow style for small flat mappings."""
     if isinstance(value, dict):
@@ -86,6 +110,16 @@ def to_yaml(value: Any) -> Any:
             seq.fa.set_flow_style()  # tags: [a, b]
         return seq
     return value
+
+
+def node_to_yaml(node: dict[str, Any]) -> CommentedMap:
+    """A node as round-trip data, laid out like the nodes ``analyze`` writes."""
+    item: CommentedMap = to_yaml(canonical(node, NODE_KEY_ORDER))
+    item.fa.set_block_style()
+    for key in ("intent", "governance"):
+        if isinstance(item.get(key), CommentedMap):
+            item[key].fa.set_block_style()
+    return item
 
 
 def find(loaded: LoadedSpec, node_id: str) -> tuple[SpecFile, CommentedMap]:
@@ -112,41 +146,38 @@ def patch(
 
 
 def add_node(loaded: LoadedSpec, node: dict[str, Any]) -> None:
-    """Insert a node after its parent's subtree, in the parent's file (the root file otherwise)."""
+    """Insert a node after its parent's subtree, in the parent's file (the root file otherwise).
+
+    Works on the files' current data, so nodes added earlier in the same edit can be parents.
+    """
+    current = [(file, item) for file in loaded.files for item in (file.data.get("nodes") or [])]
     node_id = node["id"]
-    if any(e.node.id == node_id for e in loaded.nodes):
+    if any(str(item.get("id")) == node_id for _, item in current):
         raise EditError(f"node {node_id!r} already exists")
     parent_id = node.get("parent_id")
     file = next(f for f in loaded.files if f.is_root)
     if parent_id is not None:
-        parent = next((e for e in loaded.nodes if e.node.id == parent_id), None)
+        parent = next((f for f, item in current if str(item.get("id")) == parent_id), None)
         if parent is None:
             raise EditError(f"parent {parent_id!r} does not exist")
-        file = parent.file
+        file = parent
     if file.data.get("nodes") is None:
         file.data["nodes"] = CommentedSeq()
     seq: CommentedSeq = file.data["nodes"]
 
-    parent_of = {e.node.id: e.node.parent_id for e in loaded.nodes}
+    parent_of = {str(item.get("id")): item.get("parent_id") for _, item in current}
     position = len(seq)
     if parent_id is not None:
-        for index, item in enumerate(seq):
-            current: str | None = str(item.get("id"))
+        for index, existing in enumerate(seq):
+            ancestor: str | None = str(existing.get("id"))
             seen: set[str] = set()
-            while current is not None and current not in seen:
-                if current == parent_id:
+            while ancestor is not None and ancestor not in seen:
+                if ancestor == parent_id:
                     position = index + 1
                     break
-                seen.add(current)
-                current = parent_of.get(current)
-    ordered = {k: node[k] for k in NODE_KEY_ORDER if k in node}
-    ordered.update({k: v for k, v in node.items() if k not in ordered})
-    item = to_yaml(ordered)
-    item.fa.set_block_style()
-    for key in ("intent", "governance"):
-        if isinstance(item.get(key), CommentedMap):
-            item[key].fa.set_block_style()  # match what `analyze` writes
-    seq.insert(position, item)
+                seen.add(ancestor)
+                ancestor = parent_of.get(ancestor)
+    seq.insert(position, node_to_yaml(node))
 
 
 def save(loaded: LoadedSpec) -> LoadedSpec:

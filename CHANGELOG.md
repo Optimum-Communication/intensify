@@ -12,3 +12,8 @@ First public release.
 - **`intensify context` / `verify`:** context bundles for coding agents, and verification that marks implemented nodes active.
 - **AI skills** (`intensify-enrich`, `intensify-implement-node`) and **`intensify skills install`** for Claude Code, Cursor and plain Markdown.
 - **`intensify mcp`:** MCP server with search, context, edit, analyze, verify and drift tools.
+- **Intensify Cloud sync:**
+  - `login` / `logout` / `whoami`, using the OAuth device flow.
+  - `project create|link|status|token`.
+  - `sync push|pull`. Pull is a three-way merge, and conflicts are reported.
+  - The public sync API contract is in `spec/sync-api/v1/openapi.yaml`.
