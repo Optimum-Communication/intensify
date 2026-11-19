@@ -6,6 +6,7 @@ import typer
 
 from intensify import __version__
 from intensify.cli.analyze import analyze
+from intensify.cli.drift import drift
 from intensify.cli.init import init
 from intensify.cli.validate import validate
 
@@ -42,6 +43,7 @@ def root(
 app.command()(init)
 app.command()(validate)
 app.command()(analyze)
+app.command()(drift)
 
 
 def main() -> None:

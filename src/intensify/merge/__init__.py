@@ -77,6 +77,12 @@ class MergeReport:
     ambiguous: list[str] = field(default_factory=list)
     edges_added: int = 0
     edges_removed: int = 0
+    new_edges: list[tuple[tuple[str, str, str], Dependency]] = field(default_factory=list)
+    """(from, to, type) of each edge added, with the dependency it came from."""
+    stale_edges: list[tuple[str, str, str]] = field(default_factory=list)
+    """(from, to, type) of each analyzed edge removed because the code no longer has it."""
+    symbol_of: dict[str, Symbol] = field(default_factory=dict)
+    """Node ID -> the code symbol it now describes (matched and new nodes)."""
 
     @property
     def changed(self) -> bool:
@@ -126,6 +132,9 @@ class _Merger:
         self._create_new(root_id)
         self._mark_missing()
         self._merge_edges()
+        self.report.symbol_of = {
+            node_id: self.symbols[sym_id] for sym_id, node_id in self.final.items()
+        }
         return self.report
 
     # -- root ----------------------------------------------------------------------------
@@ -216,12 +225,13 @@ class _Merger:
             if len(entries) == 1 and len(syms) == 1 and syms[0].kind is entries[0].node.kind:
                 take(syms[0], entries[0].node.id)
 
-        # 4. Same name and kind, similar signature: moved and edited.
+        # 4. Same name and kind, similar signature: moved and edited. Modules have no signature,
+        #    so they only match by location, ID or fingerprint.
         for entry in open_nodes():
             location = _location(entry)
-            if location is None or entry.node.technical is None:
+            if location is None or location[1] is None or entry.node.technical is None:
                 continue
-            name = (location[1] or location[0]).rsplit(".", 1)[-1]
+            name = location[1].rsplit(".", 1)[-1]
             signature = entry.node.technical.signature or ""
             candidates = [
                 s
@@ -282,10 +292,15 @@ class _Merger:
         ]
         taken = set(self.maps)
         for sym in self.new:
-            node_id, n = sym.id, 1
+            base = sym.id
+            existing = self.maps.get(base)
+            if existing is not None and existing.get("kind") != sym.kind.value:
+                # Typically a package named like the repo: `shop` (repo) and `shop-module`.
+                base = f"{sym.id}-{sym.kind.value}"
+            node_id, n = base, 1
             while node_id in taken:
                 n += 1
-                node_id = f"{sym.id}-{n}"
+                node_id = f"{base}-{n}"
             taken.add(node_id)
             self.final[sym.id] = node_id
 
@@ -357,8 +372,8 @@ class _Merger:
             file_exists = (self.spec.path.parent / path).is_file()
             if file_exists and path not in self.analysis.files:
                 continue  # a file we don't analyze (unsupported language or excluded)
-            if node.lifecycle_state is LifecycleState.deprecated:
-                continue
+            if node.lifecycle_state in {LifecycleState.deprecated, LifecycleState.planned}:
+                continue  # planned nodes may name a file that doesn't exist yet
             self.report.missing.append((node.id, _format_location(location)))
             if self.options.prune:
                 _put(self.maps[node.id], "lifecycle_state", LifecycleState.deprecated.value)
@@ -389,6 +404,7 @@ class _Merger:
                 continue
             if self._source_in_scope(edge.from_):
                 stale.append((entry.file, entry.file.data["edges"][entry.index]))
+                self.report.stale_edges.append(key)
 
         for file, item in stale:
             seq = file.data["edges"]
@@ -404,6 +420,7 @@ class _Merger:
             file = self.file_of.get(key[0], self.root_file)
             files[id(file)] = file
             additions[id(file)].append(_new_edge(*key, desired[key]))
+            self.report.new_edges.append((key, desired[key]))
         for file_key, edges in additions.items():
             seq = self._edges_seq(files[file_key])
             seq.extend(edges)

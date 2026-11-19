@@ -1,0 +1,91 @@
+name: Intensify drift check
+description: Fail pull requests whose code drifts from intensify.yaml, with code scanning annotations.
+author: Intensify
+branding:
+  icon: git-pull-request
+  color: purple
+
+inputs:
+  path:
+    description: Spec file, or the directory containing intensify.yaml.
+    default: "."
+  package:
+    description: >-
+      pip requirement to install the CLI from, e.g. `intensify==0.1.0`, a git URL, or `.` to
+      use the checked-out repository.
+    default: intensify
+  base:
+    description: >-
+      Branch to compare with; only drift introduced since then is reported. Defaults to the pull
+      request's base branch. Set to an empty string on push events to report all drift.
+    default: ""
+  upload-sarif:
+    description: "Upload findings to GitHub code scanning (needs `security-events: write`)."
+    default: "true"
+  comment:
+    description: "Post or update a summary comment on the pull request (needs `pull-requests: write`)."
+    default: "false"
+  fail:
+    description: Fail the step when blocking drift is found.
+    default: "true"
+  token:
+    description: Token used to comment on the pull request.
+    default: ${{ github.token }}
+
+outputs:
+  exit-code:
+    description: "`intensify drift` exit code: 0 no blocking drift, 1 blocking drift, 2 could not run."
+    value: ${{ steps.drift.outputs.exit-code }}
+  sarif:
+    description: Path of the SARIF report.
+    value: ${{ steps.drift.outputs.sarif }}
+  markdown:
+    description: Path of the Markdown summary.
+    value: ${{ steps.drift.outputs.markdown }}
+
+runs:
+  using: composite
+  steps:
+    - uses: astral-sh/setup-uv@v10
+
+    - name: Install intensify
+      shell: bash
+      env:
+        PACKAGE: ${{ inputs.package }}
+      run: |
+        uv tool install --quiet "$PACKAGE"
+        uv tool dir --bin >> "$GITHUB_PATH"
+
+    - name: Check drift
+      id: drift
+      shell: bash
+      env:
+        SPEC_PATH: ${{ inputs.path }}
+        BASE_BRANCH: ${{ inputs.base || github.base_ref }}
+        OUT_DIR: ${{ runner.temp }}
+      run: '"$GITHUB_ACTION_PATH/drift.sh"'
+
+    - name: Upload to code scanning
+      if: ${{ !cancelled() && inputs.upload-sarif == 'true' && steps.drift.outputs.sarif != '' }}
+      uses: github/codeql-action/upload-sarif@v4
+      with:
+        sarif_file: ${{ steps.drift.outputs.sarif }}
+        category: intensify-drift
+
+    - name: Comment on the pull request
+      if: >-
+        ${{ !cancelled() && inputs.comment == 'true' && github.event_name == 'pull_request'
+        && steps.drift.outputs.markdown != '' }}
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        MARKDOWN: ${{ steps.drift.outputs.markdown }}
+      run: '"$GITHUB_ACTION_PATH/comment.sh"'
+
+    - name: Fail on drift
+      if: ${{ inputs.fail == 'true' && steps.drift.outputs.exit-code == '1' }}
+      shell: bash
+      run: |
+        echo "::error::intensify drift found blocking drift; see the job summary."
+        exit 1

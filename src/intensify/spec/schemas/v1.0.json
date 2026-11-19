@@ -266,6 +266,7 @@
         "undocumented_node",
         "missing_node",
         "undocumented_edge",
+        "stale_edge",
         "contract_mismatch",
         "invariant_violation",
         "moved_node",

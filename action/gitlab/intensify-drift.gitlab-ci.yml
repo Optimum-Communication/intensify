@@ -1,0 +1,34 @@
+# Intensify drift check for GitLab merge requests.
+#
+# Include it from your .gitlab-ci.yml:
+#
+#   include:
+#     - remote: https://raw.githubusercontent.com/Optimum-Communication/intensify/main/action/gitlab/intensify-drift.gitlab-ci.yml
+#
+# Findings appear in the merge request's Code Quality widget; the Markdown summary is kept as an
+# artifact. Override the variables below to customize it.
+
+intensify-drift:
+  stage: test
+  image: python:3.12
+  variables:
+    INTENSIFY_PACKAGE: intensify  # pip requirement: a version pin, a git URL, ...
+    INTENSIFY_PATH: "."           # spec file, or the directory containing intensify.yaml
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  script:
+    - pip install --quiet uv
+    - uv tool install --quiet "$INTENSIFY_PACKAGE"
+    - export PATH="$(uv tool dir --bin):$PATH"
+    - git fetch --quiet --no-tags --depth=1 origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+    - >-
+      intensify drift "$INTENSIFY_PATH"
+      --base "$(git rev-parse FETCH_HEAD)"
+      --codequality gl-code-quality-report.json
+      --markdown intensify-drift.md
+  artifacts:
+    when: always
+    reports:
+      codequality: gl-code-quality-report.json
+    paths:
+      - intensify-drift.md

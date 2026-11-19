@@ -56,7 +56,7 @@ A new node's ID comes from its module path and symbol name:
 | `src/util/index.ts` | `util` |
 | `src/cart.test.ts` | `cart-test` |
 
-A leading `src/` or `lib/` is dropped. Characters an ID can't contain become `-`. Collisions get a numeric suffix (`shop.cart-2`).
+A leading `src/` or `lib/` is dropped. Characters an ID can't contain become `-`. If the ID is already taken by a node of another kind, the kind is appended. This happens, for example, when a package has the same name as the repository's root node: `shop` (repo) and `shop-module`. Other collisions get a numeric suffix (`shop.cart-2`).
 
 **After that, the ID never changes.** Renaming or moving code updates `technical.location`, never the ID.
 
@@ -82,10 +82,10 @@ Matches from steps 2–4 that change the location are reported as **moved**.
 | Analyzed edges | Added when found, removed when the call is gone |
 | New nodes | `lifecycle_state: active`, `provenance: analyzed`, placeholder intent `"TODO: describe intent"`, written to the same file as their parent |
 
-Nodes are never deleted. When code disappears, the node is reported as **missing**, and `--prune` marks it `deprecated`. A node is only considered missing if its file is gone, or the file is analyzed and the symbol isn't in it. Nodes pointing at files in other languages are left alone.
+Nodes are never deleted. When code disappears, the node is reported as **missing**, and `--prune` marks it `deprecated`. A node is only considered missing if its file is gone, or the file is analyzed and the symbol isn't in it. Nodes pointing at files in other languages are left alone, and so are planned nodes, which may name a file that hasn't been written yet.
 
 `--paths` limits all of this to nodes and edges whose code is under the given paths. The whole repository is still parsed, so calls into other directories resolve correctly.
 
 ## Volatile fields
 
-`complexity` and `fingerprint` change with almost any edit to the code, so most code changes also change `intensify.yaml`. Commit the refreshed spec with the code. `intensify drift` (coming next) compares structure and contracts, and does not fail on these fields.
+`complexity` and `fingerprint` change with almost any edit to the code, so most code changes also change `intensify.yaml`. Commit the refreshed spec with the code. [`intensify drift`](drift.md) compares structure and contracts, and never reports changes to these fields.
