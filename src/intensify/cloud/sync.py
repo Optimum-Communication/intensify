@@ -9,10 +9,12 @@ overwritten.
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 from intensify import __version__
 from intensify.cloud.config import BASE_FILE
@@ -57,6 +59,40 @@ def git_head(directory: Path) -> str | None:
     except (OSError, subprocess.CalledProcessError):
         return None
     return proc.stdout.strip() or None
+
+
+_SCP_LIKE = re.compile(r"^(?:[\w.-]+@)?(?P<host>[\w.-]+):(?P<path>[^/].*)$")
+
+
+def web_url(remote: str) -> str | None:
+    """A browsable https URL for a git remote (``git@github.com:a/b.git`` -> ``https://github.com/a/b``).
+
+    Credentials in the remote are dropped, so they are never sent anywhere.
+    """
+    remote = remote.strip()
+    if match := _SCP_LIKE.match(remote):
+        host, path = match["host"], match["path"]
+    else:
+        parsed = urlsplit(remote)
+        if parsed.scheme not in {"https", "http", "ssh", "git"} or not parsed.hostname:
+            return None
+        host, path = parsed.hostname, parsed.path.lstrip("/")
+    path = path.removesuffix("/").removesuffix(".git")
+    return f"https://{host}/{path}" if path else None
+
+
+def git_source_url(directory: Path) -> str | None:
+    try:
+        proc = subprocess.run(
+            ["git", "remote", "get-url", "origin"],
+            cwd=directory,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return web_url(proc.stdout)
 
 
 def git_dirty(directory: Path, paths: list[Path]) -> bool:

@@ -13,7 +13,7 @@ from intensify.cli import app
 from intensify.cloud import config
 from intensify.cloud.client import Client, CloudError
 from intensify.cloud.login import DeviceLogin, wait_for_token
-from intensify.cloud.sync import Base, build_payload, pull
+from intensify.cloud.sync import Base, build_payload, pull, web_url
 from intensify.spec import load_and_validate
 from intensify.spec.edit import EditError
 from tests.conftest import WriteSpec
@@ -370,3 +370,21 @@ def test_bad_token_says_how_to_fix(
     )
     assert result.exit_code == 1
     assert "revoked token; run `intensify login`" in result.output
+
+
+@pytest.mark.parametrize(
+    ("remote", "url"),
+    [
+        ("git@github.com:acme/web.git", "https://github.com/acme/web"),
+        ("https://github.com/acme/web.git", "https://github.com/acme/web"),
+        ("https://user:secret@github.com/acme/web", "https://github.com/acme/web"),
+        (
+            "ssh://git@gitlab.example.com/group/sub/repo.git",
+            "https://gitlab.example.com/group/sub/repo",
+        ),
+        ("/local/path/repo", None),
+        ("file:///tmp/repo.git", None),
+    ],
+)
+def test_web_url(remote: str, url: str | None) -> None:
+    assert web_url(remote) == url

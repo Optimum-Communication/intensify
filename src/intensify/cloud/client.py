@@ -101,8 +101,10 @@ class Client:
         result: dict[str, Any] = self.request("GET", f"/v1/orgs/{org}/projects/{project}")
         return result
 
-    def link_repo(self, org: str, project: str, repo: str, name: str | None) -> dict[str, Any]:
-        body = {"name": name} if name else {}
+    def link_repo(
+        self, org: str, project: str, repo: str, name: str | None, source_url: str | None = None
+    ) -> dict[str, Any]:
+        body = {k: v for k, v in {"name": name, "source_url": source_url}.items() if v is not None}
         result: dict[str, Any] = self.request(
             "PUT", f"/v1/orgs/{org}/projects/{project}/repos/{repo}", body
         )

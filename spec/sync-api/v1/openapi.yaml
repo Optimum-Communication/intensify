@@ -169,6 +169,7 @@ paths:
       tags: [projects]
       operationId: linkRepo
       summary: Add a repository to the project (idempotent). `repo` is the spec's `project.id`.
+      description: Linking again updates `name` and `source_url` when they are given.
       requestBody:
         content:
           application/json:
@@ -176,6 +177,11 @@ paths:
               type: object
               properties:
                 name: { type: string }
+                source_url:
+                  type: string
+                  description: |
+                    Where the code is hosted, e.g. `https://github.com/acme/web` (from the git `origin`
+                    remote). Used for links to source files and to match pull requests to the repo.
       responses:
         "200":
           description: Already linked.
@@ -321,6 +327,47 @@ paths:
       tags: [sync]
       operationId: deleteCloudNode
       summary: Withdraw a node planned in the cloud, with its cloud edges.
+      responses:
+        "204": { description: Deleted. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/orgs/{org}/projects/{project}/repos/{repo}/cloud-edges:
+    parameters:
+      - $ref: "#/components/parameters/org"
+      - $ref: "#/components/parameters/project"
+      - $ref: "#/components/parameters/repo"
+    post:
+      tags: [sync]
+      operationId: createCloudEdge
+      summary: Plan an edge between existing nodes (used by the planning studio).
+      description: The edge belongs to the repository its `from` node is in. Stored with `provenance cloud`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [edge]
+              properties:
+                edge: { $ref: "#/components/schemas/Edge" }
+      responses:
+        "201":
+          description: Created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CloudChanges" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Invalid" }
+    delete:
+      tags: [sync]
+      operationId: deleteCloudEdge
+      summary: Withdraw an edge planned in the cloud.
+      parameters:
+        - { name: from, in: query, required: true, schema: { type: string } }
+        - { name: to, in: query, required: true, schema: { type: string } }
+        - { name: type, in: query, required: true, schema: { type: string } }
       responses:
         "204": { description: Deleted. }
         "401": { $ref: "#/components/responses/Unauthorized" }
@@ -489,6 +536,7 @@ components:
         slug: { type: string }
         name: { type: string }
         latest_version: { type: [integer, "null"] }
+        source_url: { type: [string, "null"] }
     Project:
       type: object
       required: [org, slug, name, repos]
@@ -561,6 +609,7 @@ components:
         ref: { type: string, description: "`<repo>:<node-id>`" }
         repo: { type: string }
         node: { $ref: "#/components/schemas/Node" }
+        pending: { type: boolean, description: Planned in the cloud and not yet pulled into the repository. }
     GraphEdge:
       type: object
       required: [from, to, type, repo, resolved]
@@ -571,6 +620,7 @@ components:
         repo: { type: string, description: The repository whose spec declares the edge. }
         lifecycle_state: { type: string }
         resolved: { type: boolean, description: Both ends exist in the project. }
+        pending: { type: boolean, description: Planned in the cloud and not yet pulled into the repository. }
     ProjectGraph:
       type: object
       required: [repos, nodes, edges, unresolved_refs]
