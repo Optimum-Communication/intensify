@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from intensify.cli.analyze import run
 from intensify.cli.init import render
+from intensify.pipeline import analyze_and_write as run
 from intensify.spec import PLACEHOLDER_SUMMARY, load_and_validate
 from intensify.spec.models import Node
 from tests.conftest import CopyRepo

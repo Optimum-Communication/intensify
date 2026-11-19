@@ -2,70 +2,21 @@
 
 from __future__ import annotations
 
-import difflib
 import os
-import time
 from collections import Counter
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Annotated
 
 import typer
 
 from intensify.cli.validate import render_text
-from intensify.merge import MergeReport
-from intensify.parser import AnalysisResult
-from intensify.pipeline import SpecInvalidError, analyze_and_merge
-from intensify.spec import load_and_validate, yamlio
+from intensify.pipeline import AnalyzeOutcome, SpecInvalidError
+from intensify.pipeline import analyze_and_write as run
+from intensify.spec import load_and_validate
 from intensify.spec.models import NodeKind
-
-
-@dataclass
-class AnalyzeOutcome:
-    report: MergeReport
-    analysis: AnalysisResult
-    diffs: dict[Path, str] = field(default_factory=dict)
-    """Unified diff per changed spec file."""
-    seconds: float = 0.0
-
 
 _MAX_LISTED = 10
 """Without --verbose, longer lists are abbreviated."""
-
-
-def run(
-    spec_path: Path,
-    *,
-    depth: NodeKind | None = None,
-    prune: bool = False,
-    paths: tuple[str, ...] = (),
-    dry_run: bool = False,
-) -> AnalyzeOutcome:
-    """Analyze and merge; write changed spec files unless ``dry_run``.
-
-    Raises ``SpecInvalidError`` if the spec has errors.
-    """
-    started = time.perf_counter()
-    merged = analyze_and_merge(spec_path, depth=depth, prune=prune, paths=paths)
-    outcome = AnalyzeOutcome(merged.report, merged.analysis)
-    for file in merged.loaded.files:
-        before = file.path.read_text(encoding="utf-8")
-        after = yamlio.dumps(file.data)
-        if before == after:
-            continue
-        name = os.path.relpath(file.path)
-        outcome.diffs[file.path] = "".join(
-            difflib.unified_diff(
-                before.splitlines(keepends=True),
-                after.splitlines(keepends=True),
-                fromfile=f"a/{name}",
-                tofile=f"b/{name}",
-            )
-        )
-        if not dry_run:
-            file.path.write_text(after, encoding="utf-8")
-    outcome.seconds = time.perf_counter() - started
-    return outcome
 
 
 def _plural(n: int, word: str) -> str:

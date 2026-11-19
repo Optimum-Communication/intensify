@@ -6,9 +6,14 @@ import typer
 
 from intensify import __version__
 from intensify.cli.analyze import analyze
+from intensify.cli.context import context
 from intensify.cli.drift import drift
 from intensify.cli.init import init
+from intensify.cli.mcp import mcp
+from intensify.cli.node import app as node_app
+from intensify.cli.skills import app as skills_app
 from intensify.cli.validate import validate
+from intensify.cli.verify import verify
 
 app = typer.Typer(
     name="intensify",
@@ -44,6 +49,11 @@ app.command()(init)
 app.command()(validate)
 app.command()(analyze)
 app.command()(drift)
+app.command()(context)
+app.command()(verify)
+app.command()(mcp)
+app.add_typer(node_app, name="node")
+app.add_typer(skills_app, name="skills")
 
 
 def main() -> None:

@@ -7,8 +7,8 @@ import pytest
 from typer.testing import CliRunner
 
 from intensify.cli import app
-from intensify.cli.analyze import run as analyze
 from intensify.cli.init import render
+from intensify.pipeline import analyze_and_write as analyze
 from tests.conftest import CopyRepo
 
 runner = CliRunner()

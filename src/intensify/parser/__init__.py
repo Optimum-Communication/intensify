@@ -90,3 +90,20 @@ def _finalize(result: AnalysisResult, options: AnalyzeOptions) -> None:
 
     unique = dict.fromkeys(d for d in result.dependencies if d.source != d.target)
     result.dependencies = list(unique)
+
+
+def symbol_span(root: Path, path: str, symbol: str | None) -> tuple[int, int] | None:
+    """First and last line of ``symbol`` in ``path`` (the whole file for None), if it exists.
+
+    Only the one file is parsed, so this is cheap enough to call per node.
+    """
+    if not (root / path).is_file():
+        return None
+    for analyzer in analyzers():
+        if not path.endswith(analyzer.extensions):
+            continue
+        result = analyzer.analyze(root, [path], AnalyzeOptions(), Allocator())
+        for sym in result.symbols:
+            if sym.symbol == symbol:
+                return sym.line, sym.line + sym.complexity.get("loc", 1) - 1
+    return None

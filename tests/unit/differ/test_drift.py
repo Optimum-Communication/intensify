@@ -8,12 +8,12 @@ from typing import Any
 
 import pytest
 
-from intensify.cli.analyze import run as analyze
 from intensify.cli.init import render
 from intensify.differ import DriftReport, Level, detect
 from intensify.differ.base import BaseRefError
 from intensify.differ.report import MARKER, to_codequality, to_json, to_markdown, to_sarif
 from intensify.pipeline import SpecInvalidError
+from intensify.pipeline import analyze_and_write as analyze
 from intensify.spec import yamlio
 from intensify.spec.models import DriftCategory as C
 from tests.conftest import CopyRepo

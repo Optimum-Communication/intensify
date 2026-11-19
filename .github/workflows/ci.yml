@@ -50,3 +50,15 @@ jobs:
       - run: uv build
       - name: Smoke-test the built wheel
         run: uv run --isolated --no-project --with dist/*.whl intensify --version
+
+  # Dogfooding: Intensify checks its own code against its own intensify.yaml.
+  drift:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./action
+        with:
+          package: .
