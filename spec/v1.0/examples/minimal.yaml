@@ -1,0 +1,10 @@
+# The smallest valid spec: a project and one root node.
+intensify: "1.0"
+project:
+  id: hello
+nodes:
+  - id: hello
+    kind: repo
+    lifecycle_state: active
+    intent:
+      summary: Prints a greeting.

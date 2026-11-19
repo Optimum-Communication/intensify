@@ -1,0 +1,11 @@
+# A large repo can split its graph across fragment files.
+intensify: "1.0"
+project:
+  id: monolith
+includes: [".intensify/*.yaml"]
+nodes:
+  - id: monolith
+    kind: repo
+    lifecycle_state: active
+    intent:
+      summary: The company's main web application.

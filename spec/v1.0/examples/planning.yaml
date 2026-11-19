@@ -1,0 +1,40 @@
+# A feature being planned: only ids, kinds and intent are required for planned nodes.
+intensify: "1.0"
+project:
+  id: notifications
+  name: Notification Service
+
+nodes:
+  - id: notifications
+    kind: repo
+    lifecycle_state: active
+    intent:
+      summary: Delivers user notifications across email, SMS and push.
+
+  - id: notifications.digest
+    kind: module
+    parent_id: notifications
+    intent:
+      summary: Batches low-priority notifications into a daily digest email.
+      rationale: Users unsubscribe when they get more than a few emails a day.
+
+  - id: notifications.digest.schedule
+    kind: function
+    parent_id: notifications.digest
+    intent:
+      summary: Picks each user's send time from their timezone and activity history.
+    contract:
+      inputs:
+        - {name: user_id, type: str}
+      outputs:
+        - {type: datetime}
+
+  - id: notifications.digest.build
+    kind: function
+    parent_id: notifications.digest
+    intent:
+      summary: Collects a user's pending notifications into one digest email.
+
+edges:
+  # The scheduler must exist before the digest builder can be implemented.
+  - {from: notifications.digest.schedule, to: notifications.digest.build, type: BLOCKS, lifecycle_state: planned}

@@ -23,6 +23,8 @@ jobs:
       - run: uv sync --locked
       - run: make lint
       - run: make typecheck
+      - name: Generated models are up to date with the schema
+        run: make check-gen
 
   test:
     strategy:

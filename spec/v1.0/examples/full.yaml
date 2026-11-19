@@ -1,0 +1,101 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Optimum-Communication/intensify/main/spec/v1.0/schema.json
+# Every section of the spec, on a small payments service.
+intensify: "1.0"
+
+project:
+  id: payments
+  name: Payments Service
+  description: Charges, refunds and payouts.
+
+config:
+  analyze:
+    include: ["src/**"]
+    exclude: ["src/**/migrations/**"]
+    depth: function
+    public_only: true
+  drift:
+    fail_on: [undocumented_edge, contract_mismatch, invariant_violation, missing_node]
+    ignore_low_confidence: true
+  verify:
+    test_command: "pytest {tests}"
+
+nodes:
+  - id: payments
+    kind: repo
+    lifecycle_state: active
+    intent:
+      summary: Moves money between customers, merchants and the payment provider.
+    governance:
+      owners: ["@payments-team"]
+      tags: [domain:billing]
+
+  - id: payments.refunds
+    kind: module
+    parent_id: payments
+    lifecycle_state: active
+    intent:
+      summary: Full and partial refunds of settled charges.
+    technical:
+      language: python
+      location: {path: src/payments/refunds.py}
+    governance:
+      invariants:
+        - id: no-direct-db
+          text: Refund code goes through RefundRepository and never writes to the database directly.
+          rule:
+            forbid_edge: {type: WRITES_TO, to: "payments.db.*"}
+
+  - id: payments.refunds.issue_refund
+    kind: function
+    parent_id: payments.refunds
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Issue a full or partial refund against a settled charge.
+      rationale: Must be idempotent because the payment provider retries webhooks.
+      author: ai
+    contract:
+      inputs:
+        - {name: charge_id, type: str}
+        - {name: amount, type: "Decimal | None", required: false, description: Omit for a full refund.}
+      outputs:
+        - {type: Refund}
+      errors:
+        - {type: ChargeNotSettled, when: The charge has not settled yet.}
+    technical:
+      language: python
+      location: {path: src/payments/refunds.py, symbol: issue_refund}
+      signature: "def issue_refund(charge_id: str, amount: Decimal | None = None) -> Refund"
+      complexity: {cyclomatic: 6, loc: 41}
+      fingerprint: "sha256:9f2c1e0b7a6d5c4b3a29180f7e6d5c4b3a29180f7e6d5c4b3a29180f7e6d5c4b"
+
+  - id: payments.refunds.repository
+    kind: class
+    parent_id: payments.refunds
+    lifecycle_state: active
+    intent:
+      summary: Persists refunds and enforces one refund per idempotency key.
+    technical:
+      location: {path: src/payments/refunds.py, symbol: RefundRepository}
+
+  - id: payments.refunds.audit_log
+    kind: function
+    parent_id: payments.refunds
+    lifecycle_state: planned
+    intent:
+      summary: Record every refund decision for the finance audit trail.
+
+  - id: payments.tests.test_refunds
+    kind: module
+    parent_id: payments
+    lifecycle_state: active
+    intent:
+      summary: Tests for refund issuing.
+    technical:
+      location: {path: tests/test_refunds.py}
+
+edges:
+  - {from: payments.refunds.issue_refund, to: payments.refunds.repository, type: CALLS, provenance: analyzed}
+  - {from: payments.refunds.issue_refund, to: "ledger:ledger.entries.post", type: CALLS, description: Posts the reversing ledger entry.}
+  - {from: payments.tests.test_refunds, to: payments.refunds.issue_refund, type: VERIFIES, provenance: analyzed}
+  - {from: payments.refunds.issue_refund, to: payments.refunds.audit_log, type: CALLS, lifecycle_state: planned}

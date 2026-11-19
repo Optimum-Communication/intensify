@@ -1,0 +1,325 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/Optimum-Communication/intensify/main/spec/v1.0/schema.json",
+  "title": "IntensifyDocument",
+  "description": "The root intensify.yaml file of a repository: an intent graph of nodes and typed edges.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["intensify", "project"],
+  "properties": {
+    "intensify": { "$ref": "#/$defs/SpecVersion" },
+    "project": { "$ref": "#/$defs/Project" },
+    "config": { "$ref": "#/$defs/Config" },
+    "includes": {
+      "description": "Glob patterns, relative to this file, for fragment files holding more nodes and edges.",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "nodes": { "type": "array", "items": { "$ref": "#/$defs/Node" } },
+    "edges": { "type": "array", "items": { "$ref": "#/$defs/Edge" } }
+  },
+  "$defs": {
+    "SpecVersion": {
+      "description": "Version of the Intensify specification this document follows.",
+      "type": "string",
+      "const": "1.0"
+    },
+    "Fragment": {
+      "title": "IntensifyFragment",
+      "description": "A file listed under `includes` in the root document. Holds only nodes and edges.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["intensify"],
+      "properties": {
+        "intensify": { "$ref": "#/$defs/SpecVersion" },
+        "nodes": { "type": "array", "items": { "$ref": "#/$defs/Node" } },
+        "edges": { "type": "array", "items": { "$ref": "#/$defs/Edge" } }
+      }
+    },
+    "ProjectId": {
+      "description": "Identifier of a project (usually one repository). Lowercase, unique within an organization.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]*$"
+    },
+    "NodeId": {
+      "description": "Stable, human-readable node identifier: dot-separated segments, unique within the project. Never regenerated once assigned, even when code moves.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_$][A-Za-z0-9_$-]*(\\.[A-Za-z0-9_$][A-Za-z0-9_$-]*)*$"
+    },
+    "NodeRef": {
+      "description": "Reference to a node: a local NodeId, or `<project-id>:<node-id>` for a node in another project.",
+      "type": "string",
+      "pattern": "^([a-z0-9][a-z0-9_-]*:)?[A-Za-z0-9_$][A-Za-z0-9_$-]*(\\.[A-Za-z0-9_$][A-Za-z0-9_$-]*)*$"
+    },
+    "Project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": { "$ref": "#/$defs/ProjectId" },
+        "name": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" }
+      }
+    },
+    "NodeKind": {
+      "description": "Granularity of a node, from coarsest to finest.",
+      "type": "string",
+      "enum": ["ecosystem", "repo", "module", "class", "function", "block"]
+    },
+    "LifecycleState": {
+      "type": "string",
+      "enum": ["planned", "in_progress", "active", "deprecated"]
+    },
+    "Provenance": {
+      "description": "Who created the node or edge: the analyzer, a person editing YAML, or the cloud planning studio.",
+      "type": "string",
+      "enum": ["analyzed", "manual", "cloud"]
+    },
+    "EdgeType": {
+      "description": "Relationship type. Containment is expressed with `parent_id`, never as an edge.",
+      "type": "string",
+      "enum": ["CALLS", "READS_FROM", "WRITES_TO", "IMPLEMENTS", "VERIFIES", "BLOCKS"]
+    },
+    "Confidence": {
+      "description": "How sure the analyzer is that an edge is real. Hand-written edges are assumed high.",
+      "type": "string",
+      "enum": ["high", "medium", "low"]
+    },
+    "Node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "intent"],
+      "properties": {
+        "id": { "$ref": "#/$defs/NodeId" },
+        "kind": { "$ref": "#/$defs/NodeKind" },
+        "name": { "description": "Optional display name.", "type": "string", "minLength": 1 },
+        "parent_id": { "$ref": "#/$defs/NodeId" },
+        "lifecycle_state": { "$ref": "#/$defs/LifecycleState", "default": "planned" },
+        "intent": { "$ref": "#/$defs/Intent" },
+        "contract": { "$ref": "#/$defs/Contract" },
+        "technical": { "$ref": "#/$defs/Technical" },
+        "governance": { "$ref": "#/$defs/Governance" },
+        "provenance": { "$ref": "#/$defs/Provenance", "default": "manual" }
+      }
+    },
+    "Intent": {
+      "description": "Why the node exists. Required on every node, at every lifecycle state.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary"],
+      "properties": {
+        "summary": { "description": "What the node does, in a sentence or two.", "type": "string", "minLength": 1 },
+        "rationale": { "description": "Why it exists or is built this way.", "type": "string" },
+        "author": {
+          "description": "Who wrote this intent. `ai` marks a draft that a person should review.",
+          "type": "string",
+          "enum": ["human", "ai"],
+          "default": "human"
+        }
+      }
+    },
+    "Contract": {
+      "description": "The node's interface. Optional while planning.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "inputs": { "type": "array", "items": { "$ref": "#/$defs/Parameter" } },
+        "outputs": { "type": "array", "items": { "$ref": "#/$defs/Output" } },
+        "errors": { "type": "array", "items": { "$ref": "#/$defs/ErrorMode" } }
+      }
+    },
+    "Parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "type": { "description": "Type in the node's own language, e.g. `Decimal | None`.", "type": "string" },
+        "required": { "type": "boolean", "default": true },
+        "description": { "type": "string" }
+      }
+    },
+    "Output": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "type": { "type": "string" },
+        "description": { "type": "string" }
+      }
+    },
+    "ErrorMode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": { "description": "Error or exception type.", "type": "string", "minLength": 1 },
+        "when": { "description": "Condition that triggers it.", "type": "string" }
+      }
+    },
+    "Technical": {
+      "description": "Implementation details. Usually maintained by `intensify analyze`.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "language": { "type": "string", "minLength": 1 },
+        "location": { "$ref": "#/$defs/Location" },
+        "signature": { "type": "string" },
+        "complexity": { "$ref": "#/$defs/Complexity" },
+        "fingerprint": {
+          "description": "Hash of the normalized code structure, used to track the node across moves and renames.",
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
+    "Location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path"],
+      "properties": {
+        "path": { "description": "Path relative to the repository root, using `/` separators.", "type": "string", "minLength": 1 },
+        "symbol": { "description": "Symbol within the file, e.g. `RefundService.issue`.", "type": "string", "minLength": 1 }
+      }
+    },
+    "Complexity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cyclomatic": { "type": "integer", "minimum": 1 },
+        "loc": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "Governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "owners": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "tags": {
+          "description": "Free-form tags. A `key:value` form such as `domain:billing` is conventional.",
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "invariants": { "type": "array", "items": { "$ref": "#/$defs/Invariant" } }
+      }
+    },
+    "Invariant": {
+      "description": "A rule the node must always satisfy. `text` is for people; the optional `rule` is checked by `intensify drift`.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "text"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+        "text": { "type": "string", "minLength": 1 },
+        "rule": { "$ref": "#/$defs/InvariantRule" }
+      }
+    },
+    "InvariantRule": {
+      "description": "Machine-checkable form of an invariant. Exactly one rule type per invariant.",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "forbid_edge": { "$ref": "#/$defs/EdgePattern" },
+        "require_edge": { "$ref": "#/$defs/EdgePattern" },
+        "allowed_dependents": { "$ref": "#/$defs/DependentsPattern" }
+      }
+    },
+    "EdgePattern": {
+      "description": "Matches outgoing edges of the node (and its descendants) by type and target.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["to"],
+      "properties": {
+        "type": { "$ref": "#/$defs/EdgeType" },
+        "to": { "description": "Glob over target node refs, e.g. `db.*`.", "type": "string", "minLength": 1 }
+      }
+    },
+    "DependentsPattern": {
+      "description": "Only nodes matching these globs may have edges into the node (or its descendants).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from"],
+      "properties": {
+        "type": { "$ref": "#/$defs/EdgeType" },
+        "from": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "Edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "type"],
+      "properties": {
+        "from": { "$ref": "#/$defs/NodeRef" },
+        "to": { "$ref": "#/$defs/NodeRef" },
+        "type": { "$ref": "#/$defs/EdgeType" },
+        "description": { "type": "string" },
+        "lifecycle_state": { "$ref": "#/$defs/LifecycleState", "default": "active" },
+        "confidence": { "$ref": "#/$defs/Confidence", "default": "high" },
+        "provenance": { "$ref": "#/$defs/Provenance", "default": "manual" }
+      }
+    },
+    "DriftCategory": {
+      "type": "string",
+      "enum": [
+        "undocumented_node",
+        "missing_node",
+        "undocumented_edge",
+        "contract_mismatch",
+        "invariant_violation",
+        "moved_node",
+        "unenriched_node"
+      ]
+    },
+    "Config": {
+      "description": "Settings for the CLI. All fields are optional.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "analyze": { "$ref": "#/$defs/AnalyzeConfig" },
+        "drift": { "$ref": "#/$defs/DriftConfig" },
+        "verify": { "$ref": "#/$defs/VerifyConfig" }
+      }
+    },
+    "AnalyzeConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "include": { "description": "Globs of files to analyze. Defaults to all files not ignored by git.", "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "exclude": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "depth": {
+          "description": "Finest node kind to create.",
+          "type": "string",
+          "enum": ["module", "class", "function"],
+          "default": "function"
+        },
+        "public_only": { "description": "Skip private symbols (leading underscore, or not exported).", "type": "boolean", "default": true }
+      }
+    },
+    "DriftConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fail_on": {
+          "description": "Drift categories that fail the check. Others are reported as warnings.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/DriftCategory" },
+          "default": ["undocumented_edge", "contract_mismatch", "invariant_violation", "missing_node"]
+        },
+        "ignore_low_confidence": { "type": "boolean", "default": true }
+      }
+    },
+    "VerifyConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "test_command": {
+          "description": "Command that runs tests. `{tests}` is replaced with the test files that verify the node.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

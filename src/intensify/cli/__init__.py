@@ -5,6 +5,8 @@ from typing import Annotated
 import typer
 
 from intensify import __version__
+from intensify.cli.init import init
+from intensify.cli.validate import validate
 
 app = typer.Typer(
     name="intensify",
@@ -34,6 +36,10 @@ def root(
     ] = False,
 ) -> None:
     """Define, visualize, and enforce the intent of your codebase."""
+
+
+app.command()(init)
+app.command()(validate)
 
 
 def main() -> None:
