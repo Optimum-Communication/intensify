@@ -1,0 +1,370 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Optimum-Communication/intensify/main/spec/v1.0/schema.json
+#
+# Intensify spec: the intent graph of this repository.
+# Reference: https://github.com/Optimum-Communication/intensify/blob/main/spec/v1.0/spec.md
+intensify: "1.0"
+
+project:
+  id: py-shop
+  name: "py_shop"
+
+config:
+  analyze:
+    depth: function  # finest node kind `intensify analyze` creates: module | class | function
+    public_only: true  # skip private symbols
+  drift:
+    fail_on: [undocumented_edge, contract_mismatch, invariant_violation, missing_node]
+
+nodes:
+  - id: py-shop
+    kind: repo
+    lifecycle_state: active
+    intent:
+      summary: "TODO: describe intent"
+  - id: shop
+    kind: module
+    parent_id: py-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/shop/__init__.py}
+      complexity: {loc: 6}
+      fingerprint: sha256:08e7b55db554d4600e2a5f0ae0564b799c1f2b6128376ca5b066dee3135e4d17
+  - id: shop.cart
+    kind: module
+    parent_id: shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/shop/cart.py}
+      complexity: {loc: 34}
+      fingerprint: sha256:a4edd54dd99dd41d2981280206900ce1946b67c3bd76c2bcf8c08c534c4b3d32
+  - id: shop.cart.CartError
+    kind: class
+    parent_id: shop.cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/shop/cart.py, symbol: CartError}
+      signature: class CartError(Exception)
+      complexity: {loc: 2}
+      fingerprint: sha256:b785603c221beb0ea4707ffb6a019dcd35c0fa69723e95f688bd244fae334109
+  - id: shop.cart.Cart
+    kind: class
+    parent_id: shop.cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/shop/cart.py, symbol: Cart}
+      signature: class Cart
+      complexity: {loc: 20}
+      fingerprint: sha256:b411b5da297445805ccd701ef2bca42b9f0afc66996519a16f2c2b0a58dda873
+  - id: shop.cart.Cart.__init__
+    kind: function
+    parent_id: shop.cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: owner, type: str}
+    technical:
+      language: python
+      location: {path: src/shop/cart.py, symbol: Cart.__init__}
+      signature: 'def __init__(self, owner: str) -> None'
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:69f1fcad9b651f7ce935cb0e7a6a6406de9c5fa57c86bedcfd42877c2d18b2a1
+  - id: shop.cart.Cart.add
+    kind: function
+    parent_id: shop.cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: sku, type: str}
+        - {name: cents, type: int}
+        - {name: qty, type: int, required: false}
+      errors:
+        - {type: CartError}
+    technical:
+      language: python
+      location: {path: src/shop/cart.py, symbol: Cart.add}
+      signature: 'def add(self, sku: str, cents: int, qty: int = 1) -> None'
+      complexity: {cyclomatic: 3, loc: 6}
+      fingerprint: sha256:6894846b0225f60e508a276092f7cedeb031f7d2cb6b8b6e6636e7383b2ca262
+  - id: shop.cart.Cart.total
+    kind: function
+    parent_id: shop.cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: code, type: str | None, required: false}
+      outputs:
+        - {type: int}
+    technical:
+      language: python
+      location: {path: src/shop/cart.py, symbol: Cart.total}
+      signature: 'def total(self, code: str | None = None) -> int'
+      complexity: {cyclomatic: 2, loc: 3}
+      fingerprint: sha256:096dba240d0a8cf2be8e703798026e68657d579a3da838e7ec834a3f6bb10ee1
+  - id: shop.payments
+    kind: module
+    parent_id: shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/shop/payments/__init__.py}
+      complexity: {loc: 1}
+      fingerprint: sha256:2748e84fd8037b1197c4fabc8098be187c21f3d3cae20f5a49ba13e7d215d704
+  - id: shop.payments.gateway
+    kind: module
+    parent_id: shop.payments
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/shop/payments/gateway.py}
+      complexity: {loc: 26}
+      fingerprint: sha256:1ba2804141f8e4d084705523ebdd1957d340f23a60fa3045199795b5c7d73b9d
+  - id: shop.payments.gateway.Gateway
+    kind: class
+    parent_id: shop.payments.gateway
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/shop/payments/gateway.py, symbol: Gateway}
+      signature: class Gateway(ABC)
+      complexity: {loc: 3}
+      fingerprint: sha256:311159fab4d55eceac8673c2ae86c558df382d147f65b54cf2903ae7bd47320a
+  - id: shop.payments.gateway.Gateway.charge
+    kind: function
+    parent_id: shop.payments.gateway.Gateway
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: int}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/shop/payments/gateway.py, symbol: Gateway.charge}
+      signature: 'def charge(self, cents: int) -> str'
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:24180f52cc0f722ee604cdf3c7ebae164e3701fb37adb79984675b2ab3848a07
+  - id: shop.payments.gateway.StripeGateway
+    kind: class
+    parent_id: shop.payments.gateway
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/shop/payments/gateway.py, symbol: StripeGateway}
+      signature: class StripeGateway(Gateway)
+      complexity: {loc: 12}
+      fingerprint: sha256:a0c6a759a863531773080776557ed020202b6e4d8728097ae68cf9eb9b64411b
+  - id: shop.payments.gateway.StripeGateway.charge
+    kind: function
+    parent_id: shop.payments.gateway.StripeGateway
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: int}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/shop/payments/gateway.py, symbol: StripeGateway.charge}
+      signature: 'def charge(self, cents: int) -> str'
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:932c04837573ad8153fdedbdd977b26e7cc17866941cee2b830a1516e03f5188
+  - id: shop.payments.gateway.StripeGateway.checkout
+    kind: function
+    parent_id: shop.payments.gateway.StripeGateway
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cart, type: Cart}
+      outputs:
+        - {type: str}
+      errors:
+        - {type: CartError}
+    technical:
+      language: python
+      location: {path: src/shop/payments/gateway.py, symbol: StripeGateway.checkout}
+      signature: 'def checkout(self, cart: Cart) -> str'
+      complexity: {cyclomatic: 2, loc: 4}
+      fingerprint: sha256:4dc6a409a641d735f2d5114426ac408babbed8a3b76f31d52e4e1bb8d9f1fb20
+  - id: shop.payments.gateway.StripeGateway.currency
+    kind: function
+    parent_id: shop.payments.gateway.StripeGateway
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: '*codes', type: str, required: false}
+        - {name: '**opts', required: false}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/shop/payments/gateway.py, symbol: StripeGateway.currency}
+      signature: 'def currency(*codes: str, **opts) -> str'
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:2faa06bb52d93bfd9308c42a1d69fa4ebb11779110d2fcf7ac93564a97c31b4d
+  - id: shop.payments.retry
+    kind: module
+    parent_id: shop.payments
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/shop/payments/retry.py}
+      complexity: {loc: 9}
+      fingerprint: sha256:8195d1bb5492c0294e720bd04bcdf12d5440e36c2f78e66acc82cb13f341a0cf
+  - id: shop.payments.retry.with_retries
+    kind: function
+    parent_id: shop.payments.retry
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: fn}
+        - {name: attempts, type: int, required: false}
+    technical:
+      language: python
+      location: {path: src/shop/payments/retry.py, symbol: with_retries}
+      signature: 'def with_retries(fn, attempts: int = 3)'
+      complexity: {cyclomatic: 4, loc: 8}
+      fingerprint: sha256:77b5fc843b9b535c12bc892278d256b3f5719d3c77f253fe3480900fc82b8ef8
+  - id: shop.pricing
+    kind: module
+    parent_id: shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/shop/pricing.py}
+      complexity: {loc: 20}
+      fingerprint: sha256:7d03a6fdb5b2c1a0fed46d9a2cd7fc4b426fad0d49cb718cb22f2baa5eeb3614
+  - id: shop.pricing.subtotal
+    kind: function
+    parent_id: shop.pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: items, type: 'list[tuple[str, int]]'}
+      outputs:
+        - {type: int}
+    technical:
+      language: python
+      location: {path: src/shop/pricing.py, symbol: subtotal}
+      signature: 'def subtotal(items: list[tuple[str, int]]) -> int'
+      complexity: {cyclomatic: 2, loc: 2}
+      fingerprint: sha256:869497ec83236c35d11770de7d24062961df5688cae71be1ab921224eba9e1fa
+  - id: shop.pricing.apply_discount
+    kind: function
+    parent_id: shop.pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: int}
+        - {name: code, type: str}
+      outputs:
+        - {type: int}
+    technical:
+      language: python
+      location: {path: src/shop/pricing.py, symbol: apply_discount}
+      signature: 'def apply_discount(cents: int, code: str) -> int'
+      complexity: {cyclomatic: 4, loc: 6}
+      fingerprint: sha256:c2a7af7a556088c4d2a932165668f26cec46f45e1b4629b4dc8efeafcea500b1
+  - id: shop.pricing.with_tax
+    kind: function
+    parent_id: shop.pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: int}
+      outputs:
+        - {type: int}
+    technical:
+      language: python
+      location: {path: src/shop/pricing.py, symbol: with_tax}
+      signature: 'def with_tax(cents: int) -> int'
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:8c12154b15897d27f4496018bf8f0433bd359529ad56d8f76a1d00adc1aea6bc
+  - id: tests.test_cart
+    kind: module
+    parent_id: py-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: tests/test_cart.py}
+      complexity: {loc: 13}
+      fingerprint: sha256:8d21ad4365a8f47ddcccacff7618f9d8437bd9003d85584e20fc89a7fd48ef9e
+edges:
+  - {from: shop.cart.Cart.add, to: shop.cart.CartError, type: CALLS, provenance: analyzed}
+  - {from: shop.cart.Cart.total, to: shop.pricing.apply_discount, type: CALLS, provenance: analyzed}
+  - {from: shop.cart.Cart.total, to: shop.pricing.subtotal, type: CALLS, provenance: analyzed}
+  - {from: shop.payments.gateway.StripeGateway, to: shop.payments.gateway.Gateway, type: IMPLEMENTS, provenance: analyzed}
+  - {from: shop.payments.gateway.StripeGateway.charge, to: shop.payments.retry.with_retries, type: CALLS, provenance: analyzed}
+  - {from: shop.payments.gateway.StripeGateway.checkout, to: shop.cart.CartError, type: CALLS, provenance: analyzed}
+  - {from: shop.payments.gateway.StripeGateway.checkout, to: shop.payments.gateway.StripeGateway.charge, type: CALLS, provenance: analyzed}
+  - {from: tests.test_cart, to: shop.cart.Cart, type: VERIFIES, provenance: analyzed}
+  - {from: tests.test_cart, to: shop.pricing.apply_discount, type: VERIFIES, provenance: analyzed}

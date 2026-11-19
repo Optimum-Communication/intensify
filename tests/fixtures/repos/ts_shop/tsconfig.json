@@ -1,0 +1,8 @@
+{
+  // Path aliases are resolved by the analyzer.
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "paths": { "@/*": ["src/*"] }, /* trailing comma below */
+  },
+}

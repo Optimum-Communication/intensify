@@ -1,3 +1,8 @@
 # Fixture repositories
 
-Small sample Python and TypeScript projects used by golden tests for `analyze`, `drift` and `context`. Each fixture may have "after" variants (moved function, new dependency, changed signature, invariant violation).
+Small sample projects the analyzers run against. They are not project code: ruff, mypy and pytest collection all skip this directory.
+
+- `py_shop/`: a Python package with subpackages, relative imports, aliases, a private module, inheritance and a test file.
+- `ts_shop/`: TypeScript and JavaScript with `tsconfig.json` path aliases (and comments), re-exports through `index.ts`, an interface, `.js` import specifiers and a test file.
+
+Tests copy a fixture into a temporary directory before running `init` / `analyze` on it.

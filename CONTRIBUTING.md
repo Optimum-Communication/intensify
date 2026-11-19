@@ -35,7 +35,8 @@ uv run pre-commit install
 | `src/intensify/mcp/` | MCP server |
 | `skills/` | AI agent skills |
 | `action/` | CI integrations |
-| `tests/fixtures/repos/` | Small sample repos used by golden tests |
+| `tests/fixtures/repos/` | Small sample repos the analyzers run against (not project code: excluded from ruff, mypy and pytest collection) |
+| `tests/golden/` | Exact `intensify.yaml` output of `init --analyze` per fixture repo |
 
 ## Schema changes
 
@@ -45,6 +46,15 @@ uv run pre-commit install
 - `src/intensify/spec/schemas/vX.Y.json`: a copy of the schema shipped inside the package for validation.
 
 Never edit either by hand. Change the schema, run `make gen`, and commit all three. Keep `spec.md` and `examples/` in step: the tests validate every example. Published versions of the schema are immutable, so breaking changes need a new version directory.
+
+## Golden files
+
+`tests/unit/test_golden.py` compares `init --analyze` on each fixture repo with `tests/golden/`. After a deliberate change to analyzer output, regenerate them and review the diff:
+
+```sh
+INTENSIFY_UPDATE_GOLDEN=1 uv run pytest tests/unit/test_golden.py
+git diff tests/golden/
+```
 
 ## Commits and pull requests
 

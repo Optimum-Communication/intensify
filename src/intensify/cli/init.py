@@ -9,6 +9,8 @@ from typing import Annotated
 
 import typer
 
+from intensify.cli.analyze import print_report
+from intensify.cli.analyze import run as run_analyze
 from intensify.spec import load_and_validate
 from intensify.spec.constants import (
     DEFAULT_FILENAME,
@@ -83,6 +85,9 @@ def init(
         typer.Option(help="One-line intent of the repository."),
     ] = None,
     force: Annotated[bool, typer.Option("--force", help="Overwrite an existing file.")] = False,
+    analyze: Annotated[
+        bool, typer.Option("--analyze", help="Populate nodes from source code straight away.")
+    ] = False,
 ) -> None:
     """Create a starter intensify.yaml in the repository root."""
     directory.mkdir(parents=True, exist_ok=True)
@@ -113,5 +118,7 @@ def init(
         raise RuntimeError(f"generated spec is invalid: {details}")
 
     typer.secho(f"Created {target}", fg="green")
+    if analyze:
+        print_report(run_analyze(target), dry_run=False, verbose=False)
     if summary is None:
         typer.echo("Next: describe the repository's intent in nodes[0].intent.summary.")

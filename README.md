@@ -9,7 +9,7 @@ This repository holds the open-source pieces:
 - **AI skills** (`skills/`): enrichment (draft intent from code and git history) and node implementation for coding agents.
 - **CI integration** (`action/`): a GitHub Action and a GitLab CI template for drift checks on pull requests.
 
-> **Status:** pre-alpha. Spec v1.0, `init` and `validate` work. Everything else is in progress.
+> **Status:** pre-alpha. Spec v1.0, `init`, `validate` and `analyze` (Python, TypeScript and JavaScript) work. Everything else is in progress.
 
 ## Install
 
@@ -22,11 +22,13 @@ intensify --version
 
 ```sh
 cd your-repo
-intensify init       # writes intensify.yaml with a root node
-intensify validate   # checks it against the spec
+intensify init --analyze   # writes intensify.yaml, populated from your code
+intensify validate         # checks it against the spec
 ```
 
-Then describe your system by adding nodes. Planned nodes need only an `id`, a `kind` and an `intent.summary`:
+`analyze` adds a node for each module, class and function, with a placeholder intent for you (or the enrichment skill) to fill in. Re-run `intensify analyze` after code changes: it follows renames and moves and never overwrites what you wrote. See [docs/analyze.md](docs/analyze.md).
+
+To plan new work, add nodes by hand. Planned nodes need only an `id`, a `kind` and an `intent.summary`:
 
 ```yaml
 nodes:
