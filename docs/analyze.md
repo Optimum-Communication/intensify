@@ -31,7 +31,28 @@ In Go, exported (capitalized) names are public. A method is a child of its recei
 
 In Java, `public` and `protected` members are public, and so are interface members that aren't `private`. A call on a variable resolves through the declared type of the local variable, parameter or field (`var x = new T()` counts). Calls on the result of another call, or on a variable's field, aren't followed. Overloaded methods get suffixed IDs (`Cart.add`, `Cart.add-2`), and calls resolve to the first overload. Test files are those under a `test` or `tests` directory (Maven's and Gradle's `src/test/java`), plus `*Test`, `*Tests`, `*TestCase`, `*IT` and `Test*` classes. `package-info.java` and `module-info.java` are skipped.
 
-`READS_FROM` and `WRITES_TO` aren't inferred, because static analysis can't detect them reliably. Add them by hand.
+### Data access
+
+`READS_FROM` and `WRITES_TO` edges are inferred by pattern matching, so they get `confidence: medium`. The spec has no node kind for tables, so an edge points at the model class that owns the table:
+
+| ORM | Model | Table name |
+|---|---|---|
+| SQLAlchemy | a class with `__tablename__` | `__tablename__` |
+| SQLModel | a class with `table=True` | class name, lower case |
+| Django | a `models.Model` subclass | `Meta.db_table`, else `<app>_<model>` |
+| JPA (Java, Kotlin) | an `@Entity` class | `@Table(name = ...)`, else the class name or its snake-case plural |
+| TypeORM | an `@Entity` class | `@Entity("name")`, else the class name or its snake-case plural |
+| GORM | a struct embedding `gorm.Model`, or with a `TableName()` method | `TableName()`, else the snake-case plural |
+
+Code reaches a model in three ways:
+
+- **SQL in a string literal**, in any language: the tables after `FROM` and `JOIN` are read, and the tables after `INSERT INTO`, `UPDATE`, `DELETE FROM`, `MERGE INTO` and `TRUNCATE` are written. Strings joined with `+`, Python's implicit concatenation and JPQL (`from Order o`) count. A string at module or class level, such as a query constant, belongs to that module or class.
+- **A call that names the model**: `select(Order)`, `delete(Order)`, `session.get(Customer, 1)`, `em.find(Product.class, id)`, `getRepository(User).find()`, `g.Create(&Payment{})`, `Order.objects.filter(...)` (Django) and `Order.query...` (Flask-SQLAlchemy). A call that constructs one, such as `session.add(Order(...))`, counts as a write.
+- **A call on a repository**: a variable, field or parameter typed as a Spring Data repository (`interface ProductRepository extends JpaRepository<Product, Long>`) or as `Repository<User>` (TypeORM), or assigned from `getRepository(User)`.
+
+The method names in the call chain decide between reading and writing: `save`, `insert`, `update`, `delete`, `create`, `add`, `persist` and similar are writes; `find`, `get`, `filter`, `select`, `count`, `all` and similar are reads. A write anywhere in the chain wins, so `Order.objects.filter(...).delete()` writes.
+
+Tables with no model in the analyzed code produce no edges, and neither do tests. Ambiguous names are dropped: two models whose default table names collide, or two models of one name. What isn't detected: writes through an instance whose type isn't written down (Django's `order.save()`), queries built up from pieces at run time, and stored procedures. Prose that happens to read like a query and names a real table (`"Select an order from orders"`) gives a false edge, and `analyze` adds it back if you delete it; reword the string, or leave its file out with `config.analyze.exclude`. Edges you add by hand are never removed, and an analyzed edge that matches one isn't added twice.
 
 ### Which files
 

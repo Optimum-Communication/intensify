@@ -19,7 +19,9 @@ GOLDEN = REPO_ROOT / "tests" / "golden"
 runner = CliRunner()
 
 
-@pytest.mark.parametrize("fixture", ["py_shop", "ts_shop", "java_shop", "kotlin_shop", "go_shop"])
+@pytest.mark.parametrize(
+    "fixture", ["py_shop", "ts_shop", "java_shop", "kotlin_shop", "go_shop", "data_shop"]
+)
 def test_init_analyze_matches_golden(copy_repo: CopyRepo, fixture: str) -> None:
     root = copy_repo(fixture)
     project_id = fixture.replace("_", "-")
