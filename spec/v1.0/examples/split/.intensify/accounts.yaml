@@ -1,0 +1,7 @@
+intensify: "1.0"
+nodes:
+  - id: monolith.accounts
+    kind: module
+    parent_id: monolith
+    intent:
+      summary: User accounts and organizations.

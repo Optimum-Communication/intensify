@@ -17,6 +17,8 @@ uv run pre-commit install
 | `make typecheck` | `mypy` in strict mode over `src/` and `tests/` |
 | `make test` | `pytest` |
 | `make fmt` | Auto-fix lint issues and format code |
+| `make gen` | Regenerate the Pydantic models and packaged schema from `spec/` |
+| `make check-gen` | Fail if generated files are stale (runs in CI) |
 
 ## Layout
 
@@ -37,7 +39,12 @@ uv run pre-commit install
 
 ## Schema changes
 
-`spec/vX.Y/schema.json` is the source of truth. Never edit the generated Pydantic models by hand. Change the schema, regenerate, and commit both. Published versions of the schema are immutable, so breaking changes need a new version directory.
+`spec/vX.Y/schema.json` is the source of truth. `make gen` derives two files from it:
+
+- `src/intensify/spec/models.py`: Pydantic models, generated with datamodel-code-generator.
+- `src/intensify/spec/schemas/vX.Y.json`: a copy of the schema shipped inside the package for validation.
+
+Never edit either by hand. Change the schema, run `make gen`, and commit all three. Keep `spec.md` and `examples/` in step: the tests validate every example. Published versions of the schema are immutable, so breaking changes need a new version directory.
 
 ## Commits and pull requests
 

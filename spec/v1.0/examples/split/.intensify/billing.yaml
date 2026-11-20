@@ -1,0 +1,15 @@
+# Fragments hold nodes and edges only.
+intensify: "1.0"
+nodes:
+  - id: monolith.billing
+    kind: module
+    parent_id: monolith
+    intent:
+      summary: Subscription plans and invoicing.
+  - id: monolith.billing.invoices
+    kind: module
+    parent_id: monolith.billing
+    intent:
+      summary: Generates monthly invoices.
+edges:
+  - {from: monolith.billing.invoices, to: monolith.accounts, type: READS_FROM}

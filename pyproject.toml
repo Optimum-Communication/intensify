@@ -18,6 +18,9 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
+    "jsonschema>=4.26.0",
+    "pydantic>=2.14.4",
+    "ruamel-yaml>=0.19.1",
     "typer>=0.29.2",
 ]
 
@@ -49,11 +52,13 @@ ignore = ["PLR0913"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["PLR2004"]
+"src/intensify/spec/models.py" = ["E501"]  # generated
 
 [tool.mypy]
 python_version = "3.11"
 strict = true
 files = ["src", "tests"]
+plugins = ["pydantic.mypy"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -61,8 +66,10 @@ addopts = ["-ra", "--strict-markers", "--strict-config"]
 
 [dependency-groups]
 dev = [
+    "datamodel-code-generator>=0.98.0",
     "mypy>=2.4.1",
     "pre-commit>=4.7.0",
     "pytest>=9.2.0",
     "ruff>=0.17.6",
+    "types-jsonschema>=4.26.0.20261006",
 ]
