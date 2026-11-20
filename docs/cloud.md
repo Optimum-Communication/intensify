@@ -6,7 +6,7 @@ Everything in Intensify works locally. Intensify Cloud adds what one repository 
 - blast radius across repositories;
 - nodes planned in the browser, pulled into each repository's `intensify.yaml`.
 
-**What leaves your machine:** only the contents of `intensify.yaml` and its fragment files, plus the commit SHA you push from. Source code is never sent. The complete contract is [`spec/sync-api/v1/openapi.yaml`](../spec/sync-api/v1/openapi.yaml).
+**What leaves your machine:** only the contents of `intensify.yaml` and its fragment files, plus the commit SHA you push from and the repository's `origin` URL (used to link to source files and to match pull requests). Credentials in the remote URL are stripped. Source code is never sent. The complete contract is [`spec/sync-api/v1/openapi.yaml`](../spec/sync-api/v1/openapi.yaml).
 
 ## Log in
 
@@ -79,6 +79,14 @@ Nodes and edges planned in the cloud arrive with `provenance: cloud` and `lifecy
 | any | you deleted it | your deletion is kept |
 
 Conflicts are reported and make the command exit with 1, and they stay until you resolve them. Edit the node, or pull with `--theirs`. If the merged spec would be invalid, for example because a planned node's parent is missing, nothing is written.
+
+## Plan in the browser
+
+In the web explorer, **Plan** lets you add planned nodes inside any node, and draw planned dependencies between nodes, across repositories. The impact panel shows everything that would be affected and who owns it. Plans wait in the cloud, marked `cloud`, until each repository runs `intensify sync pull`.
+
+## Architecture diffs on pull requests
+
+With the Intensify GitHub App installed, every pull request in a linked repository gets an **Intensify architecture** check. It summarizes which nodes and edges the pull request adds, removes or changes, and links to a visual diff. It fails if the pull request makes `intensify.yaml` invalid. Use it alongside [`intensify drift`](drift.md): drift checks that the code matches the spec, and the architecture check shows reviewers how the spec itself changes.
 
 ## Self-hosting
 
