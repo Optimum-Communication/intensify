@@ -67,3 +67,33 @@ def fingerprint(node: Node, identifier_types: frozenset[str]) -> str:
 
 def line_count(node: Node) -> int:
     return node.end_point.row - node.start_point.row + 1
+
+
+_MEMBER_ACCESS = frozenset(
+    {
+        "attribute",
+        "member_expression",
+        "navigation_expression",
+        "selector_expression",
+        "field_access",
+        "scoped_identifier",
+        "scoped_type_identifier",
+        "qualified_type",
+        "user_type",
+        "nested_identifier",
+    }
+)
+_GENERIC = frozenset({"generic_type", "index_expression", "generic_expression"})
+
+
+def name_point(node: Node) -> tuple[int, int]:
+    """Row and byte column of the name a callee expression ends in (``c`` in ``a.b.c``)."""
+    while node.named_children:
+        if node.type in _GENERIC:
+            node = node.named_children[0]
+        elif node.type in _MEMBER_ACCESS:
+            names = [c for c in node.named_children if "identifier" in c.type]
+            node = names[-1] if names else node.named_children[-1]
+        else:
+            break
+    return node.start_point.row, node.start_point.column

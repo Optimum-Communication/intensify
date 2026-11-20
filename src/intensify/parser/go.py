@@ -20,7 +20,15 @@ from tree_sitter import Language, Node, Parser
 
 from intensify.parser import ids
 from intensify.parser.base import AnalysisResult, AnalyzeOptions, Dependency, Symbol
-from intensify.parser.treesitter import fingerprint, header, line_count, squash, text, walk
+from intensify.parser.treesitter import (
+    fingerprint,
+    header,
+    line_count,
+    name_point,
+    squash,
+    text,
+    walk,
+)
 from intensify.spec.models import Confidence, EdgeType, NodeKind
 
 LANGUAGE = Language(tree_sitter_go.language())
@@ -93,6 +101,8 @@ class _Call:
     base: _Ref | None
     path: tuple[str, ...]
     """Receiver path plus function name, or a type's chain for a composite literal."""
+    point: tuple[int, int] = (0, 0)
+    """Position of the called name, for a language server."""
     construct: bool = False
 
 
@@ -108,6 +118,8 @@ class _Module:
     """Alias (None for none) and import path of each named import."""
     dot_imports: list[str] = field(default_factory=list)
     calls: list[_Call] = field(default_factory=list)
+    sites: list[tuple[str, tuple[int, int]]] = field(default_factory=list)
+    """Scope and position of calls that can't be resolved statically at all."""
 
 
 @dataclass
@@ -185,9 +197,16 @@ class GoAnalyzer:
         result.dependencies.extend(resolver.implements())
         test_ids = {s.id for m, _ in modules if m.is_test for s in m.symbols}
         for module, _ in modules:
+            for scope, point in module.sites:
+                origin = module.id if module.is_test else scope
+                result.site(origin, module.is_test, module.path, point)
             for call in module.calls:
                 target = resolver.call(module, call)
-                if target is None or target in test_ids:
+                if target is None:
+                    origin = module.id if module.is_test else call.scope
+                    result.site(origin, module.is_test, module.path, call.point)
+                    continue
+                if target in test_ids:
                     continue
                 if module.is_test:
                     result.dependencies.append(Dependency(module.id, target, EdgeType.VERIFIES))
@@ -443,19 +462,38 @@ class _State:
                         local_names.add(text(ident))
                         local_types.pop(text(ident), None)
             elif n.type == "composite_literal":
-                ref = _type_ref(n.child_by_field_name("type"))
-                if ref is not None and ref.depth == 0:
-                    module.calls.append(_Call(scope, None, ref.chain, construct=True))
+                type_node = n.child_by_field_name("type")
+                ref = _type_ref(type_node)
+                if ref is not None and ref.depth == 0 and type_node is not None:
+                    point = name_point(type_node)
+                    module.calls.append(_Call(scope, None, ref.chain, point, construct=True))
             elif n.type == "call_expression":
-                path = _path(_unwrap_generic(n.child_by_field_name("function")))
-                if path is None:
-                    continue
-                head = path[0]
-                if head in local_names:
-                    if head in local_types and len(path) > 1:
-                        module.calls.append(_Call(scope, local_types[head], path[1:]))
-                    continue
-                module.calls.append(_Call(scope, None, path))
+                self._call(module, n, scope, local_types, local_names)
+
+    @staticmethod
+    def _call(
+        module: _Module,
+        node: Node,
+        scope: str,
+        local_types: dict[str, _Ref],
+        local_names: set[str],
+    ) -> None:
+        function = _unwrap_generic(node.child_by_field_name("function"))
+        if function is None:
+            return
+        point = name_point(function)
+        path = _path(function)
+        if path is None:
+            module.sites.append((scope, point))  # a call on a call: a.B().C()
+            return
+        head = path[0]
+        if head not in local_names:
+            module.calls.append(_Call(scope, None, path, point))
+        elif len(path) > 1 and head in local_types:
+            module.calls.append(_Call(scope, local_types[head], path[1:], point))
+        elif len(path) > 1:
+            module.sites.append((scope, point))  # a method on an untyped local
+        # A call of a function value (``f()``) has nothing to resolve.
 
 
 class _Resolver:

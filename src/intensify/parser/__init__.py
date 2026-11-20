@@ -11,6 +11,8 @@ from intensify.parser.go import GoAnalyzer
 from intensify.parser.ids import Allocator
 from intensify.parser.java import JavaAnalyzer
 from intensify.parser.kotlin import KotlinAnalyzer
+from intensify.parser.lsp import LspOptions
+from intensify.parser.lsp import resolve as resolve_calls
 from intensify.parser.python import PythonAnalyzer
 from intensify.parser.typescript import TypeScriptAnalyzer
 from intensify.spec.models import NodeKind
@@ -30,6 +32,7 @@ def analyze_repo(
     options: AnalyzeOptions | None = None,
     include: list[str] | None = None,
     exclude: list[str] | None = None,
+    lsp: LspOptions | None = None,
 ) -> AnalysisResult:
     """Analyze every supported file under ``root``.
 
@@ -50,6 +53,13 @@ def analyze_repo(
         paths = [f for f in files if f.endswith(analyzer.extensions)]
         if paths:
             result.extend(analyzer.analyze(root, paths, options, allocator))
+    resolved = resolve_calls(root, result, lsp) if lsp is not None else set()
+    # Calls no server resolved keep their static guess (the first of several overloads).
+    result.dependencies.extend(
+        Dependency(site.source, site.fallback, site.type)
+        for site in result.call_sites
+        if site.fallback is not None and site not in resolved
+    )
     data.detect(root, result)
     _finalize(result, options)
     return result

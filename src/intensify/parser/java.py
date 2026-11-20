@@ -16,7 +16,7 @@ from tree_sitter import Language, Node, Parser
 
 from intensify.parser import ids
 from intensify.parser.base import AnalysisResult, AnalyzeOptions, Dependency, Symbol
-from intensify.parser.treesitter import fingerprint, line_count, squash, text, walk
+from intensify.parser.treesitter import fingerprint, line_count, name_point, squash, text, walk
 from intensify.spec.models import EdgeType, NodeKind
 
 LANGUAGE = Language(tree_sitter_java.language())
@@ -67,6 +67,8 @@ class _Call:
     class_ctx: str | None
     chain: list[str]
     """Receiver chain plus method name (``["Gateway", "charge"]``), or a type for ``new``."""
+    point: tuple[int, int] = (0, 0)
+    """Position of the called name, for a language server."""
     construct: bool = False
     is_super: bool = False
 
@@ -87,6 +89,8 @@ class _Module:
     """Member name -> fully qualified type name that declares it."""
     static_star_imports: list[str] = field(default_factory=list)
     calls: list[_Call] = field(default_factory=list)
+    sites: list[tuple[str, tuple[int, int]]] = field(default_factory=list)
+    """Scope and position of calls that can't be resolved statically at all."""
     heritage: list[tuple[str, list[str]]] = field(default_factory=list)
 
 
@@ -142,10 +146,20 @@ class JavaAnalyzer:
                 if target and target != class_id:
                     resolver.bases[class_id].append(target)
                     result.dependencies.append(Dependency(class_id, target, EdgeType.IMPLEMENTS))
+        overloaded = overloaded_methods(result.symbols)
         for module in modules:
+            for scope, point in module.sites:
+                source = module.id if module.is_test else scope
+                result.site(source, module.is_test, module.path, point)
             for call in module.calls:
                 target = resolver.call(module, call)
-                if target is None or target in test_ids:
+                source = module.id if module.is_test else call.scope
+                if target is None or target in overloaded:
+                    # Unresolved, or the first of several overloads: a language server can tell.
+                    if target is None or target not in test_ids:
+                        result.site(source, module.is_test, module.path, call.point, target)
+                    continue
+                if target in test_ids:
                     continue
                 if module.is_test:
                     result.dependencies.append(Dependency(module.id, target, EdgeType.VERIFIES))
@@ -294,33 +308,41 @@ class JavaAnalyzer:
         fields = self._fields.get(class_ctx, {})
         for n in [node, *walk(node)]:
             if n.type == "object_creation_expression":
-                if chain := _type_chain(n.child_by_field_name("type")):
-                    module.calls.append(_Call(scope, class_ctx, chain, construct=True))
+                type_node = n.child_by_field_name("type")
+                if (chain := _type_chain(type_node)) and type_node is not None:
+                    module.calls.append(
+                        _Call(scope, class_ctx, chain, name_point(type_node), construct=True)
+                    )
                 continue
             if n.type != "method_invocation":
                 continue
-            method = text(n.child_by_field_name("name"))
+            name_node = n.child_by_field_name("name")
+            method = text(name_node)
+            point = name_point(name_node) if name_node is not None else name_point(n)
             receiver = n.child_by_field_name("object")
             if receiver is None:
-                module.calls.append(_Call(scope, class_ctx, [method]))
+                module.calls.append(_Call(scope, class_ctx, [method], point))
                 continue
             if receiver.type == "super":
-                module.calls.append(_Call(scope, class_ctx, [method], is_super=True))
+                module.calls.append(_Call(scope, class_ctx, [method], point, is_super=True))
                 continue
             chain = _chain(receiver)
             if chain is None:
+                module.sites.append((scope, point))  # a call on a call: a.b().c()
                 continue
             # A variable's declared type stands in for the variable; variables shadow types.
             head, rest = chain[0], chain[1:]
             if head == "this":
                 if rest and (len(rest) > 1 or rest[0] not in fields):
+                    module.sites.append((scope, point))
                     continue
                 chain = fields[rest[0]] if rest else ["this"]
             elif head in local_types or head in fields:
                 if rest:
-                    continue  # a call through a field of a variable: type unknown
+                    module.sites.append((scope, point))  # through a field of a variable
+                    continue
                 chain = local_types.get(head) or fields[head]
-            module.calls.append(_Call(scope, class_ctx, [*chain, method]))
+            module.calls.append(_Call(scope, class_ctx, [*chain, method], point))
 
 
 class _Resolver:
@@ -415,6 +437,15 @@ class _Resolver:
             if (owner := self.index.get(star)) and (found := self.member(owner, method)):
                 return found
         return None
+
+
+def overloaded_methods(symbols: list[Symbol]) -> set[str]:
+    """IDs of methods that share their name with another method of the same class."""
+    groups: dict[tuple[str | None, str], list[str]] = {}
+    for sym in symbols:
+        if sym.kind is NodeKind.function:
+            groups.setdefault((sym.parent, sym.name), []).append(sym.id)
+    return {i for group in groups.values() if len(group) > 1 for i in group}
 
 
 def _package(program: Node) -> str:
