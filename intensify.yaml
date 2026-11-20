@@ -65,8 +65,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/cli/__init__.py}
-      complexity: {loc: 61}
-      fingerprint: sha256:cd0a6c80a84743c57ecfebabd12332246a2a22460b55d1d7556897fb35acbe7d
+      complexity: {loc: 67}
+      fingerprint: sha256:7427d72e87101b30e8304ac66d52e4d8bd7e6f037c014feeebf5750aa7ae8f65
     governance:
       invariants:
         - id: outermost-layer
@@ -684,6 +684,178 @@ nodes:
       signature: "def verify(node_id: Annotated[str, typer.Argument(help=\"Node to verify.\")], spec: Annotated[Path, typer.Option(\"--spec\", \"-s\", help=\"Spec file, or a directory containing intensify.yaml.\")] = Path(\".\"), run_tests: Annotated[bool, typer.Option(\"--run-tests/--skip-tests\", help=\"Run config.verify.test_command.\")] = True, require_tests: Annotated[bool, typer.Option(\"--require-tests/--allow-untested\", help=\"Fail if no test verifies the node.\")] = True, dry_run: Annotated[bool, typer.Option(\"--dry-run\", \"-n\", help=\"Check only; don't update the spec.\")] = False) -> None"
       complexity: {cyclomatic: 14, loc: 54}
       fingerprint: sha256:ff4b0f1176e802c1892d60f6a0a68817567bc74449e38406b8244ca0ef3b6936
+  - id: intensify.cli.cloud
+    kind: module
+    parent_id: intensify.cli
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: login, logout, whoami, project create|link|status|token and sync push|pull.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/cli/cloud.py}
+      complexity: {loc: 347}
+      fingerprint: sha256:66fc8773bbe5575f6e8f086158d46ee36a79b73ad44c82319f20b537e89d5534
+  - id: intensify.cli.cloud.login
+    kind: function
+    parent_id: intensify.cli.cloud
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: api_url, type: ApiUrlOption, required: false}
+        - {name: spec, type: SpecOption, required: false}
+        - {name: open_browser, type: "Annotated[\n        bool, typer.Option(\"--browser/--no-browser\", help=\"Open the approval page.\")\n    ]", required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/cloud.py, symbol: login}
+      signature: 'def login(api_url: ApiUrlOption = None, spec: SpecOption = Path("."), open_browser: Annotated[bool, typer.Option("--browser/--no-browser", help="Open the approval page.")] = True) -> None'
+      complexity: {cyclomatic: 7, loc: 32}
+      fingerprint: sha256:fd00b182408785538ad385f96b63acfb453a2cd80c0a07ca105859aa3f18d343
+  - id: intensify.cli.cloud.logout
+    kind: function
+    parent_id: intensify.cli.cloud
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: api_url, type: ApiUrlOption, required: false}
+        - {name: spec, type: SpecOption, required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/cloud.py, symbol: logout}
+      signature: 'def logout(api_url: ApiUrlOption = None, spec: SpecOption = Path(".")) -> None'
+      complexity: {cyclomatic: 6, loc: 17}
+      fingerprint: sha256:10305df17424898a89a65fd23967388e9a9319a8f9cfcc81c0f535d502311e22
+  - id: intensify.cli.cloud.whoami
+    kind: function
+    parent_id: intensify.cli.cloud
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: api_url, type: ApiUrlOption, required: false}
+        - {name: spec, type: SpecOption, required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/cloud.py, symbol: whoami}
+      signature: 'def whoami(api_url: ApiUrlOption = None, spec: SpecOption = Path(".")) -> None'
+      complexity: {cyclomatic: 5, loc: 17}
+      fingerprint: sha256:1dbc924a83038f18d8a37ca9f823c1a832ff91c1800f5c1f3a4a6e9f91f4f9f2
+  - id: intensify.cli.cloud.project_create
+    kind: function
+    parent_id: intensify.cli.cloud
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: slug, type: 'Annotated[str, typer.Argument(help="Project slug (lowercase).")]'}
+        - {name: org, type: "Annotated[\n        str | None, typer.Option(help=\"Organization. Defaults to your only one.\")\n    ]", required: false}
+        - {name: name, type: 'Annotated[str | None, typer.Option(help="Display name.")]', required: false}
+        - {name: api_url, type: ApiUrlOption, required: false}
+        - {name: spec, type: SpecOption, required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/cloud.py, symbol: project_create}
+      signature: 'def project_create(slug: Annotated[str, typer.Argument(help="Project slug (lowercase).")], org: Annotated[str | None, typer.Option(help="Organization. Defaults to your only one.")] = None, name: Annotated[str | None, typer.Option(help="Display name.")] = None, api_url: ApiUrlOption = None, spec: SpecOption = Path(".")) -> None'
+      complexity: {cyclomatic: 4, loc: 23}
+      fingerprint: sha256:ce8b389fe8ba1c04aa48f83d4c500991271926487799c2e4216b42a02f129ca0
+  - id: intensify.cli.cloud.project_link
+    kind: function
+    parent_id: intensify.cli.cloud
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: target, type: "Annotated[\n        str, typer.Argument(help=\"ORG/PROJECT, or PROJECT with your only organization.\")\n    ]"}
+        - {name: api_url, type: ApiUrlOption, required: false}
+        - {name: spec, type: SpecOption, required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/cloud.py, symbol: project_link}
+      signature: 'def project_link(target: Annotated[str, typer.Argument(help="ORG/PROJECT, or PROJECT with your only organization.")], api_url: ApiUrlOption = None, spec: SpecOption = Path(".")) -> None'
+      complexity: {cyclomatic: 4, loc: 19}
+      fingerprint: sha256:8797f0d2b6afe4fa8bfd9b600b2b4eb676cc4543c0fae26fb43f450c33166b1e
+  - id: intensify.cli.cloud.project_status
+    kind: function
+    parent_id: intensify.cli.cloud
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: spec, type: SpecOption, required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/cloud.py, symbol: project_status}
+      signature: 'def project_status(spec: SpecOption = Path(".")) -> None'
+      complexity: {cyclomatic: 6, loc: 24}
+      fingerprint: sha256:cf293892f01f7cef311c467eb8dc26f106c58437a594d8bf0a18bfd9e707c427
+  - id: intensify.cli.cloud.project_token
+    kind: function
+    parent_id: intensify.cli.cloud
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: name, type: "Annotated[str, typer.Argument(help=\"What will use it, e.g. 'GitHub Actions'.\")]"}
+        - {name: spec, type: SpecOption, required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/cloud.py, symbol: project_token}
+      signature: "def project_token(name: Annotated[str, typer.Argument(help=\"What will use it, e.g. 'GitHub Actions'.\")], spec: SpecOption = Path(\".\")) -> None"
+      complexity: {cyclomatic: 2, loc: 17}
+      fingerprint: sha256:36006a6a650c7ede1634d58c346f7c9d0db224b3ec32f435b58165f939c73f85
+  - id: intensify.cli.cloud.sync_push
+    kind: function
+    parent_id: intensify.cli.cloud
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: spec, type: SpecOption, required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/cloud.py, symbol: sync_push}
+      signature: 'def sync_push(spec: SpecOption = Path(".")) -> None'
+      complexity: {cyclomatic: 6, loc: 23}
+      fingerprint: sha256:282466e1f9fe33aa8cc4e2479e36538f61d9ad72076e71abfb5c770550a890f6
+  - id: intensify.cli.cloud.sync_pull
+    kind: function
+    parent_id: intensify.cli.cloud
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: spec, type: SpecOption, required: false}
+        - {name: theirs, type: "Annotated[\n        bool, typer.Option(\"--theirs\", help=\"Resolve conflicts in the cloud's favor.\")\n    ]", required: false}
+        - {name: dry_run, type: "Annotated[\n        bool, typer.Option(\"--dry-run\", \"-n\", help=\"Show what would change.\")\n    ]", required: false}
+      errors:
+        - {type: typer.Exit}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/cloud.py, symbol: sync_pull}
+      signature: "def sync_pull(spec: SpecOption = Path(\".\"), theirs: Annotated[bool, typer.Option(\"--theirs\", help=\"Resolve conflicts in the cloud's favor.\")] = False, dry_run: Annotated[bool, typer.Option(\"--dry-run\", \"-n\", help=\"Show what would change.\")] = False) -> None"
+      complexity: {cyclomatic: 11, loc: 41}
+      fingerprint: sha256:651c0f89aa24ec5a93ab3e98fd0fdbdda3c12a12894316e433b1a9498db59822
   - id: intensify.context
     kind: module
     parent_id: intensify-module
@@ -2489,8 +2661,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/spec/edit.py}
-      complexity: {loc: 168}
-      fingerprint: sha256:99558fa66bc53901ed3912dd97a27cf8ea2addeaa7962aa32f279b74c8cad0d2
+      complexity: {loc: 199}
+      fingerprint: sha256:bb63a471bb5c270bbe7c9155df7350a2f23596580025ee1a3d1addfe0024abdb
   - id: intensify.spec.edit.EditError
     kind: class
     parent_id: intensify.spec.edit
@@ -2614,8 +2786,8 @@ nodes:
       language: python
       location: {path: src/intensify/spec/edit.py, symbol: add_node}
       signature: 'def add_node(loaded: LoadedSpec, node: dict[str, Any]) -> None'
-      complexity: {cyclomatic: 22, loc: 36}
-      fingerprint: sha256:878aa17ddb2d38932f56402403f45d2c800a3e0f06937cbc09b60004d5f1286b
+      complexity: {cyclomatic: 19, loc: 33}
+      fingerprint: sha256:8abb330295d21de9285e7bf9d253acba5ec3a21ebb6568a4edf4b06bc86ab803
   - id: intensify.spec.edit.save
     kind: function
     parent_id: intensify.spec.edit
@@ -2637,6 +2809,43 @@ nodes:
       signature: 'def save(loaded: LoadedSpec) -> LoadedSpec'
       complexity: {cyclomatic: 7, loc: 16}
       fingerprint: sha256:ebcecdf1f1845c99d60b03bdbe2c35ece4672fc02e71cfd776c28844ad76de23
+  - id: intensify.spec.edit.canonical
+    kind: function
+    parent_id: intensify.spec.edit
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: value, type: 'dict[str, Any]'}
+        - {name: order, type: 'tuple[str, ...]'}
+      outputs:
+        - {type: 'dict[str, Any]'}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/edit.py, symbol: canonical}
+      signature: 'def canonical(value: dict[str, Any], order: tuple[str, ...]) -> dict[str, Any]'
+      complexity: {cyclomatic: 7, loc: 12}
+      fingerprint: sha256:42a84373107d11b8e60fa67824702f61cbd7ddf12a9c7e21fd5f3d024c478edb
+  - id: intensify.spec.edit.node_to_yaml
+    kind: function
+    parent_id: intensify.spec.edit
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node, type: 'dict[str, Any]'}
+      outputs:
+        - {type: CommentedMap}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/edit.py, symbol: node_to_yaml}
+      signature: 'def node_to_yaml(node: dict[str, Any]) -> CommentedMap'
+      complexity: {cyclomatic: 3, loc: 8}
+      fingerprint: sha256:ede54dbbea517b9223b6eeceb0ddb5af6e33e7be137be479eb53e34e3219acaa
   - id: intensify.spec.loader
     kind: module
     parent_id: intensify.spec
@@ -3508,6 +3717,793 @@ nodes:
       signature: 'def verify(spec_path: Path, node_id: str, *, run_tests: bool = True, require_tests: bool = True, dry_run: bool = False) -> VerifyResult'
       complexity: {cyclomatic: 34, loc: 91}
       fingerprint: sha256:5c4cc24fde966ce8803fdbf07db3dd4ed5e9760331d33d47d5ec1361a4a7a1c5
+  - id: intensify.cloud
+    kind: module
+    parent_id: intensify-module
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Intensify Cloud integration: credentials, the repository link, the sync API client, device login, push and pull.'
+      rationale: Kept apart from the rest of the library so everything except sync works with no account and no network.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/__init__.py}
+      complexity: {loc: 2}
+      fingerprint: sha256:4b013c5cee51a9b20b30fb64dae8ef9b8eb23121589a38a31ddd42a540e88aa1
+    governance:
+      invariants:
+        - id: cli-only
+          text: Only the CLI (and tests) talk to the cloud; analysis, drift, context and verify never need the network.
+          rule:
+            allowed_dependents:
+              from: [intensify.cloud*, intensify.cli*, tests.*]
+  - id: intensify.cloud.client
+    kind: module
+    parent_id: intensify.cloud
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: HTTP client for the sync API in spec/sync-api/v1/openapi.yaml, mapping errors to CloudError.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py}
+      complexity: {loc: 141}
+      fingerprint: sha256:674eb9614336876fb8f314f00bc8c83121ea53ed3125652b7720e4fec347108e
+  - id: intensify.cloud.client.CloudError
+    kind: class
+    parent_id: intensify.cloud.client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py, symbol: CloudError}
+      signature: class CloudError(Exception)
+      complexity: {loc: 12}
+      fingerprint: sha256:2868444622f5426b7512350a8e6a7a5b1ac3fa88e367cf5c217ee46e98a4cf86
+  - id: intensify.cloud.client.CloudError.__init__
+    kind: function
+    parent_id: intensify.cloud.client.CloudError
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: status, type: int}
+        - {name: code, type: str}
+        - {name: message, type: str}
+        - {name: details, type: 'list[str] | None', required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py, symbol: CloudError.__init__}
+      signature: 'def __init__(self, status: int, code: str, message: str, details: list[str] | None = None)'
+      complexity: {cyclomatic: 2, loc: 5}
+      fingerprint: sha256:147188b64664236530e22912f8f2d47762529f5f14df9785b0063160fcc4bd52
+  - id: intensify.cloud.client.Client
+    kind: class
+    parent_id: intensify.cloud.client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py, symbol: Client}
+      signature: class Client
+      complexity: {loc: 115}
+      fingerprint: sha256:36b937e056dd4103bc9810fed839f131a2ad12db787d416887462c7d4933eff8
+  - id: intensify.cloud.client.Client.__init__
+    kind: function
+    parent_id: intensify.cloud.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: api_url, type: str}
+        - {name: token, type: str | None, required: false}
+        - {name: transport, type: httpx.BaseTransport | None, required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py, symbol: Client.__init__}
+      signature: 'def __init__(self, api_url: str, token: str | None = None, *, transport: httpx.BaseTransport | None = None) -> None'
+      complexity: {cyclomatic: 2, loc: 13}
+      fingerprint: sha256:e2311ac3f24defd433fdbabf27e95bbe373c48ab7ab759449c50d76c68ac298c
+  - id: intensify.cloud.client.Client.close
+    kind: function
+    parent_id: intensify.cloud.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py, symbol: Client.close}
+      signature: def close(self) -> None
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:de3163053cdcf3f39b281b3205199e57ffaabcb05cd3179ad1133eda9d9ef881
+  - id: intensify.cloud.client.Client.request
+    kind: function
+    parent_id: intensify.cloud.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: method, type: str}
+        - {name: path, type: str}
+        - {name: json, type: Any, required: false}
+      outputs:
+        - {type: Any}
+      errors:
+        - {type: CloudError}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py, symbol: Client.request}
+      signature: 'def request(self, method: str, path: str, json: Any = None) -> Any'
+      complexity: {cyclomatic: 6, loc: 21}
+      fingerprint: sha256:1993abcfe7a3d55dd4680befb8587e8e24e02314de4dec468bab671361270caf
+  - id: intensify.cloud.client.Client.start_device_login
+    kind: function
+    parent_id: intensify.cloud.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: client_name, type: str}
+      outputs:
+        - {type: 'dict[str, Any]'}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py, symbol: Client.start_device_login}
+      signature: 'def start_device_login(self, client_name: str) -> dict[str, Any]'
+      complexity: {cyclomatic: 1, loc: 5}
+      fingerprint: sha256:7fcd162634358fc5b6b796a692a2bb8768084ba03f291c6e731649bedd7a9167
+  - id: intensify.cloud.client.Client.poll_device_token
+    kind: function
+    parent_id: intensify.cloud.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: device_code, type: str}
+      outputs:
+        - {type: 'dict[str, Any]'}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py, symbol: Client.poll_device_token}
+      signature: 'def poll_device_token(self, device_code: str) -> dict[str, Any]'
+      complexity: {cyclomatic: 1, loc: 5}
+      fingerprint: sha256:afca00db78f14a23bda179769a3f089e3a6e7b1ef59e3bcfffffd7de09b32ca8
+  - id: intensify.cloud.client.Client.me
+    kind: function
+    parent_id: intensify.cloud.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: 'dict[str, Any]'}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py, symbol: Client.me}
+      signature: def me(self) -> dict[str, Any]
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:28e14b9ac6948fa86c2ed33e653cfa5b260904278308bf3e244ce4ebc6520604
+  - id: intensify.cloud.client.Client.revoke_current_token
+    kind: function
+    parent_id: intensify.cloud.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py, symbol: Client.revoke_current_token}
+      signature: def revoke_current_token(self) -> None
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:0b01920f919620fd30bae692104d6e734f9ee8ef8cf6e7d72e600309cd1648be
+  - id: intensify.cloud.client.Client.create_project
+    kind: function
+    parent_id: intensify.cloud.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: org, type: str}
+        - {name: slug, type: str}
+        - {name: name, type: str | None}
+      outputs:
+        - {type: 'dict[str, Any]'}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py, symbol: Client.create_project}
+      signature: 'def create_project(self, org: str, slug: str, name: str | None) -> dict[str, Any]'
+      complexity: {cyclomatic: 2, loc: 4}
+      fingerprint: sha256:f5ee289260282d69ee5e8b2a9b48b3dae9486370056bcadca23a37cf03d35d34
+  - id: intensify.cloud.client.Client.get_project
+    kind: function
+    parent_id: intensify.cloud.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: org, type: str}
+        - {name: project, type: str}
+      outputs:
+        - {type: 'dict[str, Any]'}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py, symbol: Client.get_project}
+      signature: 'def get_project(self, org: str, project: str) -> dict[str, Any]'
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:40a241c42191389845e1ca6baaebeb3b23c15d2abfbab2f1d18e13f7bf487f35
+  - id: intensify.cloud.client.Client.link_repo
+    kind: function
+    parent_id: intensify.cloud.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: org, type: str}
+        - {name: project, type: str}
+        - {name: repo, type: str}
+        - {name: name, type: str | None}
+      outputs:
+        - {type: 'dict[str, Any]'}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py, symbol: Client.link_repo}
+      signature: 'def link_repo(self, org: str, project: str, repo: str, name: str | None) -> dict[str, Any]'
+      complexity: {cyclomatic: 2, loc: 6}
+      fingerprint: sha256:47b6b12f84291465ed0742e8a73c26f1209e21a62f4665f46b4d24bfc54ea3b3
+  - id: intensify.cloud.client.Client.create_project_token
+    kind: function
+    parent_id: intensify.cloud.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: org, type: str}
+        - {name: project, type: str}
+        - {name: name, type: str}
+      outputs:
+        - {type: 'dict[str, Any]'}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py, symbol: Client.create_project_token}
+      signature: 'def create_project_token(self, org: str, project: str, name: str) -> dict[str, Any]'
+      complexity: {cyclomatic: 1, loc: 5}
+      fingerprint: sha256:5541597fe445fa4bb9191a199996f53b19ab5ba5241d5642fe802784f9be4e9e
+  - id: intensify.cloud.client.Client.push
+    kind: function
+    parent_id: intensify.cloud.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: org, type: str}
+        - {name: project, type: str}
+        - {name: repo, type: str}
+        - {name: payload, type: 'dict[str, Any]'}
+      outputs:
+        - {type: 'dict[str, Any]'}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py, symbol: Client.push}
+      signature: 'def push(self, org: str, project: str, repo: str, payload: dict[str, Any]) -> dict[str, Any]'
+      complexity: {cyclomatic: 1, loc: 5}
+      fingerprint: sha256:a194c34a70edaad5b59df95cba0ab42113bbeea9a7e7ae41f224080bacfcccc0
+  - id: intensify.cloud.client.Client.cloud_nodes
+    kind: function
+    parent_id: intensify.cloud.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: org, type: str}
+        - {name: project, type: str}
+        - {name: repo, type: str}
+      outputs:
+        - {type: 'dict[str, Any]'}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py, symbol: Client.cloud_nodes}
+      signature: 'def cloud_nodes(self, org: str, project: str, repo: str) -> dict[str, Any]'
+      complexity: {cyclomatic: 1, loc: 5}
+      fingerprint: sha256:7451981c09febc4ee6ccca0dbfe61c66880b7505e62d60c1afb157e311f7e645
+  - id: intensify.cloud.client.Client.latest_snapshot
+    kind: function
+    parent_id: intensify.cloud.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: org, type: str}
+        - {name: project, type: str}
+        - {name: repo, type: str}
+      outputs:
+        - {type: 'dict[str, Any] | None'}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/client.py, symbol: Client.latest_snapshot}
+      signature: 'def latest_snapshot(self, org: str, project: str, repo: str) -> dict[str, Any] | None'
+      complexity: {cyclomatic: 3, loc: 10}
+      fingerprint: sha256:16842326512d039c1f3e30f85ad42822d564ff47ef90a943289509d656ff8d25
+  - id: intensify.cloud.config
+    kind: module
+    parent_id: intensify.cloud
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Where credentials and the repository's cloud link are stored, and how the API URL is chosen.
+      rationale: Credentials are created 0600 and never committed; the link holds no secrets so it can be.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/config.py}
+      complexity: {loc: 116}
+      fingerprint: sha256:26ea6633f5a41c13cad707e724305529647e44b43687fece8b84da198d2682ca
+  - id: intensify.cloud.config.CloudConfigError
+    kind: class
+    parent_id: intensify.cloud.config
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/config.py, symbol: CloudConfigError}
+      signature: class CloudConfigError(Exception)
+      complexity: {loc: 2}
+      fingerprint: sha256:5d93d294a83765d15dca3483554eaba44e75a240912e802e7c6a00f982723ac1
+  - id: intensify.cloud.config.config_dir
+    kind: function
+    parent_id: intensify.cloud.config
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: Path}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/config.py, symbol: config_dir}
+      signature: def config_dir() -> Path
+      complexity: {cyclomatic: 2, loc: 3}
+      fingerprint: sha256:823a289ae2fb0368d86253bcecce9f05461cf8b896197c2fdb271567cd81273d
+  - id: intensify.cloud.config.credentials_path
+    kind: function
+    parent_id: intensify.cloud.config
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: Path}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/config.py, symbol: credentials_path}
+      signature: def credentials_path() -> Path
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:8836d96d282ecc2d9abf6b8a88e6b3d3985c75a999fc64588c5c559ca7ed3726
+  - id: intensify.cloud.config.normalize_url
+    kind: function
+    parent_id: intensify.cloud.config
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: url, type: str}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/config.py, symbol: normalize_url}
+      signature: 'def normalize_url(url: str) -> str'
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:8037e53a51391de4eb2e961e37a690eed13fa348b5386ebdf97d0395d4153b56
+  - id: intensify.cloud.config.save_token
+    kind: function
+    parent_id: intensify.cloud.config
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: api_url, type: str}
+        - {name: token, type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/config.py, symbol: save_token}
+      signature: 'def save_token(api_url: str, token: str) -> None'
+      complexity: {cyclomatic: 1, loc: 4}
+      fingerprint: sha256:6079d1f1140107f569ece33d87d692f02b81e89e1ffdc46a5f8d0cd8519802c7
+  - id: intensify.cloud.config.forget_token
+    kind: function
+    parent_id: intensify.cloud.config
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: api_url, type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/config.py, symbol: forget_token}
+      signature: 'def forget_token(api_url: str) -> None'
+      complexity: {cyclomatic: 2, loc: 4}
+      fingerprint: sha256:2ec0d5bc5e10e70e607b5e183101cb6e5459f81647569c89f2ff58482ab8abb0
+  - id: intensify.cloud.config.stored_urls
+    kind: function
+    parent_id: intensify.cloud.config
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: 'list[str]'}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/config.py, symbol: stored_urls}
+      signature: def stored_urls() -> list[str]
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:52ec9823ea814369cdb8c93d825c669e79b1e65cd8d83610e96553d1d15cc633
+  - id: intensify.cloud.config.token_for
+    kind: function
+    parent_id: intensify.cloud.config
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: api_url, type: str}
+      outputs:
+        - {type: str | None}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/config.py, symbol: token_for}
+      signature: 'def token_for(api_url: str) -> str | None'
+      complexity: {cyclomatic: 4, loc: 5}
+      fingerprint: sha256:13606018b7dd78bbb53d45de439a7012ba750e7f37a1fb2d14fcc41f976fd572
+  - id: intensify.cloud.config.Link
+    kind: class
+    parent_id: intensify.cloud.config
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/config.py, symbol: Link}
+      signature: class Link
+      complexity: {loc: 4}
+      fingerprint: sha256:20aaf6f8b9739ef668739dc02871118fbad31239101b7112a1d27db2b31be3d7
+  - id: intensify.cloud.config.read_link
+    kind: function
+    parent_id: intensify.cloud.config
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: spec_dir, type: Path}
+      outputs:
+        - {type: Link | None}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/config.py, symbol: read_link}
+      signature: 'def read_link(spec_dir: Path) -> Link | None'
+      complexity: {cyclomatic: 2, loc: 6}
+      fingerprint: sha256:e3c081a5d3e01a818a33211522253b0978a0ac9604e11d4679fbaebe6c400c6f
+  - id: intensify.cloud.config.write_link
+    kind: function
+    parent_id: intensify.cloud.config
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: spec_dir, type: Path}
+        - {name: link, type: Link}
+      outputs:
+        - {type: Path}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/config.py, symbol: write_link}
+      signature: 'def write_link(spec_dir: Path, link: Link) -> Path'
+      complexity: {cyclomatic: 1, loc: 5}
+      fingerprint: sha256:783e5233f8ba11b7acc1c798ec12c1008b35e0e5b7f91dac3b1c7f1dae62101d
+  - id: intensify.cloud.config.resolve_api_url
+    kind: function
+    parent_id: intensify.cloud.config
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: explicit, type: str | None}
+        - {name: spec_dir, type: Path | None}
+      outputs:
+        - {type: str}
+      errors:
+        - {type: CloudConfigError}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/config.py, symbol: resolve_api_url}
+      signature: 'def resolve_api_url(explicit: str | None, spec_dir: Path | None) -> str'
+      complexity: {cyclomatic: 7, loc: 15}
+      fingerprint: sha256:853822b83f76eb9751cc6720185fd9729a9916cf845fe486d1404d4c613bb027
+  - id: intensify.cloud.login
+    kind: module
+    parent_id: intensify.cloud
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Client side of the OAuth 2.0 device authorization grant (RFC 8628), honoring slow_down and expiry.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/login.py}
+      complexity: {loc: 60}
+      fingerprint: sha256:c71e5174f106265a35d7d7dd9e66bb1b77cb503921acd9d356368c23c8d37ce5
+  - id: intensify.cloud.login.DeviceLogin
+    kind: class
+    parent_id: intensify.cloud.login
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/login.py, symbol: DeviceLogin}
+      signature: class DeviceLogin
+      complexity: {loc: 7}
+      fingerprint: sha256:098ac0d7cf8e59394c2eb21da0d6fe6a7ac38f6a3d9c3c961f198e398afefe93
+  - id: intensify.cloud.login.start
+    kind: function
+    parent_id: intensify.cloud.login
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: client, type: Client}
+        - {name: client_name, type: str}
+      outputs:
+        - {type: DeviceLogin}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/login.py, symbol: start}
+      signature: 'def start(client: Client, client_name: str) -> DeviceLogin'
+      complexity: {cyclomatic: 1, loc: 10}
+      fingerprint: sha256:d9307bf0dbb32c3fdbc756e376174f235d66d885a1abbaf06fea1172be95aa14
+  - id: intensify.cloud.login.wait_for_token
+    kind: function
+    parent_id: intensify.cloud.login
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: client, type: Client}
+        - {name: login, type: DeviceLogin}
+        - {name: sleep, type: 'Callable[[float], None]', required: false}
+        - {name: clock, type: 'Callable[[], float]', required: false}
+      outputs:
+        - {type: str}
+      errors:
+        - {type: CloudError}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/login.py, symbol: wait_for_token}
+      signature: 'def wait_for_token(client: Client, login: DeviceLogin, *, sleep: Callable[[float], None] = time.sleep, clock: Callable[[], float] = time.monotonic) -> str'
+      complexity: {cyclomatic: 7, loc: 24}
+      fingerprint: sha256:cd69e42d837386f33f761c1781fabdc001b70d9812b67c491de08ee5ca5d5fe1
+  - id: intensify.cloud.sync
+    kind: module
+    parent_id: intensify.cloud
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Builds the push payload and merges cloud-planned nodes into the spec with a node-level three-way merge.
+      rationale: Local edits win conflicts and are reported, never silently overwritten; the merged spec is validated before anything is written.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/sync.py}
+      complexity: {loc: 258}
+      fingerprint: sha256:40cdd79436df3a671fe67c17b5b5dbcd960e25b3e9a7f6c13757b49d1f183794
+  - id: intensify.cloud.sync.build_payload
+    kind: function
+    parent_id: intensify.cloud.sync
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: loaded, type: LoadedSpec}
+      outputs:
+        - {type: 'dict[str, Any]'}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/sync.py, symbol: build_payload}
+      signature: 'def build_payload(loaded: LoadedSpec) -> dict[str, Any]'
+      complexity: {cyclomatic: 10, loc: 25}
+      fingerprint: sha256:e5a489e4db4ef71d2f48f857f52263aa931491ae761a0e335ce175873a7dea35
+  - id: intensify.cloud.sync.git_head
+    kind: function
+    parent_id: intensify.cloud.sync
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: directory, type: Path}
+      outputs:
+        - {type: str | None}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/sync.py, symbol: git_head}
+      signature: 'def git_head(directory: Path) -> str | None'
+      complexity: {cyclomatic: 3, loc: 8}
+      fingerprint: sha256:daa9904a7bfa623a0755580ebcf40b3d8af7a2aba1b4ac0c70d6ff7656ff7384
+  - id: intensify.cloud.sync.git_dirty
+    kind: function
+    parent_id: intensify.cloud.sync
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: directory, type: Path}
+        - {name: paths, type: 'list[Path]'}
+      outputs:
+        - {type: bool}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/sync.py, symbol: git_dirty}
+      signature: 'def git_dirty(directory: Path, paths: list[Path]) -> bool'
+      complexity: {cyclomatic: 2, loc: 12}
+      fingerprint: sha256:c182529b6fd1fd068862bab2e28f7a5298e9b13d9b8f3f3c454bab91dfb93976
+  - id: intensify.cloud.sync.Base
+    kind: class
+    parent_id: intensify.cloud.sync
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/sync.py, symbol: Base}
+      signature: class Base
+      complexity: {loc: 26}
+      fingerprint: sha256:5b10cb17f412857f8cc1df65ebb4485ab5955fb1ab5c438b6cbaf4d49b4c1e6f
+  - id: intensify.cloud.sync.Base.read
+    kind: function
+    parent_id: intensify.cloud.sync.Base
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: spec_dir, type: Path}
+      outputs:
+        - {type: Base}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/sync.py, symbol: Base.read}
+      signature: 'def read(cls, spec_dir: Path) -> Base'
+      complexity: {cyclomatic: 4, loc: 10}
+      fingerprint: sha256:6316b4661a48b063a8fd26a0a30e54f1be6850d188b3d0ceb3ce930640012442
+  - id: intensify.cloud.sync.Base.write
+    kind: function
+    parent_id: intensify.cloud.sync.Base
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: spec_dir, type: Path}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/sync.py, symbol: Base.write}
+      signature: 'def write(self, spec_dir: Path) -> None'
+      complexity: {cyclomatic: 3, loc: 9}
+      fingerprint: sha256:a8a8c6498bd455f09f215a6d8aad92438af27ca174353577ad67d74a7d278d77
+  - id: intensify.cloud.sync.PullReport
+    kind: class
+    parent_id: intensify.cloud.sync
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/sync.py, symbol: PullReport}
+      signature: class PullReport
+      complexity: {loc: 14}
+      fingerprint: sha256:1d4ac05d557af5295d1fa5394a12ffa48c9fc5045259eae39a2af4ad480f212c
+  - id: intensify.cloud.sync.PullReport.changed
+    kind: function
+    parent_id: intensify.cloud.sync.PullReport
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: bool}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/sync.py, symbol: PullReport.changed}
+      signature: def changed(self) -> bool
+      complexity: {cyclomatic: 5, loc: 4}
+      fingerprint: sha256:a08887131bfea27f80cdd26d546cf0f56332ea1f31c8b58b5fe0cd948fabfb4f
+  - id: intensify.cloud.sync.pull
+    kind: function
+    parent_id: intensify.cloud.sync
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: loaded, type: LoadedSpec}
+        - {name: remote, type: 'dict[str, Any]'}
+        - {name: theirs, type: bool, required: false}
+        - {name: dry_run, type: bool, required: false}
+      outputs:
+        - {type: PullReport}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/sync.py, symbol: pull}
+      signature: 'def pull(loaded: LoadedSpec, remote: dict[str, Any], *, theirs: bool = False, dry_run: bool = False) -> PullReport'
+      complexity: {cyclomatic: 1, loc: 9}
+      fingerprint: sha256:cfdf21fbbacbe4a62b50656f459c284faed54f7a938ab8abfaeac047650e5af5
   - id: tests
     kind: module
     parent_id: intensify
@@ -3872,6 +4868,32 @@ nodes:
       location: {path: tests/unit/test_golden.py}
       complexity: {loc: 36}
       fingerprint: sha256:4abf81aaafb09ebaf2779b7a9dae7f0a71cf8a9df5e88017f0753a00a4beeddd
+  - id: tests.unit.cloud
+    kind: module
+    parent_id: tests.unit
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Tests for the Intensify Cloud integration.
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/cloud/__init__.py}
+      complexity: {loc: 1}
+      fingerprint: sha256:2748e84fd8037b1197c4fabc8098be187c21f3d3cae20f5a49ba13e7d215d704
+  - id: tests.unit.cloud.test_cloud
+    kind: module
+    parent_id: tests.unit.cloud
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Tests for credentials, device login polling, push payloads, pull merges and the cloud commands against a fake API.
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/cloud/test_cloud.py}
+      complexity: {loc: 373}
+      fingerprint: sha256:ab486bb5ecd67b2be01ceccdb9ae0f065a92244a74d08e98a113fcf35038885e
 edges:
   - {from: intensify.__main__, to: intensify.cli.main, type: CALLS, provenance: analyzed}
   - {from: intensify.cli.analyze.analyze, to: intensify.cli.analyze.print_report, type: CALLS, provenance: analyzed}
@@ -4012,7 +5034,6 @@ edges:
   - {from: intensify.skills.parse, to: intensify.skills.Skill, type: CALLS, provenance: analyzed}
   - {from: intensify.spec.diagnostics.Diagnostic.pointer, to: intensify.spec.diagnostics.format_path, type: CALLS, provenance: analyzed}
   - {from: intensify.spec.edit.add_node, to: intensify.spec.edit.EditError, type: CALLS, provenance: analyzed}
-  - {from: intensify.spec.edit.add_node, to: intensify.spec.edit.to_yaml, type: CALLS, provenance: analyzed}
   - {from: intensify.spec.edit.find, to: intensify.spec.edit.EditError, type: CALLS, provenance: analyzed}
   - {from: intensify.spec.edit.patch, to: intensify.spec.edit.put, type: CALLS, provenance: analyzed}
   - {from: intensify.spec.edit.patch, to: intensify.spec.edit.to_yaml, type: CALLS, provenance: analyzed}
@@ -4089,3 +5110,75 @@ edges:
   - {from: tests.unit.spec.test_yamlio, to: intensify.spec.yamlio.line_of, type: VERIFIES, provenance: analyzed}
   - {from: tests.unit.spec.test_yamlio, to: intensify.spec.yamlio.loads, type: VERIFIES, provenance: analyzed}
   - {from: tests.unit.spec.test_yamlio, to: intensify.spec.yamlio.to_plain, type: VERIFIES, provenance: analyzed}
+  - {from: intensify.cli.cloud, to: intensify.cli.node.load_or_exit, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud, to: intensify.cloud.client.Client, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud, to: intensify.cloud.config.Link, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud, to: intensify.cloud.config.read_link, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud, to: intensify.cloud.config.token_for, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud, to: intensify.cloud.config.write_link, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud, to: intensify.spec.loader.resolve_path, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.login, to: intensify.cloud.client.Client, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.login, to: intensify.cloud.config.resolve_api_url, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.login, to: intensify.cloud.config.save_token, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.login, to: intensify.cloud.login.start, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.login, to: intensify.cloud.login.wait_for_token, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.logout, to: intensify.cloud.client.Client, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.logout, to: intensify.cloud.config.forget_token, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.logout, to: intensify.cloud.config.resolve_api_url, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.logout, to: intensify.cloud.config.token_for, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.project_create, to: intensify.cli.node.load_or_exit, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.project_create, to: intensify.cloud.config.resolve_api_url, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.project_link, to: intensify.cli.node.load_or_exit, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.project_link, to: intensify.cloud.config.resolve_api_url, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.project_status, to: intensify.cloud.sync.Base.read, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.sync_pull, to: intensify.cloud.sync.pull, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.sync_push, to: intensify.cloud.sync.build_payload, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.sync_push, to: intensify.cloud.sync.git_dirty, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.cloud.whoami, to: intensify.cloud.config.resolve_api_url, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.client.Client.cloud_nodes, to: intensify.cloud.client.Client.request, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.client.Client.create_project, to: intensify.cloud.client.Client.request, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.client.Client.create_project_token, to: intensify.cloud.client.Client.request, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.client.Client.get_project, to: intensify.cloud.client.Client.request, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.client.Client.latest_snapshot, to: intensify.cloud.client.Client.request, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.client.Client.link_repo, to: intensify.cloud.client.Client.request, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.client.Client.me, to: intensify.cloud.client.Client.request, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.client.Client.push, to: intensify.cloud.client.Client.request, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.client.Client.request, to: intensify.cloud.client.CloudError, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.client.Client.revoke_current_token, to: intensify.cloud.client.Client.request, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.client.Client.start_device_login, to: intensify.cloud.client.Client.request, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.config.credentials_path, to: intensify.cloud.config.config_dir, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.config.forget_token, to: intensify.cloud.config.normalize_url, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.config.read_link, to: intensify.cloud.config.Link, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.config.read_link, to: intensify.cloud.config.normalize_url, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.config.resolve_api_url, to: intensify.cloud.config.CloudConfigError, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.config.resolve_api_url, to: intensify.cloud.config.normalize_url, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.config.resolve_api_url, to: intensify.cloud.config.read_link, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.config.resolve_api_url, to: intensify.cloud.config.stored_urls, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.config.save_token, to: intensify.cloud.config.normalize_url, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.config.token_for, to: intensify.cloud.config.normalize_url, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.login.start, to: intensify.cloud.login.DeviceLogin, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.login.wait_for_token, to: intensify.cloud.client.CloudError, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.sync, to: intensify.spec.edit.add_node, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.sync, to: intensify.spec.edit.canonical, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.sync, to: intensify.spec.edit.node_to_yaml, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.sync, to: intensify.spec.edit.save, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.sync, to: intensify.spec.edit.to_yaml, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.sync, to: intensify.spec.yamlio.to_plain, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.sync.build_payload, to: intensify.cloud.sync.git_head, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.sync.build_payload, to: intensify.spec.yamlio.to_plain, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.edit.add_node, to: intensify.spec.edit.node_to_yaml, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.edit.node_to_yaml, to: intensify.spec.edit.canonical, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.edit.node_to_yaml, to: intensify.spec.edit.to_yaml, type: CALLS, provenance: analyzed}
+  - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.config.Link, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.config.credentials_path, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.config.forget_token, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.config.resolve_api_url, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.config.save_token, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.config.stored_urls, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.config.token_for, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.config.write_link, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.login.DeviceLogin, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.login.wait_for_token, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.sync.Base.read, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.sync.build_payload, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.sync.pull, type: VERIFIES, provenance: analyzed}

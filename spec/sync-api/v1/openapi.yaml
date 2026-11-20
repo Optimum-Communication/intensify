@@ -1,0 +1,594 @@
+openapi: 3.1.0
+info:
+  title: Intensify Sync API
+  version: "1.0"
+  summary: The contract between the intensify CLI and Intensify Cloud.
+  description: |
+    Everything the open-source CLI sends to, and receives from, Intensify Cloud.
+
+    **What leaves your machine:** only the contents of `intensify.yaml` and its fragment files
+    (node IDs, intents, contracts, technical metadata such as file paths, signatures and
+    fingerprints, and edges), plus the commit SHA you push from. Source code is never sent.
+
+    Authentication: a bearer token. Users get one with the OAuth 2.0 device authorization grant
+    (RFC 8628, `intensify login`). CI uses project-scoped tokens (`intensify project token`).
+  license:
+    name: Apache-2.0
+    identifier: Apache-2.0
+
+servers:
+  - url: "{apiUrl}"
+    variables:
+      apiUrl:
+        default: http://localhost:3001
+        description: Base URL of an Intensify Cloud deployment.
+
+security:
+  - bearer: []
+
+tags:
+  - name: auth
+  - name: projects
+  - name: sync
+  - name: graph
+
+paths:
+  /v1/auth/device/code:
+    post:
+      tags: [auth]
+      operationId: startDeviceAuthorization
+      summary: Start a device login (RFC 8628 §3.1).
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_name: { type: string, description: Shown on the approval page, e.g. "intensify CLI on laptop". }
+      responses:
+        "200":
+          description: A code for the user to approve in a browser.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DeviceAuthorization" }
+
+  /v1/auth/device/token:
+    post:
+      tags: [auth]
+      operationId: pollDeviceToken
+      summary: Exchange an approved device code for an access token (RFC 8628 §3.4).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [device_code]
+              properties:
+                device_code: { type: string }
+      responses:
+        "200":
+          description: The user approved the login.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AccessToken" }
+        "400":
+          description: Not (yet) approved. Keep polling on `authorization_pending`; back off on `slow_down`.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DeviceError" }
+
+  /v1/me:
+    get:
+      tags: [auth]
+      operationId: getMe
+      summary: The authenticated user (or project token) and its organizations.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Me" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/tokens/current:
+    delete:
+      tags: [auth]
+      operationId: revokeCurrentToken
+      summary: Revoke the token used for this request (`intensify logout`).
+      responses:
+        "204": { description: Revoked. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/orgs/{org}/projects:
+    parameters:
+      - $ref: "#/components/parameters/org"
+    get:
+      tags: [projects]
+      operationId: listProjects
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [projects]
+                properties:
+                  projects: { type: array, items: { $ref: "#/components/schemas/Project" } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      tags: [projects]
+      operationId: createProject
+      summary: Create a multi-repository project.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [slug]
+              properties:
+                slug: { $ref: "#/components/schemas/Slug" }
+                name: { type: string }
+      responses:
+        "201":
+          description: Created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Project" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  /v1/orgs/{org}/projects/{project}:
+    parameters:
+      - $ref: "#/components/parameters/org"
+      - $ref: "#/components/parameters/project"
+    get:
+      tags: [projects]
+      operationId: getProject
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Project" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/orgs/{org}/projects/{project}/repos/{repo}:
+    parameters:
+      - $ref: "#/components/parameters/org"
+      - $ref: "#/components/parameters/project"
+      - $ref: "#/components/parameters/repo"
+    put:
+      tags: [projects]
+      operationId: linkRepo
+      summary: Add a repository to the project (idempotent). `repo` is the spec's `project.id`.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+      responses:
+        "200":
+          description: Already linked.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Repo" }
+        "201":
+          description: Linked.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Repo" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/orgs/{org}/projects/{project}/tokens:
+    parameters:
+      - $ref: "#/components/parameters/org"
+      - $ref: "#/components/parameters/project"
+    post:
+      tags: [projects]
+      operationId: createProjectToken
+      summary: Create a token that can push and pull this project's repositories, for CI.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, description: What uses it, e.g. "GitHub Actions". }
+      responses:
+        "201":
+          description: Created. The token is shown only once.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, token]
+                properties:
+                  id: { type: string }
+                  token: { type: string }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /v1/orgs/{org}/projects/{project}/repos/{repo}/snapshots:
+    parameters:
+      - $ref: "#/components/parameters/org"
+      - $ref: "#/components/parameters/project"
+      - $ref: "#/components/parameters/repo"
+    post:
+      tags: [sync]
+      operationId: pushSnapshot
+      summary: Upload the repository's spec (`intensify sync push`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SnapshotUpload" }
+      responses:
+        "200":
+          description: Identical to the latest snapshot; nothing new was stored (`unchanged` is true).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SnapshotResult" }
+        "201":
+          description: Stored as a new version.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SnapshotResult" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422": { $ref: "#/components/responses/Invalid" }
+
+  /v1/orgs/{org}/projects/{project}/repos/{repo}/snapshots/latest:
+    parameters:
+      - $ref: "#/components/parameters/org"
+      - $ref: "#/components/parameters/project"
+      - $ref: "#/components/parameters/repo"
+    get:
+      tags: [sync]
+      operationId: getLatestSnapshot
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Snapshot" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/orgs/{org}/projects/{project}/repos/{repo}/cloud-nodes:
+    parameters:
+      - $ref: "#/components/parameters/org"
+      - $ref: "#/components/parameters/project"
+      - $ref: "#/components/parameters/repo"
+    get:
+      tags: [sync]
+      operationId: pullCloudNodes
+      summary: Nodes and edges planned in the cloud for this repository (`intensify sync pull`).
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CloudChanges" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    post:
+      tags: [sync]
+      operationId: createCloudNode
+      summary: Plan a node in the cloud (used by the planning studio). Stored with `provenance cloud`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [node]
+              properties:
+                node: { $ref: "#/components/schemas/Node" }
+                edges: { type: array, items: { $ref: "#/components/schemas/Edge" } }
+      responses:
+        "201":
+          description: Created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CloudChanges" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Invalid" }
+
+  /v1/orgs/{org}/projects/{project}/repos/{repo}/cloud-nodes/{node}:
+    parameters:
+      - $ref: "#/components/parameters/org"
+      - $ref: "#/components/parameters/project"
+      - $ref: "#/components/parameters/repo"
+      - name: node
+        in: path
+        required: true
+        schema: { type: string }
+    delete:
+      tags: [sync]
+      operationId: deleteCloudNode
+      summary: Withdraw a node planned in the cloud, with its cloud edges.
+      responses:
+        "204": { description: Deleted. }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/orgs/{org}/projects/{project}/graph:
+    parameters:
+      - $ref: "#/components/parameters/org"
+      - $ref: "#/components/parameters/project"
+    get:
+      tags: [graph]
+      operationId: getProjectGraph
+      summary: The project's graph across all repositories, with cross-repository edges resolved.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProjectGraph" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/orgs/{org}/projects/{project}/graph/blast-radius:
+    parameters:
+      - $ref: "#/components/parameters/org"
+      - $ref: "#/components/parameters/project"
+    get:
+      tags: [graph]
+      operationId: getBlastRadius
+      summary: Everything that transitively depends on a node, across repositories.
+      parameters:
+        - name: ref
+          in: query
+          required: true
+          description: "`<repo>:<node-id>`"
+          schema: { type: string }
+        - name: depth
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 20, default: 10 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BlastRadius" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+
+  parameters:
+    org:
+      name: org
+      in: path
+      required: true
+      schema: { $ref: "#/components/schemas/Slug" }
+    project:
+      name: project
+      in: path
+      required: true
+      schema: { $ref: "#/components/schemas/Slug" }
+    repo:
+      name: repo
+      in: path
+      required: true
+      description: The repository's spec `project.id`.
+      schema: { $ref: "#/components/schemas/Slug" }
+
+  responses:
+    Unauthorized:
+      description: Missing, expired or revoked token.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Forbidden:
+      description: The token can't do this.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: No such organization, project or repository (or no access to it).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Conflict:
+      description: It already exists.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Invalid:
+      description: The body is not a valid spec document.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+  schemas:
+    Slug:
+      type: string
+      pattern: "^[a-z0-9][a-z0-9_-]*$"
+    Error:
+      type: object
+      required: [error, message]
+      properties:
+        error: { type: string, description: Stable machine-readable code. }
+        message: { type: string }
+        details: { type: array, items: { type: string } }
+    DeviceAuthorization:
+      type: object
+      required: [device_code, user_code, verification_uri, verification_uri_complete, expires_in, interval]
+      properties:
+        device_code: { type: string }
+        user_code: { type: string, description: "Short code the user confirms, e.g. WDJB-MJHT." }
+        verification_uri: { type: string }
+        verification_uri_complete: { type: string }
+        expires_in: { type: integer }
+        interval: { type: integer, description: Seconds to wait between polls. }
+    AccessToken:
+      type: object
+      required: [access_token, token_type, expires_in]
+      properties:
+        access_token: { type: string }
+        token_type: { type: string, const: Bearer }
+        expires_in: { type: integer }
+    DeviceError:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string, enum: [authorization_pending, slow_down, access_denied, expired_token] }
+        error_description: { type: string }
+    Me:
+      type: object
+      required: [kind, orgs]
+      properties:
+        kind: { type: string, enum: [user, project] }
+        user:
+          type: object
+          required: [id, email]
+          properties:
+            id: { type: string }
+            email: { type: string }
+            name: { type: [string, "null"] }
+        project:
+          description: For project tokens, the project they belong to.
+          type: object
+          required: [org, slug]
+          properties:
+            org: { type: string }
+            slug: { type: string }
+        orgs:
+          type: array
+          items:
+            type: object
+            required: [slug, name, role]
+            properties:
+              slug: { type: string }
+              name: { type: string }
+              role: { type: string, enum: [owner, admin, member] }
+    Repo:
+      type: object
+      required: [slug, name, latest_version]
+      properties:
+        slug: { type: string }
+        name: { type: string }
+        latest_version: { type: [integer, "null"] }
+    Project:
+      type: object
+      required: [org, slug, name, repos]
+      properties:
+        org: { type: string }
+        slug: { type: string }
+        name: { type: string }
+        repos: { type: array, items: { $ref: "#/components/schemas/Repo" } }
+    SnapshotUpload:
+      type: object
+      required: [document, files]
+      properties:
+        document:
+          description: |
+            The repository's spec as one document: the root file with the nodes and edges of all
+            fragment files merged in, and `includes` removed. Validated against the Intensify
+            spec JSON Schema for the document's `intensify` version.
+          type: object
+        files:
+          description: The original spec files, kept verbatim for history.
+          type: array
+          items:
+            type: object
+            required: [path, content]
+            properties:
+              path: { type: string }
+              content: { type: string }
+        commit: { type: [string, "null"], description: Git commit SHA the spec was pushed from. }
+        client_version: { type: string, description: Version of the CLI that pushed. }
+    Snapshot:
+      type: object
+      required: [version, created_at, node_count, edge_count, sha256]
+      properties:
+        version: { type: integer, description: Increments with every push to the repository. }
+        commit: { type: [string, "null"] }
+        created_at: { type: string, format: date-time }
+        node_count: { type: integer }
+        edge_count: { type: integer }
+        sha256: { type: string, description: Hash of the uploaded document. }
+    SnapshotResult:
+      allOf:
+        - $ref: "#/components/schemas/Snapshot"
+        - type: object
+          required: [unchanged, unresolved_refs]
+          properties:
+            unchanged: { type: boolean, description: The document is identical to the latest snapshot; no new version was stored. }
+            unresolved_refs:
+              description: Cross-repository references to repositories or nodes the project doesn't have (yet).
+              type: array
+              items: { type: string }
+    Node:
+      description: A node, as defined by the Intensify spec schema.
+      type: object
+      required: [id, kind, intent]
+    Edge:
+      description: An edge, as defined by the Intensify spec schema.
+      type: object
+      required: [from, to, type]
+    CloudChanges:
+      type: object
+      required: [revision, nodes, edges]
+      properties:
+        revision: { type: integer, description: Increments whenever cloud-planned nodes of the repository change. }
+        nodes: { type: array, items: { $ref: "#/components/schemas/Node" } }
+        edges: { type: array, items: { $ref: "#/components/schemas/Edge" } }
+    GraphNode:
+      type: object
+      required: [ref, repo, node]
+      properties:
+        ref: { type: string, description: "`<repo>:<node-id>`" }
+        repo: { type: string }
+        node: { $ref: "#/components/schemas/Node" }
+    GraphEdge:
+      type: object
+      required: [from, to, type, repo, resolved]
+      properties:
+        from: { type: string, description: Qualified ref. }
+        to: { type: string, description: Qualified ref. }
+        type: { type: string }
+        repo: { type: string, description: The repository whose spec declares the edge. }
+        lifecycle_state: { type: string }
+        resolved: { type: boolean, description: Both ends exist in the project. }
+    ProjectGraph:
+      type: object
+      required: [repos, nodes, edges, unresolved_refs]
+      properties:
+        repos: { type: array, items: { $ref: "#/components/schemas/Repo" } }
+        nodes: { type: array, items: { $ref: "#/components/schemas/GraphNode" } }
+        edges: { type: array, items: { $ref: "#/components/schemas/GraphEdge" } }
+        unresolved_refs: { type: array, items: { type: string } }
+    BlastRadius:
+      type: object
+      required: [ref, dependents]
+      properties:
+        ref: { type: string }
+        dependents:
+          type: array
+          items:
+            type: object
+            required: [ref, depth]
+            properties:
+              ref: { type: string }
+              depth: { type: integer }

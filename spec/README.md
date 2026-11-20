@@ -8,6 +8,8 @@ Each version of the Intensify YAML specification lives in its own directory (`v1
 
 Published versions are immutable.
 
+`sync-api/v1/openapi.yaml` is the contract between the CLI and Intensify Cloud. It documents exactly what `intensify sync` sends and receives.
+
 | Version | Status |
 |---|---|
 | [v1.0](v1.0/spec.md) | Draft |

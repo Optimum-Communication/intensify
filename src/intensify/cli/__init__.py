@@ -6,6 +6,7 @@ import typer
 
 from intensify import __version__
 from intensify.cli.analyze import analyze
+from intensify.cli.cloud import login, logout, project_app, sync_app, whoami
 from intensify.cli.context import context
 from intensify.cli.drift import drift
 from intensify.cli.init import init
@@ -54,6 +55,11 @@ app.command()(verify)
 app.command()(mcp)
 app.add_typer(node_app, name="node")
 app.add_typer(skills_app, name="skills")
+app.command()(login)
+app.command()(logout)
+app.command()(whoami)
+app.add_typer(project_app, name="project")
+app.add_typer(sync_app, name="sync")
 
 
 def main() -> None:
