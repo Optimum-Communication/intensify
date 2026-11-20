@@ -24,7 +24,7 @@ from intensify.cloud.config import (
     token_for,
     write_link,
 )
-from intensify.cloud.sync import Base, build_payload, git_dirty, pull
+from intensify.cloud.sync import Base, build_payload, git_dirty, git_source_url, pull
 from intensify.spec import LoadedSpec
 from intensify.spec.edit import EditError
 from intensify.spec.loader import resolve_path
@@ -165,9 +165,9 @@ def _default_org(client: Client) -> str:
 
 
 def _link_here(loaded: LoadedSpec, client: Client, url: str, org: str, project: str) -> None:
-    repo = client.link_repo(
-        org, project, _repo_slug(loaded), loaded.document.project.name if loaded.document else None
-    )
+    name = loaded.document.project.name if loaded.document else None
+    source = git_source_url(loaded.path.parent)
+    repo = client.link_repo(org, project, _repo_slug(loaded), name, source)
     path = write_link(loaded.path.parent, Link(url, org, project))
     typer.secho(f"Linked repository {repo['slug']} to {org}/{project}", fg="green")
     typer.echo(

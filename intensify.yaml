@@ -696,7 +696,7 @@ nodes:
       language: python
       location: {path: src/intensify/cli/cloud.py}
       complexity: {loc: 347}
-      fingerprint: sha256:66fc8773bbe5575f6e8f086158d46ee36a79b73ad44c82319f20b537e89d5534
+      fingerprint: sha256:b82e7d4d6dc18b69de468bfc3354c668a395406b8ddc85ea3dfe99b4c07d955c
   - id: intensify.cli.cloud.login
     kind: function
     parent_id: intensify.cli.cloud
@@ -3749,8 +3749,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/cloud/client.py}
-      complexity: {loc: 141}
-      fingerprint: sha256:674eb9614336876fb8f314f00bc8c83121ea53ed3125652b7720e4fec347108e
+      complexity: {loc: 143}
+      fingerprint: sha256:8628cfd5a0e2188204cc0af7725bd09203b71d20bef4216dad475bcaa913f7d1
   - id: intensify.cloud.client.CloudError
     kind: class
     parent_id: intensify.cloud.client
@@ -3794,8 +3794,8 @@ nodes:
       language: python
       location: {path: src/intensify/cloud/client.py, symbol: Client}
       signature: class Client
-      complexity: {loc: 115}
-      fingerprint: sha256:36b937e056dd4103bc9810fed839f131a2ad12db787d416887462c7d4933eff8
+      complexity: {loc: 117}
+      fingerprint: sha256:ed23681d0ac4f319be53e09ecf06f212a10945f7bd129ac616efe2275622218e
   - id: intensify.cloud.client.Client.__init__
     kind: function
     parent_id: intensify.cloud.client.Client
@@ -3966,14 +3966,15 @@ nodes:
         - {name: project, type: str}
         - {name: repo, type: str}
         - {name: name, type: str | None}
+        - {name: source_url, type: str | None, required: false}
       outputs:
         - {type: 'dict[str, Any]'}
     technical:
       language: python
       location: {path: src/intensify/cloud/client.py, symbol: Client.link_repo}
-      signature: 'def link_repo(self, org: str, project: str, repo: str, name: str | None) -> dict[str, Any]'
-      complexity: {cyclomatic: 2, loc: 6}
-      fingerprint: sha256:47b6b12f84291465ed0742e8a73c26f1209e21a62f4665f46b4d24bfc54ea3b3
+      signature: 'def link_repo(self, org: str, project: str, repo: str, name: str | None, source_url: str | None = None) -> dict[str, Any]'
+      complexity: {cyclomatic: 3, loc: 8}
+      fingerprint: sha256:66b1cfe3955d053733952f157acfcc457a3246f23db016dd336bbf314ab0687a
   - id: intensify.cloud.client.Client.create_project_token
     kind: function
     parent_id: intensify.cloud.client.Client
@@ -4350,8 +4351,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/cloud/sync.py}
-      complexity: {loc: 258}
-      fingerprint: sha256:40cdd79436df3a671fe67c17b5b5dbcd960e25b3e9a7f6c13757b49d1f183794
+      complexity: {loc: 294}
+      fingerprint: sha256:e25cce1d8eb000575baeae6c61ba2fa974ea45198cb1e72ef3c0f642925d5f0c
   - id: intensify.cloud.sync.build_payload
     kind: function
     parent_id: intensify.cloud.sync
@@ -4504,6 +4505,42 @@ nodes:
       signature: 'def pull(loaded: LoadedSpec, remote: dict[str, Any], *, theirs: bool = False, dry_run: bool = False) -> PullReport'
       complexity: {cyclomatic: 1, loc: 9}
       fingerprint: sha256:cfdf21fbbacbe4a62b50656f459c284faed54f7a938ab8abfaeac047650e5af5
+  - id: intensify.cloud.sync.web_url
+    kind: function
+    parent_id: intensify.cloud.sync
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: remote, type: str}
+      outputs:
+        - {type: str | None}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/sync.py, symbol: web_url}
+      signature: 'def web_url(remote: str) -> str | None'
+      complexity: {cyclomatic: 5, loc: 15}
+      fingerprint: sha256:310ccb34eefea6b86555cf8b8def1f6a0b6fd5a6dd3125e39b7930152373cb82
+  - id: intensify.cloud.sync.git_source_url
+    kind: function
+    parent_id: intensify.cloud.sync
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: directory, type: Path}
+      outputs:
+        - {type: str | None}
+    technical:
+      language: python
+      location: {path: src/intensify/cloud/sync.py, symbol: git_source_url}
+      signature: 'def git_source_url(directory: Path) -> str | None'
+      complexity: {cyclomatic: 2, loc: 12}
+      fingerprint: sha256:6531d49643b67c030a50f7d30fba69902a781f45b9aa15a234e6682fdca8e450
   - id: tests
     kind: module
     parent_id: intensify
@@ -4892,8 +4929,8 @@ nodes:
     technical:
       language: python
       location: {path: tests/unit/cloud/test_cloud.py}
-      complexity: {loc: 373}
-      fingerprint: sha256:ab486bb5ecd67b2be01ceccdb9ae0f065a92244a74d08e98a113fcf35038885e
+      complexity: {loc: 391}
+      fingerprint: sha256:7d7e26bcc8d8f8bc6df7093d02ea2dcbe8c0f4591b027020fa1a24c738acfa9e
 edges:
   - {from: intensify.__main__, to: intensify.cli.main, type: CALLS, provenance: analyzed}
   - {from: intensify.cli.analyze.analyze, to: intensify.cli.analyze.print_report, type: CALLS, provenance: analyzed}
@@ -5182,3 +5219,6 @@ edges:
   - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.sync.Base.read, type: VERIFIES, provenance: analyzed}
   - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.sync.build_payload, type: VERIFIES, provenance: analyzed}
   - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.sync.pull, type: VERIFIES, provenance: analyzed}
+  - {from: intensify.cli.cloud, to: intensify.cloud.sync.git_source_url, type: CALLS, provenance: analyzed}
+  - {from: intensify.cloud.sync.git_source_url, to: intensify.cloud.sync.web_url, type: CALLS, provenance: analyzed}
+  - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.sync.web_url, type: VERIFIES, provenance: analyzed}
