@@ -225,6 +225,7 @@ class DriftCategory(StrEnum):
     undocumented_node = "undocumented_node"
     missing_node = "missing_node"
     undocumented_edge = "undocumented_edge"
+    stale_edge = "stale_edge"
     contract_mismatch = "contract_mismatch"
     invariant_violation = "invariant_violation"
     moved_node = "moved_node"

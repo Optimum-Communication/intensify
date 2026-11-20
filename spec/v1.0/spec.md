@@ -178,7 +178,7 @@ Globs use `*` for any characters (including dots) and `?` for one character.
 | `analyzed` edges | Analyzer | Adds and removes them to match the code. |
 | Other edges | People | Never changes them. |
 
-When code disappears, `analyze` reports the node and leaves it in place. With `--prune`, it marks the node `deprecated`. It never deletes nodes.
+When code disappears, `analyze` reports the node and leaves it in place. With `--prune`, it marks the node `deprecated`. It never deletes nodes. Planned nodes are exempt, because their `technical.location` may name a file that doesn't exist yet.
 
 ## 4. Edges
 
@@ -255,7 +255,7 @@ config:
     test_command: "pytest {tests}"  # {tests} is replaced with the node's VERIFIES test files
 ```
 
-Drift categories are `undocumented_node`, `missing_node`, `undocumented_edge`, `contract_mismatch`, `invariant_violation`, `moved_node` and `unenriched_node`. Categories not in `fail_on` are reported as warnings.
+Drift categories are `undocumented_node`, `missing_node`, `undocumented_edge`, `stale_edge`, `contract_mismatch`, `invariant_violation`, `moved_node` and `unenriched_node`. Categories not in `fail_on` are reported as warnings, except `moved_node` and `unenriched_node`, which are notes. See [`docs/drift.md`](../../docs/drift.md).
 
 ## 8. Validation
 

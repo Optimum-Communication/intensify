@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Protocol
 
 from intensify.parser.ids import Allocator
@@ -44,7 +44,10 @@ class Symbol:
 
     @property
     def name(self) -> str:
-        return (self.symbol or self.path).rsplit(".", 1)[-1]
+        """Last part of the symbol (``add`` for ``Cart.add``), or the file stem for a module."""
+        if self.symbol:
+            return self.symbol.rsplit(".", 1)[-1]
+        return PurePosixPath(self.path).stem
 
     def technical(self) -> dict[str, Any]:
         location: dict[str, str] = {"path": self.path}

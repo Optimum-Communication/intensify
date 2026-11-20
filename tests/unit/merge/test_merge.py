@@ -249,3 +249,28 @@ def test_new_nodes_go_to_the_parents_fragment_file(copy_repo: CopyRepo) -> None:
     assert "id: shop.pricing.apply_discount" in fragment
     assert "id: shop.pricing.apply_discount" not in (root / "intensify.yaml").read_text()
     assert load_and_validate(root).ok
+
+
+def test_planned_module_is_not_matched_to_an_unrelated_module(repo: Path) -> None:
+    spec = repo / "intensify.yaml"
+    edit(
+        spec,
+        "  - id: tests.test_cart\n",
+        "  - id: shop.loyalty\n    kind: module\n    parent_id: shop\n"
+        "    intent: {summary: Points.}\n"
+        "    technical:\n      location: {path: src/shop/loyalty.py}\n  - id: tests.test_cart\n",
+    )
+    report = run(repo).report
+    assert report.moved == []
+    assert report.missing == []  # planned: its file doesn't have to exist yet
+    assert nodes(repo)["shop.loyalty"].lifecycle_state == "planned"
+
+
+def test_package_named_like_the_repo_gets_a_kind_suffix(copy_repo: CopyRepo) -> None:
+    root = copy_repo("py_shop")
+    (root / "intensify.yaml").write_text(render("shop", "Shop", "A tiny shop."))
+    run(root)
+    after = nodes(root)
+    assert after["shop"].kind == "repo"
+    assert after["shop-module"].kind == "module"
+    assert after["shop.cart"].parent_id == "shop-module"

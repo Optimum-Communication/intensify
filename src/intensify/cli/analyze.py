@@ -13,8 +13,9 @@ from typing import Annotated
 import typer
 
 from intensify.cli.validate import render_text
-from intensify.merge import MergeOptions, MergeReport, merge
-from intensify.parser import AnalysisResult, AnalyzeOptions, analyze_repo
+from intensify.merge import MergeReport
+from intensify.parser import AnalysisResult
+from intensify.pipeline import SpecInvalidError, analyze_and_merge
 from intensify.spec import load_and_validate, yamlio
 from intensify.spec.models import NodeKind
 
@@ -32,10 +33,6 @@ _MAX_LISTED = 10
 """Without --verbose, longer lists are abbreviated."""
 
 
-class SpecInvalidError(Exception):
-    """The spec has errors, so it is not safe to merge into."""
-
-
 def run(
     spec_path: Path,
     *,
@@ -44,27 +41,14 @@ def run(
     paths: tuple[str, ...] = (),
     dry_run: bool = False,
 ) -> AnalyzeOutcome:
-    started = time.perf_counter()
-    loaded = load_and_validate(spec_path)
-    if not loaded.ok or loaded.document is None:
-        render_text(loaded)
-        raise SpecInvalidError
-    config = loaded.document.config.analyze if loaded.document.config else None
-    root = loaded.path.parent
-    options = AnalyzeOptions(
-        depth=depth or NodeKind((config.depth if config else None) or "function"),
-        public_only=config.public_only if config else True,
-    )
-    analysis = analyze_repo(
-        root,
-        options=options,
-        include=config.include if config else None,
-        exclude=config.exclude if config else None,
-    )
-    report = merge(loaded, analysis, MergeOptions(prune=prune, paths=paths))
+    """Analyze and merge; write changed spec files unless ``dry_run``.
 
-    outcome = AnalyzeOutcome(report, analysis)
-    for file in loaded.files:
+    Raises ``SpecInvalidError`` if the spec has errors.
+    """
+    started = time.perf_counter()
+    merged = analyze_and_merge(spec_path, depth=depth, prune=prune, paths=paths)
+    outcome = AnalyzeOutcome(merged.report, merged.analysis)
+    for file in merged.loaded.files:
         before = file.path.read_text(encoding="utf-8")
         after = yamlio.dumps(file.data)
         if before == after:
@@ -170,7 +154,8 @@ def analyze(
     scope = tuple(_relative(p, spec_root) for p in only or [])
     try:
         outcome = run(path, depth=depth, prune=prune, paths=scope, dry_run=dry_run)
-    except SpecInvalidError:
+    except SpecInvalidError as exc:
+        render_text(exc.loaded)
         typer.secho("Fix the errors above before running analyze.", fg="red", err=True)
         raise typer.Exit(1) from None
     print_report(outcome, dry_run=dry_run, verbose=verbose)
