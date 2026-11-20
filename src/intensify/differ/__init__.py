@@ -7,6 +7,7 @@ merge would change, plus contract and invariant checks. Volatile fields (``compl
 
 from __future__ import annotations
 
+import dataclasses
 import fnmatch
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -68,6 +69,8 @@ class Finding:
     spec: tuple[Path, int | None] | None = None
     """(spec file, line) of the node, edge or invariant involved."""
     level: Level = Level.warning
+    edge: tuple[str, str, str] | None = None
+    """(from, type, to) of the edge involved, for edge and invariant findings."""
 
 
 @dataclass
@@ -93,13 +96,15 @@ def detect(
     *,
     fail_on: frozenset[DriftCategory] | None = None,
     base: str | None = None,
+    merged: Merged | None = None,
 ) -> DriftReport:
     """Compare the code with the spec. ``base`` (a git ref) hides findings that already existed.
 
     Raises ``SpecInvalidError`` if the spec has errors, and ``BaseRefError`` for a bad ``base``.
     """
-    positions = _Positions(load(spec_path))  # before the merge moves things around
-    merged = analyze_and_merge(spec_path)
+    positions = _Positions(load(spec_path))  # from disk: the merge moves things around
+    if merged is None:
+        merged = analyze_and_merge(spec_path)
     document = merged.loaded.document
     assert document is not None
     config = document.config.drift if document.config else None
@@ -130,15 +135,7 @@ def _with_level(finding: Finding, fail_on: frozenset[DriftCategory]) -> Finding:
         level = Level.note
     else:
         level = Level.warning
-    return Finding(
-        finding.category,
-        finding.message,
-        finding.key,
-        finding.node,
-        finding.code,
-        finding.spec,
-        level,
-    )
+    return dataclasses.replace(finding, level=level)
 
 
 class _Positions:
@@ -345,6 +342,7 @@ class _Detector:
             f"({inv.text})",
             f"{node_id}:{inv.id}:{source}:{edge_type}:{target}",
             node=node_id,
+            edge=edge,
             code=self._code(source),
             spec=where,
         )

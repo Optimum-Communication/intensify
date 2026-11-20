@@ -10,7 +10,7 @@ from typing import Annotated
 import typer
 
 from intensify.cli.analyze import print_report
-from intensify.cli.analyze import run as run_analyze
+from intensify.pipeline import analyze_and_write as run_analyze
 from intensify.spec import load_and_validate
 from intensify.spec.constants import (
     DEFAULT_FILENAME,

@@ -22,6 +22,7 @@ from ruamel.yaml.scalarstring import DoubleQuotedScalarString
 from intensify.parser.base import AnalysisResult, Dependency, Symbol
 from intensify.spec import yamlio
 from intensify.spec.constants import PLACEHOLDER_SUMMARY
+from intensify.spec.edit import put, to_yaml
 from intensify.spec.loader import LoadedSpec, NodeEntry, SpecFile
 from intensify.spec.models import LifecycleState, NodeKind, Provenance
 
@@ -29,20 +30,6 @@ SIGNATURE_SIMILARITY = 0.8
 """Minimum signature similarity for matching a renamed-and-moved symbol by name."""
 
 _CODE_KINDS = frozenset({NodeKind.module, NodeKind.class_, NodeKind.function, NodeKind.block})
-
-NODE_KEY_ORDER = (
-    "id",
-    "kind",
-    "name",
-    "parent_id",
-    "lifecycle_state",
-    "provenance",
-    "intent",
-    "contract",
-    "technical",
-    "governance",
-)
-"""Canonical key order. Keys the merge adds to an existing node are placed accordingly."""
 
 
 @dataclass(frozen=True)
@@ -263,12 +250,12 @@ class _Merger:
                 changed |= _set_mapping(node, "contract", sym.contract)
                 parent = self._final_parent(sym)
                 if parent is not None and parent != entry.node.parent_id:
-                    _put(node, "parent_id", parent)
+                    put(node, "parent_id", parent)
                     self.parent_of[node_id] = parent
                     changed = True
 
             if entry.node.lifecycle_state is LifecycleState.planned:
-                _put(node, "lifecycle_state", LifecycleState.in_progress.value)
+                put(node, "lifecycle_state", LifecycleState.in_progress.value)
                 self.report.promoted.append(node_id)
             elif changed and node_id not in {m.id for m in self.report.moved}:
                 self.report.updated.append(node_id)
@@ -376,7 +363,7 @@ class _Merger:
                 continue  # planned nodes may name a file that doesn't exist yet
             self.report.missing.append((node.id, _format_location(location)))
             if self.options.prune:
-                _put(self.maps[node.id], "lifecycle_state", LifecycleState.deprecated.value)
+                put(self.maps[node.id], "lifecycle_state", LifecycleState.deprecated.value)
                 self.report.deprecated.append(node.id)
 
     # -- edges ---------------------------------------------------------------------------
@@ -496,21 +483,6 @@ def _similar(a: str, b: str) -> float:
     return difflib.SequenceMatcher(None, a, b).ratio()
 
 
-def _rt(value: Any) -> Any:
-    """Plain data -> round-trip YAML data, using flow style for small flat mappings."""
-    if isinstance(value, dict):
-        out = CommentedMap()
-        for k, v in value.items():
-            out[k] = _rt(v)
-        if all(not isinstance(v, dict | list) for v in value.values()):
-            out.fa.set_flow_style()
-        return out
-    if isinstance(value, list):
-        seq = CommentedSeq(_rt(v) for v in value)
-        return seq
-    return value
-
-
 def _set_mapping(node: CommentedMap, key: str, value: dict[str, Any] | None) -> bool:
     """Make ``node[key]`` equal ``value`` (removing it for None), editing in place when present.
 
@@ -523,7 +495,7 @@ def _set_mapping(node: CommentedMap, key: str, value: dict[str, Any] | None) -> 
         del node[key]
         return True
     if current is None or not isinstance(current, dict):
-        _put(node, key, _rt(value))
+        put(node, key, to_yaml(value))
         return True
     changed = False
     for k in [k for k in current if k not in value]:
@@ -531,19 +503,9 @@ def _set_mapping(node: CommentedMap, key: str, value: dict[str, Any] | None) -> 
         changed = True
     for k, v in value.items():
         if yamlio.to_plain(current.get(k)) != v:
-            current[k] = _rt(v)
+            current[k] = to_yaml(v)
             changed = True
     return changed
-
-
-def _put(node: CommentedMap, key: str, value: Any) -> None:
-    """Set ``node[key]``; a new key goes in its canonical position rather than at the end."""
-    if key in node or key not in NODE_KEY_ORDER:
-        node[key] = value
-        return
-    rank = NODE_KEY_ORDER.index(key)
-    position = sum(1 for k in node if k in NODE_KEY_ORDER and NODE_KEY_ORDER.index(k) < rank)
-    node.insert(position, key, value)
 
 
 def _new_node(node_id: str, parent: str, sym: Symbol) -> CommentedMap:
@@ -555,8 +517,8 @@ def _new_node(node_id: str, parent: str, sym: Symbol) -> CommentedMap:
     node["provenance"] = Provenance.analyzed.value
     node["intent"] = CommentedMap(summary=DoubleQuotedScalarString(PLACEHOLDER_SUMMARY))
     if sym.contract:
-        node["contract"] = _rt(sym.contract)
-    node["technical"] = _rt(sym.technical())
+        node["contract"] = to_yaml(sym.contract)
+    node["technical"] = to_yaml(sym.technical())
     return node
 
 

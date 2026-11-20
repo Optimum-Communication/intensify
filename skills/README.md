@@ -1,6 +1,18 @@
-# Intensify AI Skills
+# Intensify AI skills
 
-- `enrich/`: drafts `intent.summary`, `intent.rationale` and candidate invariants for un-enriched nodes, using source code, tests and git history.
-- `implement-node/`: points a coding agent at a `planned` node, gives it scoped context via `intensify context`, and closes the loop with `intensify verify`.
+| Skill | Use it to |
+|---|---|
+| [`enrich`](enrich/SKILL.md) | Draft the intent of nodes that `intensify analyze` added, from code, tests and git history. |
+| [`implement-node`](implement-node/SKILL.md) | Build a planned node from its intent, contract and context, then `intensify verify` it. |
 
-Skills are written in Claude Code skill format (`SKILL.md`), with plain prompt templates alongside for other agents. Both are under development.
+Both skills drive the `intensify` CLI, so they work with any agent that can run shell commands. With the [MCP server](../docs/agents.md) connected, agents can use the equivalent MCP tools instead.
+
+## Install
+
+```sh
+intensify skills install                  # Claude Code: .claude/skills/
+intensify skills install --target cursor  # Cursor: .cursor/rules/
+intensify skills install --target plain --dir prompts/   # plain Markdown, for any other agent
+```
+
+Each `SKILL.md` is plain Markdown with a short front-matter header, so you can also paste it into any agent as a prompt.

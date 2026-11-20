@@ -1,6 +1,6 @@
 [project]
 name = "intensify"
-version = "0.0.1"
+version = "0.1.0"
 description = "Intent-driven codebase architecture: define, visualize, and enforce the intent of your code."
 readme = "README.md"
 license = "Apache-2.0"
@@ -19,6 +19,7 @@ classifiers = [
 ]
 dependencies = [
     "jsonschema>=4.26.0",
+    "mcp>=2.3.0",
     "pathspec>=1.1.1",
     "pydantic>=2.14.4",
     "ruamel-yaml>=0.19.1",
@@ -42,6 +43,9 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/intensify"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"skills" = "intensify/_skills"  # bundled AI skills; see intensify.skills
 
 [tool.hatch.build.targets.sdist]
 include = ["src/intensify", "spec", "skills", "tests", "README.md", "LICENSE"]

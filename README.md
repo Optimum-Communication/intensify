@@ -9,7 +9,7 @@ This repository holds the open-source pieces:
 - **AI skills** (`skills/`): enrichment (draft intent from code and git history) and node implementation for coding agents.
 - **CI integration** (`action/`): a GitHub Action and a GitLab CI template for drift checks on pull requests.
 
-> **Status:** pre-alpha. Spec v1.0, `init`, `validate`, `analyze` (Python, TypeScript and JavaScript), `drift` and the CI integrations work. Agent integration is in progress.
+> **Status:** alpha (v0.1). The spec, the CLI (`init`, `validate`, `analyze` for Python and TypeScript/JavaScript, `drift`, `node`, `context`, `verify`), CI integrations, AI skills and the MCP server all work. Intensify checks itself: see its own [`intensify.yaml`](intensify.yaml).
 
 ## Install
 
@@ -30,7 +30,7 @@ intensify validate         # checks it against the spec
 
 To keep the spec honest, run `intensify drift` in CI: it fails pull requests that add undocumented dependencies, break a contract or an invariant, or delete documented code. See [docs/drift.md](docs/drift.md) and the [GitHub Action](action/README.md).
 
-To plan new work, add nodes by hand. Planned nodes need only an `id`, a `kind` and an `intent.summary`:
+To plan new work, add planned nodes. They need only an `id`, a `kind` and an `intent.summary`:
 
 ```yaml
 nodes:
@@ -39,6 +39,16 @@ nodes:
     parent_id: your-repo
     intent:
       summary: Subscription plans and invoicing.
+```
+
+Then point a coding agent at the node: `intensify context` gives it the node's intent, contract, invariants and surroundings, and `intensify verify` checks the result and marks the node active. The bundled skills and the MCP server package this up for Claude Code, Cursor and other agents. See [docs/agents.md](docs/agents.md).
+
+```sh
+intensify node add your-repo.billing.invoices --kind module --parent your-repo.billing \
+  --summary "Generate monthly invoices."
+intensify context your-repo.billing.invoices
+intensify skills install          # agent skills for Claude Code (or --target cursor)
+claude mcp add intensify -- intensify mcp
 ```
 
 Read the [spec](spec/v1.0/spec.md) and its [examples](spec/v1.0/examples/).

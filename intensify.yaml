@@ -1,0 +1,4091 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Optimum-Communication/intensify/main/spec/v1.0/schema.json
+#
+# Intensify spec: the intent graph of this repository.
+# Reference: https://github.com/Optimum-Communication/intensify/blob/main/spec/v1.0/spec.md
+intensify: "1.0"
+
+project:
+  id: intensify
+  name: "Intensify"
+
+config:
+  analyze:
+    depth: function  # finest node kind `intensify analyze` creates: module | class | function
+    public_only: true  # skip private symbols
+    exclude:
+      - tests/fixtures/  # sample repositories for the analyzers, not project code
+      - tests/golden/
+  verify:
+    test_command: "uv run pytest -q {tests}"
+  drift:
+    fail_on: [undocumented_edge, contract_mismatch, invariant_violation, missing_node]
+
+nodes:
+  - id: intensify
+    kind: repo
+    lifecycle_state: active
+    intent:
+      summary: "Open-source CLI and specification for recording, analyzing and enforcing the intent of a codebase as a graph in intensify.yaml."
+  - id: intensify-module
+    kind: module
+    parent_id: intensify
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'The intensify Python package: the CLI, the spec library, analyzers, merge, drift, agent context and the MCP server.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/__init__.py}
+      complexity: {loc: 6}
+      fingerprint: sha256:78b56462b871f95ea080e336d2ef17153f41eb1d2d1004764a5bb350bfd2d9d7
+  - id: intensify.__main__
+    kind: module
+    parent_id: intensify-module
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Lets the CLI run as `python -m intensify`.
+      rationale: The MCP stdio test and some agents launch the server through the interpreter rather than a console script.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/__main__.py}
+      complexity: {loc: 4}
+      fingerprint: sha256:446f5e605ca4583623106b7a59585ead82d0472ed23ec8d23c0a51e7ff016dff
+  - id: intensify.cli
+    kind: module
+    parent_id: intensify-module
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Typer command-line interface; each command lives in its own module and is registered here.
+      rationale: 'The CLI is the outermost layer: library modules never import it, so the same logic serves the CLI, the MCP server and tests.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/cli/__init__.py}
+      complexity: {loc: 61}
+      fingerprint: sha256:cd0a6c80a84743c57ecfebabd12332246a2a22460b55d1d7556897fb35acbe7d
+    governance:
+      invariants:
+        - id: outermost-layer
+          text: Only the CLI itself, __main__ and tests depend on CLI code; library modules never do.
+          rule:
+            allowed_dependents:
+              from: [intensify.cli*, intensify.__main__, tests.*]
+  - id: intensify.cli.root
+    kind: function
+    parent_id: intensify.cli
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: version, type: "Annotated[\n        bool,\n        typer.Option(\n            \"--version\",\n            \"-V\",\n            callback=_version_callback,\n            is_eager=True,\n            help=\"Show the version and exit.\",\n        ),\n    ]", required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/__init__.py, symbol: root}
+      signature: 'def root(version: Annotated[bool, typer.Option("--version", "-V", callback=_version_callback, is_eager=True, help="Show the version and exit.")] = False) -> None'
+      complexity: {cyclomatic: 1, loc: 13}
+      fingerprint: sha256:f35a68ae267259e8b1b49a6b19dc4899efe37f6fa44f4eeae70bfb997b42cc46
+  - id: intensify.cli.main
+    kind: function
+    parent_id: intensify.cli
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/cli/__init__.py, symbol: main}
+      signature: def main() -> None
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:da4ace14c5cbe63f7021c8b96e797abbecac88d890c2742a3230f8350cbe06f3
+  - id: intensify.cli.analyze
+    kind: module
+    parent_id: intensify.cli
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: '`intensify analyze`: refresh intensify.yaml from code and report what changed.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/cli/analyze.py}
+      complexity: {loc: 128}
+      fingerprint: sha256:46ebbdd924f7fa71715dfb49bb30f54ea921a8c9f12ce1ccd5b97a649f250321
+  - id: intensify.cli.analyze.print_report
+    kind: function
+    parent_id: intensify.cli.analyze
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: outcome, type: AnalyzeOutcome}
+        - {name: dry_run, type: bool}
+        - {name: verbose, type: bool}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/analyze.py, symbol: print_report}
+      signature: 'def print_report(outcome: AnalyzeOutcome, *, dry_run: bool, verbose: bool) -> None'
+      complexity: {cyclomatic: 14, loc: 44}
+      fingerprint: sha256:4a793b83c17ba48173fd7703f05ff0dba6474b4c01f861f344f51b32ab1f7fbd
+  - id: intensify.cli.analyze.analyze
+    kind: function
+    parent_id: intensify.cli.analyze
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: path, type: "Annotated[\n        Path,\n        typer.Argument(help=\"Spec file, or a directory containing intensify.yaml.\"),\n    ]", required: false}
+        - {name: only, type: "Annotated[\n        list[str] | None,\n        typer.Option(\n            \"--paths\",\n            \"-p\",\n            help=\"Only update nodes for these files or directories (repeatable).\",\n        ),\n    ]", required: false}
+        - {name: depth, type: "Annotated[\n        NodeKind | None,\n        typer.Option(help=\"Finest node kind to create. Overrides config.analyze.depth.\"),\n    ]", required: false}
+        - {name: prune, type: "Annotated[\n        bool, typer.Option(\"--prune\", help=\"Mark nodes whose code is gone as deprecated.\")\n    ]", required: false}
+        - {name: dry_run, type: "Annotated[\n        bool, typer.Option(\"--dry-run\", \"-n\", help=\"Show the changes without writing them.\")\n    ]", required: false}
+        - {name: verbose, type: 'Annotated[bool, typer.Option("--verbose", "-v", help="List every node.")]', required: false}
+      errors:
+        - {type: typer.Exit}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/analyze.py, symbol: analyze}
+      signature: 'def analyze(path: Annotated[Path, typer.Argument(help="Spec file, or a directory containing intensify.yaml.")] = Path("."), only: Annotated[list[str] | None, typer.Option("--paths", "-p", help="Only update nodes for these files or directories (repeatable).")] = None, depth: Annotated[NodeKind | None, typer.Option(help="Finest node kind to create. Overrides config.analyze.depth.")] = None, prune: Annotated[bool, typer.Option("--prune", help="Mark nodes whose code is gone as deprecated.")] = False, dry_run: Annotated[bool, typer.Option("--dry-run", "-n", help="Show the changes without writing them.")] = False, verbose: Annotated[bool, typer.Option("--verbose", "-v", help="List every node.")] = False) -> None'
+      complexity: {cyclomatic: 10, loc: 47}
+      fingerprint: sha256:268598f12faa8f7db001524c356b2148337c129051f85f94eaf340496b9f147f
+  - id: intensify.cli.context
+    kind: module
+    parent_id: intensify.cli
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: '`intensify context`: print a prompt-ready context bundle for one node.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/cli/context.py}
+      complexity: {loc: 47}
+      fingerprint: sha256:e492784aef09a338aa4aea393ad7b8b9daa010eb2c04a70dc045e867a467e009
+  - id: intensify.cli.context.Format
+    kind: class
+    parent_id: intensify.cli.context
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/cli/context.py, symbol: Format}
+      signature: class Format(StrEnum)
+      complexity: {loc: 3}
+      fingerprint: sha256:380c1fb7088c30a0451472ae12559202e0d199ff3b50b5cf0b9b09fe45a7076b
+  - id: intensify.cli.context.context
+    kind: function
+    parent_id: intensify.cli.context
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node_id, type: 'Annotated[str, typer.Argument(help="Node to build context for.")]'}
+        - {name: spec, type: "Annotated[\n        Path,\n        typer.Option(\"--spec\", \"-s\", help=\"Spec file, or a directory containing intensify.yaml.\"),\n    ]", required: false}
+        - {name: output_format, type: 'Annotated[Format, typer.Option("--format", "-f")]', required: false}
+        - {name: include_source, type: "Annotated[\n        bool, typer.Option(\"--include-source\", help=\"Include the code of the node and its deps.\")\n    ]", required: false}
+        - {name: budget, type: "Annotated[\n        int | None,\n        typer.Option(help=\"Approximate token limit; lower-priority sections are dropped first.\"),\n    ]", required: false}
+      errors:
+        - {type: typer.Exit}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/context.py, symbol: context}
+      signature: 'def context(node_id: Annotated[str, typer.Argument(help="Node to build context for.")], spec: Annotated[Path, typer.Option("--spec", "-s", help="Spec file, or a directory containing intensify.yaml.")] = Path("."), output_format: Annotated[Format, typer.Option("--format", "-f")] = Format.markdown, include_source: Annotated[bool, typer.Option("--include-source", help="Include the code of the node and its deps.")] = False, budget: Annotated[int | None, typer.Option(help="Approximate token limit; lower-priority sections are dropped first.")] = None) -> None'
+      complexity: {cyclomatic: 3, loc: 26}
+      fingerprint: sha256:5634345ee34eb6c7d93496a177907ffad47ca530068a1ee750399240e50cdc67
+  - id: intensify.cli.drift
+    kind: module
+    parent_id: intensify.cli
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: '`intensify drift`: report how the code differs from the spec, in text or CI report formats, with CI-friendly exit codes.'
+      rationale: Exit code 2 (could not run) is kept distinct from 1 (drift found) so CI can tell a broken spec from drift.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/cli/drift.py}
+      complexity: {loc: 140}
+      fingerprint: sha256:b8ccf981c0a4bb251572fe78d7baeff6b17d9b35e74dafa1cedaf796991f8a61
+  - id: intensify.cli.drift.OutputFormat
+    kind: class
+    parent_id: intensify.cli.drift
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/cli/drift.py, symbol: OutputFormat}
+      signature: class OutputFormat(StrEnum)
+      complexity: {loc: 6}
+      fingerprint: sha256:adb09ced54ba3c9d2cc98c3328b4785c1bfd77788bf1fa37ee780a8a9188c941
+  - id: intensify.cli.drift.render_text
+    kind: function
+    parent_id: intensify.cli.drift
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: report, type: DriftReport}
+        - {name: verbose, type: bool}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/drift.py, symbol: render_text}
+      signature: 'def render_text(report: DriftReport, *, verbose: bool) -> None'
+      complexity: {cyclomatic: 16, loc: 34}
+      fingerprint: sha256:0212060e7bc6b32f79881eb7b00d2a035e53bf6979160d408cd9ca1c4912080e
+  - id: intensify.cli.drift.drift
+    kind: function
+    parent_id: intensify.cli.drift
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: path, type: "Annotated[\n        Path,\n        typer.Argument(help=\"Spec file, or a directory containing intensify.yaml.\"),\n    ]", required: false}
+        - {name: base, type: "Annotated[\n        str | None,\n        typer.Option(\n            help=\"Git revision to compare with. Only drift introduced since then is reported.\"\n        ),\n    ]", required: false}
+        - {name: fail_on, type: "Annotated[\n        list[DriftCategory] | None,\n        typer.Option(\n            \"--fail-on\",\n            help=\"Category that fails the check (repeatable). Overrides config.drift.fail_on.\",\n        ),\n    ]", required: false}
+        - {name: output_format, type: "Annotated[\n        OutputFormat, typer.Option(\"--format\", \"-f\", help=\"Format printed to stdout.\")\n    ]", required: false}
+        - {name: sarif, type: "Annotated[\n        Path | None, typer.Option(help=\"Also write a SARIF 2.1.0 report to this file.\")\n    ]", required: false}
+        - {name: markdown, type: "Annotated[\n        Path | None, typer.Option(help=\"Also write a Markdown summary to this file.\")\n    ]", required: false}
+        - {name: codequality, type: "Annotated[\n        Path | None,\n        typer.Option(help=\"Also write a GitLab Code Quality report to this file.\"),\n    ]", required: false}
+        - {name: verbose, type: 'Annotated[bool, typer.Option("--verbose", "-v", help="Show notes too.")]', required: false}
+      errors:
+        - {type: typer.Exit}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/drift.py, symbol: drift}
+      signature: 'def drift(path: Annotated[Path, typer.Argument(help="Spec file, or a directory containing intensify.yaml.")] = Path("."), base: Annotated[str | None, typer.Option(help="Git revision to compare with. Only drift introduced since then is reported.")] = None, fail_on: Annotated[list[DriftCategory] | None, typer.Option("--fail-on", help="Category that fails the check (repeatable). Overrides config.drift.fail_on.")] = None, output_format: Annotated[OutputFormat, typer.Option("--format", "-f", help="Format printed to stdout.")] = OutputFormat.text, sarif: Annotated[Path | None, typer.Option(help="Also write a SARIF 2.1.0 report to this file.")] = None, markdown: Annotated[Path | None, typer.Option(help="Also write a Markdown summary to this file.")] = None, codequality: Annotated[Path | None, typer.Option(help="Also write a GitLab Code Quality report to this file.")] = None, verbose: Annotated[bool, typer.Option("--verbose", "-v", help="Show notes too.")] = False) -> None'
+      complexity: {cyclomatic: 12, loc: 69}
+      fingerprint: sha256:111f079152e520eb3ca3ad42f604ec41e5de675253b16c21eb5907bd4e312b2d
+  - id: intensify.cli.init
+    kind: module
+    parent_id: intensify.cli
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: '`intensify init`: write a starter intensify.yaml, optionally populated from code.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/cli/init.py}
+      complexity: {loc: 125}
+      fingerprint: sha256:2527350b6164899e742f0d54fc0e70a0dac87bb01d0898c3a005d5e78b9e7a3a
+  - id: intensify.cli.init.slugify
+    kind: function
+    parent_id: intensify.cli.init
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: name, type: str}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/init.py, symbol: slugify}
+      signature: 'def slugify(name: str) -> str'
+      complexity: {cyclomatic: 2, loc: 4}
+      fingerprint: sha256:3eae620ff6699c3a459b61f5364caae9201a9f714cd6c3fdf2610538b75c2cfa
+  - id: intensify.cli.init.render
+    kind: function
+    parent_id: intensify.cli.init
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: project_id, type: str}
+        - {name: name, type: str}
+        - {name: summary, type: str}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/init.py, symbol: render}
+      signature: 'def render(project_id: str, name: str, summary: str) -> str: # json.dumps yields a double-quoted string, which is also a valid YAML scalar.'
+      complexity: {cyclomatic: 1, loc: 10}
+      fingerprint: sha256:03c188cb9007d56a4aa7d35ed450782bfe04d82385cfeaf2875347c62400f0c8
+  - id: intensify.cli.init.init
+    kind: function
+    parent_id: intensify.cli.init
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: directory, type: "Annotated[\n        Path,\n        typer.Argument(file_okay=False, help=\"Repository root to initialize.\"),\n    ]", required: false}
+        - {name: project_id, type: "Annotated[\n        str | None,\n        typer.Option(\"--id\", help=\"Project ID. Defaults to the directory name, slugified.\"),\n    ]", required: false}
+        - {name: name, type: "Annotated[\n        str | None,\n        typer.Option(help=\"Human-readable project name. Defaults to the directory name.\"),\n    ]", required: false}
+        - {name: summary, type: "Annotated[\n        str | None,\n        typer.Option(help=\"One-line intent of the repository.\"),\n    ]", required: false}
+        - {name: force, type: 'Annotated[bool, typer.Option("--force", help="Overwrite an existing file.")]', required: false}
+        - {name: analyze, type: "Annotated[\n        bool, typer.Option(\"--analyze\", help=\"Populate nodes from source code straight away.\")\n    ]", required: false}
+      errors:
+        - {type: typer.Exit}
+        - {type: RuntimeError}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/init.py, symbol: init}
+      signature: 'def init(directory: Annotated[Path, typer.Argument(file_okay=False, help="Repository root to initialize.")] = Path("."), project_id: Annotated[str | None, typer.Option("--id", help="Project ID. Defaults to the directory name, slugified.")] = None, name: Annotated[str | None, typer.Option(help="Human-readable project name. Defaults to the directory name.")] = None, summary: Annotated[str | None, typer.Option(help="One-line intent of the repository.")] = None, force: Annotated[bool, typer.Option("--force", help="Overwrite an existing file.")] = False, analyze: Annotated[bool, typer.Option("--analyze", help="Populate nodes from source code straight away.")] = False) -> None'
+      complexity: {cyclomatic: 11, loc: 55}
+      fingerprint: sha256:e5987bff02bfa8e6be5d14e9ef8402a3ead3e9d7aaa6eb93ab96eed4fab3ce51
+  - id: intensify.cli.mcp
+    kind: module
+    parent_id: intensify.cli
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: '`intensify mcp`: run the MCP server over stdio.'
+      rationale: Imports the MCP SDK lazily so other commands don't pay for it.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/cli/mcp.py}
+      complexity: {loc: 23}
+      fingerprint: sha256:a7e013601b6be2c5a6efdea6a54eb1bc6d54ce8cc4c0c2423dfa33ad3ef30d93
+  - id: intensify.cli.mcp.mcp
+    kind: function
+    parent_id: intensify.cli.mcp
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: spec, type: "Annotated[\n        Path,\n        typer.Option(\"--spec\", \"-s\", help=\"Spec file, or a directory containing intensify.yaml.\"),\n    ]", required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/mcp.py, symbol: mcp}
+      signature: 'def mcp(spec: Annotated[Path, typer.Option("--spec", "-s", help="Spec file, or a directory containing intensify.yaml.")] = Path(".")) -> None'
+      complexity: {cyclomatic: 1, loc: 10}
+      fingerprint: sha256:168f4e7f2596a93c50bff538fd5f1a5bfa2ebccaa91027df5cad426f253c7a79
+  - id: intensify.cli.node
+    kind: module
+    parent_id: intensify.cli
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: '`intensify node get|list|set|add`: read and edit single nodes without hand-editing YAML.'
+      rationale: Gives people, scripts and agents a validated write path that preserves comments and formatting.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/cli/node.py}
+      complexity: {loc: 241}
+      fingerprint: sha256:8aa0a80b0fa418c9103c980cd9e1335bcb90fa6a8924ddff764601fa61de852e
+  - id: intensify.cli.node.Format
+    kind: class
+    parent_id: intensify.cli.node
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/cli/node.py, symbol: Format}
+      signature: class Format(StrEnum)
+      complexity: {loc: 3}
+      fingerprint: sha256:fd9c6ee5ba62ce63363c36038ac1c797397a7b0ca76882bbb789a3f71fbde1b6
+  - id: intensify.cli.node.ListFormat
+    kind: class
+    parent_id: intensify.cli.node
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/cli/node.py, symbol: ListFormat}
+      signature: class ListFormat(StrEnum)
+      complexity: {loc: 3}
+      fingerprint: sha256:75a0cc94284fb29952b2b2ba39b5052fc2dd5b9c113647ef6d0b96cd82db56c7
+  - id: intensify.cli.node.load_or_exit
+    kind: function
+    parent_id: intensify.cli.node
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: path, type: Path}
+      outputs:
+        - {type: LoadedSpec}
+      errors:
+        - {type: typer.Exit}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/node.py, symbol: load_or_exit}
+      signature: 'def load_or_exit(path: Path) -> LoadedSpec'
+      complexity: {cyclomatic: 2, loc: 6}
+      fingerprint: sha256:86d09fd931a51462c032894330b8359333991c0f78bf094b44b7eceb24c59cf3
+  - id: intensify.cli.node.get
+    kind: function
+    parent_id: intensify.cli.node
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node_id, type: 'Annotated[str, typer.Argument(help="Node ID.")]'}
+        - {name: spec, type: SpecOption, required: false}
+        - {name: output_format, type: 'Annotated[Format, typer.Option("--format", "-f")]', required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/node.py, symbol: get}
+      signature: 'def get(node_id: Annotated[str, typer.Argument(help="Node ID.")], spec: SpecOption = Path("."), output_format: Annotated[Format, typer.Option("--format", "-f")] = Format.yaml) -> None'
+      complexity: {cyclomatic: 3, loc: 15}
+      fingerprint: sha256:daf27515968a5a7dc9adbe5f6b4aad5a6cb45f044088a6e136b1a371df6060e2
+  - id: intensify.cli.node.list_nodes
+    kind: function
+    parent_id: intensify.cli.node
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: query, type: "Annotated[\n        list[str] | None, typer.Argument(help=\"Words to search for in IDs, names and intent.\")\n    ]", required: false}
+        - {name: spec, type: SpecOption, required: false}
+        - {name: kind, type: 'Annotated[NodeKind | None, typer.Option(help="Only this kind.")]', required: false}
+        - {name: state, type: 'Annotated[LifecycleState | None, typer.Option(help="Only this lifecycle state.")]', required: false}
+        - {name: tag, type: 'Annotated[str | None, typer.Option(help="Only nodes with this tag.")]', required: false}
+        - {name: unenriched, type: "Annotated[\n        bool, typer.Option(\"--unenriched\", help=\"Only nodes whose intent is the placeholder.\")\n    ]", required: false}
+        - {name: output_format, type: 'Annotated[ListFormat, typer.Option("--format", "-f")]', required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/node.py, symbol: list_nodes}
+      signature: 'def list_nodes(query: Annotated[list[str] | None, typer.Argument(help="Words to search for in IDs, names and intent.")] = None, spec: SpecOption = Path("."), kind: Annotated[NodeKind | None, typer.Option(help="Only this kind.")] = None, state: Annotated[LifecycleState | None, typer.Option(help="Only this lifecycle state.")] = None, tag: Annotated[str | None, typer.Option(help="Only nodes with this tag.")] = None, unenriched: Annotated[bool, typer.Option("--unenriched", help="Only nodes whose intent is the placeholder.")] = False, output_format: Annotated[ListFormat, typer.Option("--format", "-f")] = ListFormat.text) -> None'
+      complexity: {cyclomatic: 9, loc: 34}
+      fingerprint: sha256:ba51a3a769054d7dfd00c04baea504a67a0f52fcfba5f7d99022c47e0b6de4df
+  - id: intensify.cli.node.set_node
+    kind: function
+    parent_id: intensify.cli.node
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node_id, type: 'Annotated[str, typer.Argument(help="Node ID.")]'}
+        - {name: spec, type: SpecOption, required: false}
+        - {name: summary, type: 'Annotated[str | None, typer.Option(help="intent.summary")]', required: false}
+        - {name: rationale, type: 'Annotated[str | None, typer.Option(help="intent.rationale")]', required: false}
+        - {name: author, type: "Annotated[\n        Author | None, typer.Option(help=\"intent.author: `ai` marks a draft for review.\")\n    ]", required: false}
+        - {name: state, type: 'Annotated[LifecycleState | None, typer.Option(help="lifecycle_state")]', required: false}
+        - {name: name, type: 'Annotated[str | None, typer.Option(help="Display name.")]', required: false}
+        - {name: owner, type: "Annotated[\n        list[str] | None, typer.Option(help=\"governance.owners (repeatable; replaces the list).\")\n    ]", required: false}
+        - {name: tag, type: "Annotated[\n        list[str] | None, typer.Option(help=\"governance.tags (repeatable; replaces the list).\")\n    ]", required: false}
+        - {name: invariant, type: "Annotated[\n        list[str] | None,\n        typer.Option(help=\"Add or replace an invariant: `ID=TEXT` (repeatable).\"),\n    ]", required: false}
+        - {name: json_patch, type: "Annotated[\n        str | None,\n        typer.Option(\n            \"--json\", help=\"JSON object deep-merged into the node. `null` removes a field.\"\n        ),\n    ]", required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/node.py, symbol: set_node}
+      signature: 'def set_node(node_id: Annotated[str, typer.Argument(help="Node ID.")], spec: SpecOption = Path("."), summary: Annotated[str | None, typer.Option(help="intent.summary")] = None, rationale: Annotated[str | None, typer.Option(help="intent.rationale")] = None, author: Annotated[Author | None, typer.Option(help="intent.author: `ai` marks a draft for review.")] = None, state: Annotated[LifecycleState | None, typer.Option(help="lifecycle_state")] = None, name: Annotated[str | None, typer.Option(help="Display name.")] = None, owner: Annotated[list[str] | None, typer.Option(help="governance.owners (repeatable; replaces the list).")] = None, tag: Annotated[list[str] | None, typer.Option(help="governance.tags (repeatable; replaces the list).")] = None, invariant: Annotated[list[str] | None, typer.Option(help="Add or replace an invariant: `ID=TEXT` (repeatable).")] = None, json_patch: Annotated[str | None, typer.Option("--json", help="JSON object deep-merged into the node. `null` removes a field.")] = None) -> None'
+      complexity: {cyclomatic: 20, loc: 76}
+      fingerprint: sha256:5893e49831d5fafd6617ee8704525ee9c2ac9de6cb381010a6f6d76944ae5133
+  - id: intensify.cli.node.add
+    kind: function
+    parent_id: intensify.cli.node
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node_id, type: 'Annotated[str, typer.Argument(help="ID of the new node.")]'}
+        - {name: kind, type: 'Annotated[NodeKind, typer.Option(help="Node kind.")]'}
+        - {name: summary, type: 'Annotated[str, typer.Option(help="intent.summary")]'}
+        - {name: spec, type: SpecOption, required: false}
+        - {name: parent, type: 'Annotated[str | None, typer.Option(help="parent_id")]', required: false}
+        - {name: rationale, type: 'Annotated[str | None, typer.Option(help="intent.rationale")]', required: false}
+        - {name: state, type: 'Annotated[LifecycleState, typer.Option(help="lifecycle_state")]', required: false}
+        - {name: json_extra, type: "Annotated[\n        str | None, typer.Option(\"--json\", help=\"JSON object with more fields for the node.\")\n    ]", required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/node.py, symbol: add}
+      signature: 'def add(node_id: Annotated[str, typer.Argument(help="ID of the new node.")], kind: Annotated[NodeKind, typer.Option(help="Node kind.")], summary: Annotated[str, typer.Option(help="intent.summary")], spec: SpecOption = Path("."), parent: Annotated[str | None, typer.Option(help="parent_id")] = None, rationale: Annotated[str | None, typer.Option(help="intent.rationale")] = None, state: Annotated[LifecycleState, typer.Option(help="lifecycle_state")] = LifecycleState.planned, json_extra: Annotated[str | None, typer.Option("--json", help="JSON object with more fields for the node.")] = None) -> None'
+      complexity: {cyclomatic: 4, loc: 26}
+      fingerprint: sha256:6f4c3e5f8e8f2c9adaaae643bec60180c308e8c24c9f2a1dea58d8b05b9b7310
+  - id: intensify.cli.skills
+    kind: module
+    parent_id: intensify.cli
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: '`intensify skills`: list the bundled AI skills and install them for Claude Code, Cursor or as plain Markdown.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/cli/skills.py}
+      complexity: {loc: 43}
+      fingerprint: sha256:468cadaf1bc47936651d5370f87868120c64463df9e048efecd3b45900376827
+  - id: intensify.cli.skills.list_skills
+    kind: function
+    parent_id: intensify.cli.skills
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/cli/skills.py, symbol: list_skills}
+      signature: def list_skills() -> None
+      complexity: {cyclomatic: 2, loc: 4}
+      fingerprint: sha256:400d53c969018e300312e287e21310ac128ba878d80fafa7ab7896f50018e7ef
+  - id: intensify.cli.skills.install_skills
+    kind: function
+    parent_id: intensify.cli.skills
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: target, type: 'Annotated[Target, typer.Option(help="Agent to install for.")]', required: false}
+        - {name: directory, type: "Annotated[\n        Path | None,\n        typer.Option(\"--dir\", help=\"Where to install. Defaults to the agent's usual location.\"),\n    ]", required: false}
+        - {name: force, type: 'Annotated[bool, typer.Option("--force", help="Overwrite changed files.")]', required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/skills.py, symbol: install_skills}
+      signature: "def install_skills(target: Annotated[Target, typer.Option(help=\"Agent to install for.\")] = Target.claude, directory: Annotated[Path | None, typer.Option(\"--dir\", help=\"Where to install. Defaults to the agent's usual location.\")] = None, force: Annotated[bool, typer.Option(\"--force\", help=\"Overwrite changed files.\")] = False) -> None"
+      complexity: {cyclomatic: 5, loc: 20}
+      fingerprint: sha256:570ccbb397e90562513ee97a47ca7fbd450712a0209b8125780dcb0cc6102c16
+  - id: intensify.cli.validate
+    kind: module
+    parent_id: intensify.cli
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: '`intensify validate`: check a spec and print located diagnostics as text or JSON.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/cli/validate.py}
+      complexity: {loc: 99}
+      fingerprint: sha256:34898a0cc898220eb72b3be12dcb0d718de81a15d0c66b030ce4dfd914e12983
+  - id: intensify.cli.validate.OutputFormat
+    kind: class
+    parent_id: intensify.cli.validate
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/cli/validate.py, symbol: OutputFormat}
+      signature: class OutputFormat(StrEnum)
+      complexity: {loc: 3}
+      fingerprint: sha256:75a0cc94284fb29952b2b2ba39b5052fc2dd5b9c113647ef6d0b96cd82db56c7
+  - id: intensify.cli.validate.render_text
+    kind: function
+    parent_id: intensify.cli.validate
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: loaded, type: LoadedSpec}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/validate.py, symbol: render_text}
+      signature: 'def render_text(loaded: LoadedSpec) -> None'
+      complexity: {cyclomatic: 9, loc: 24}
+      fingerprint: sha256:b204cdc61c1741095737718c79367facc6831ba423c18d30264f865dd70fcd5b
+  - id: intensify.cli.validate.render_json
+    kind: function
+    parent_id: intensify.cli.validate
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: loaded, type: LoadedSpec}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/validate.py, symbol: render_json}
+      signature: 'def render_json(loaded: LoadedSpec) -> None'
+      complexity: {cyclomatic: 3, loc: 9}
+      fingerprint: sha256:ea6263bb77c0e0ee06a06886bb4c54c6130e0d36fc274df36a73ded5ae509e97
+  - id: intensify.cli.validate.validate
+    kind: function
+    parent_id: intensify.cli.validate
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: path, type: "Annotated[\n        Path,\n        typer.Argument(help=\"Spec file, or a directory containing intensify.yaml.\"),\n    ]", required: false}
+        - {name: output_format, type: "Annotated[\n        OutputFormat, typer.Option(\"--format\", \"-f\", help=\"Output format.\")\n    ]", required: false}
+      errors:
+        - {type: typer.Exit}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/validate.py, symbol: validate}
+      signature: 'def validate(path: Annotated[Path, typer.Argument(help="Spec file, or a directory containing intensify.yaml.")] = Path("."), output_format: Annotated[OutputFormat, typer.Option("--format", "-f", help="Output format.")] = OutputFormat.text) -> None'
+      complexity: {cyclomatic: 3, loc: 17}
+      fingerprint: sha256:2a5d891a9f952f782a214a8744932a810c44f8eb8fa9a114af0bb0b170b964b0
+  - id: intensify.cli.verify
+    kind: module
+    parent_id: intensify.cli
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "`intensify verify`: check a node's code against its spec and mark it active when it passes."
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/cli/verify.py}
+      complexity: {loc: 70}
+      fingerprint: sha256:ffce57e45e1575cab4e66647e8f7dbae0799808106e1582c0ca75686a8dd2661
+  - id: intensify.cli.verify.verify
+    kind: function
+    parent_id: intensify.cli.verify
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node_id, type: 'Annotated[str, typer.Argument(help="Node to verify.")]'}
+        - {name: spec, type: "Annotated[\n        Path,\n        typer.Option(\"--spec\", \"-s\", help=\"Spec file, or a directory containing intensify.yaml.\"),\n    ]", required: false}
+        - {name: run_tests, type: "Annotated[\n        bool, typer.Option(\"--run-tests/--skip-tests\", help=\"Run config.verify.test_command.\")\n    ]", required: false}
+        - {name: require_tests, type: "Annotated[\n        bool,\n        typer.Option(\"--require-tests/--allow-untested\", help=\"Fail if no test verifies the node.\"),\n    ]", required: false}
+        - {name: dry_run, type: "Annotated[\n        bool, typer.Option(\"--dry-run\", \"-n\", help=\"Check only; don't update the spec.\")\n    ]", required: false}
+      errors:
+        - {type: typer.Exit}
+    technical:
+      language: python
+      location: {path: src/intensify/cli/verify.py, symbol: verify}
+      signature: "def verify(node_id: Annotated[str, typer.Argument(help=\"Node to verify.\")], spec: Annotated[Path, typer.Option(\"--spec\", \"-s\", help=\"Spec file, or a directory containing intensify.yaml.\")] = Path(\".\"), run_tests: Annotated[bool, typer.Option(\"--run-tests/--skip-tests\", help=\"Run config.verify.test_command.\")] = True, require_tests: Annotated[bool, typer.Option(\"--require-tests/--allow-untested\", help=\"Fail if no test verifies the node.\")] = True, dry_run: Annotated[bool, typer.Option(\"--dry-run\", \"-n\", help=\"Check only; don't update the spec.\")] = False) -> None"
+      complexity: {cyclomatic: 14, loc: 54}
+      fingerprint: sha256:ff4b0f1176e802c1892d60f6a0a68817567bc74449e38406b8244ca0ef3b6936
+  - id: intensify.context
+    kind: module
+    parent_id: intensify-module
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "Builds scoped context bundles for AI agents: a node's intent, contract, invariants, neighbours, tests and nearby planned work, rendered as Markdown or JSON within a token budget."
+      rationale: Agents write better code when they see the architecture and upcoming work around a node, but prompts must stay bounded, so sections are trimmed by priority.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/context/__init__.py}
+      complexity: {loc: 327}
+      fingerprint: sha256:06f0a5cd5f374796b8878612f47e7b201ab0c13ccc02721f289071281831753a
+  - id: intensify.context.Related
+    kind: class
+    parent_id: intensify.context
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/context/__init__.py, symbol: Related}
+      signature: class Related
+      complexity: {loc: 6}
+      fingerprint: sha256:10455e114186bc3d6a125ec48500b638ecb1e6cdf431cdf32c6f206b22bd4280
+  - id: intensify.context.Bundle
+    kind: class
+    parent_id: intensify.context
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/context/__init__.py, symbol: Bundle}
+      signature: class Bundle
+      complexity: {loc: 16}
+      fingerprint: sha256:2aa530c681d642de39cd3afc378efb046a9d4bd3e554e892ba4d489886d0ff4a
+  - id: intensify.context.build
+    kind: function
+    parent_id: intensify.context
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Collect the context bundle for one node from the spec graph.
+      author: ai
+    contract:
+      inputs:
+        - {name: loaded, type: LoadedSpec}
+        - {name: node_id, type: str}
+        - {name: include_source, type: bool, required: false}
+      outputs:
+        - {type: Bundle}
+      errors:
+        - {type: KeyError}
+    technical:
+      language: python
+      location: {path: src/intensify/context/__init__.py, symbol: build}
+      signature: 'def build(loaded: LoadedSpec, node_id: str, *, include_source: bool = False) -> Bundle'
+      complexity: {cyclomatic: 21, loc: 36}
+      fingerprint: sha256:22ef91db470baf54b8a2c9d52ae7cacb66ae682cab9b0d28c8aa6c912c215c14
+  - id: intensify.context.render_markdown
+    kind: function
+    parent_id: intensify.context
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Render a context bundle as Markdown, dropping low-priority sections to fit a token budget.
+      author: ai
+    contract:
+      inputs:
+        - {name: bundle, type: Bundle}
+        - {name: budget, type: int | None, required: false}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/context/__init__.py, symbol: render_markdown}
+      signature: 'def render_markdown(bundle: Bundle, *, budget: int | None = None) -> str'
+      complexity: {cyclomatic: 6, loc: 24}
+      fingerprint: sha256:50ff4a7de3e3ae577f16d174579bf0e8bc2d70aaca9292c1f4150e6325c8d05d
+  - id: intensify.context.to_dict
+    kind: function
+    parent_id: intensify.context
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: bundle, type: Bundle}
+      outputs:
+        - {type: 'dict[str, Any]'}
+    technical:
+      language: python
+      location: {path: src/intensify/context/__init__.py, symbol: to_dict}
+      signature: 'def to_dict(bundle: Bundle) -> dict[str, Any]'
+      complexity: {cyclomatic: 4, loc: 21}
+      fingerprint: sha256:450aed9011484d12e9d61e3221c547624e96689d4b05cf411ce9aec788e6c6e0
+  - id: intensify.differ
+    kind: module
+    parent_id: intensify-module
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Drift detection: compares the code with the committed spec and classifies differences into findings with levels from config.drift.fail_on.'
+      rationale: Reuses the analyze merge in memory so drift and analyze can never disagree about what changed; volatile fields never produce findings.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/differ/__init__.py}
+      complexity: {loc: 471}
+      fingerprint: sha256:2aef821c2603d1d256c003fee186e5b6876d02815a052bb2b13e5b84e48f29e5
+  - id: intensify.differ.Level
+    kind: class
+    parent_id: intensify.differ
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/differ/__init__.py, symbol: Level}
+      signature: class Level(StrEnum)
+      complexity: {loc: 4}
+      fingerprint: sha256:fec875575d2ae19d3afc464367d4c1da733324341049110945011778c69652e1
+  - id: intensify.differ.Finding
+    kind: class
+    parent_id: intensify.differ
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/differ/__init__.py, symbol: Finding}
+      signature: class Finding
+      complexity: {loc: 13}
+      fingerprint: sha256:2c3c564d8ecf796bcb3e48b84ce0a4c2508168227b3a19d0d6b51e5b0e49f01d
+  - id: intensify.differ.DriftReport
+    kind: class
+    parent_id: intensify.differ
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/differ/__init__.py, symbol: DriftReport}
+      signature: class DriftReport
+      complexity: {loc: 15}
+      fingerprint: sha256:e2bbcce9fcbb5b61a5a5e7115a389343c61407b9c9cacc3a08292a031c4bcdac
+  - id: intensify.differ.DriftReport.count
+    kind: function
+    parent_id: intensify.differ.DriftReport
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: level, type: Level}
+      outputs:
+        - {type: int}
+    technical:
+      language: python
+      location: {path: src/intensify/differ/__init__.py, symbol: DriftReport.count}
+      signature: 'def count(self, level: Level) -> int'
+      complexity: {cyclomatic: 3, loc: 2}
+      fingerprint: sha256:5758a10becf7faf8a433cc179b22495ab655655f599793513e40e17024325eec
+  - id: intensify.differ.DriftReport.ok
+    kind: function
+    parent_id: intensify.differ.DriftReport
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: bool}
+    technical:
+      language: python
+      location: {path: src/intensify/differ/__init__.py, symbol: DriftReport.ok}
+      signature: def ok(self) -> bool
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:e6e39eaafca7e9704452422f0f57f2743d0037d1c361eb4ced34ff34ad5136dd
+  - id: intensify.differ.detect
+    kind: function
+    parent_id: intensify.differ
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Compare the code with the spec and return drift findings, optionally only those new since a base revision.
+      author: ai
+    contract:
+      inputs:
+        - {name: spec_path, type: Path}
+        - {name: fail_on, type: 'frozenset[DriftCategory] | None', required: false}
+        - {name: base, type: str | None, required: false}
+        - {name: merged, type: Merged | None, required: false}
+      outputs:
+        - {type: DriftReport}
+    technical:
+      language: python
+      location: {path: src/intensify/differ/__init__.py, symbol: detect}
+      signature: 'def detect(spec_path: Path, *, fail_on: frozenset[DriftCategory] | None = None, base: str | None = None, merged: Merged | None = None) -> DriftReport'
+      complexity: {cyclomatic: 11, loc: 35}
+      fingerprint: sha256:3de6315cf2223794113c4e02c8f42c3d39a72654115b2e9857a9bed62fc33382
+  - id: intensify.differ.base
+    kind: module
+    parent_id: intensify.differ
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Runs drift at a base git revision so a pull request is only blamed for drift it introduces.
+      rationale: Uses git archive into a temporary directory rather than checking out, so the working tree is never touched.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/differ/base.py}
+      complexity: {loc: 82}
+      fingerprint: sha256:deecebca8d1f90044fc3110f5ebea1a8cb4b4bd5901a29f5e9f1d44072aa9b8b
+  - id: intensify.differ.base.BaseRefError
+    kind: class
+    parent_id: intensify.differ.base
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/differ/base.py, symbol: BaseRefError}
+      signature: class BaseRefError(Exception)
+      complexity: {loc: 2}
+      fingerprint: sha256:f2ce2c069f79916413a297e56c1abcd3c5b39329623415d6f9f25b97d63e5f37
+  - id: intensify.differ.base.repo_prefix
+    kind: function
+    parent_id: intensify.differ.base
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: directory, type: Path}
+      outputs:
+        - {type: str | None}
+    technical:
+      language: python
+      location: {path: src/intensify/differ/base.py, symbol: repo_prefix}
+      signature: 'def repo_prefix(directory: Path) -> str | None'
+      complexity: {cyclomatic: 2, loc: 13}
+      fingerprint: sha256:259f252f6783133552be7d344ae85c55a6e8b323e04b6d88c7aff437fc530667
+  - id: intensify.differ.base.keys_at
+    kind: function
+    parent_id: intensify.differ.base
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: base, type: str}
+        - {name: spec_path, type: Path}
+        - {name: fail_on, type: 'frozenset[DriftCategory]'}
+      outputs:
+        - {type: 'set[str]'}
+      errors:
+        - {type: BaseRefError}
+    technical:
+      language: python
+      location: {path: src/intensify/differ/base.py, symbol: keys_at}
+      signature: 'def keys_at(base: str, spec_path: Path, *, fail_on: frozenset[DriftCategory]) -> set[str]'
+      complexity: {cyclomatic: 6, loc: 33}
+      fingerprint: sha256:9beb3450d15b4ae5b5084ca1bbfbe947a0a7291e24d00dcc3a914a7076a69049
+  - id: intensify.differ.report
+    kind: module
+    parent_id: intensify.differ
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Renders drift reports as JSON, SARIF 2.1.0, Markdown and GitLab Code Quality, with repository-relative paths.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/differ/report.py}
+      complexity: {loc: 203}
+      fingerprint: sha256:c6b7564ed89cbbdd6ca81afe573bec228786316aab98d948aa18ca0bd6e60a3a
+  - id: intensify.differ.report.to_json
+    kind: function
+    parent_id: intensify.differ.report
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: report, type: DriftReport}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/differ/report.py, symbol: to_json}
+      signature: 'def to_json(report: DriftReport) -> str'
+      complexity: {cyclomatic: 5, loc: 21}
+      fingerprint: sha256:298397ccf417767430dfe7b669ad0ed483cb9e43aa2559aa3f22c4c42f1c0d1b
+  - id: intensify.differ.report.to_sarif
+    kind: function
+    parent_id: intensify.differ.report
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: report, type: DriftReport}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/differ/report.py, symbol: to_sarif}
+      signature: 'def to_sarif(report: DriftReport) -> str'
+      complexity: {cyclomatic: 6, loc: 55}
+      fingerprint: sha256:90620ab4861d5806f1dd8c398d9f922285f0b1f951742b377f26f78233bcc703
+  - id: intensify.differ.report.to_codequality
+    kind: function
+    parent_id: intensify.differ.report
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: report, type: DriftReport}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/differ/report.py, symbol: to_codequality}
+      signature: 'def to_codequality(report: DriftReport) -> str'
+      complexity: {cyclomatic: 3, loc: 19}
+      fingerprint: sha256:b46b0883f017ea77c67cf5147c5c474b0ff2319db117d42c4dfbe0a83a58fb76
+  - id: intensify.differ.report.to_markdown
+    kind: function
+    parent_id: intensify.differ.report
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: report, type: DriftReport}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/differ/report.py, symbol: to_markdown}
+      signature: 'def to_markdown(report: DriftReport) -> str'
+      complexity: {cyclomatic: 17, loc: 40}
+      fingerprint: sha256:09f4f1e86dab4e00eca0c4a71b42f69f336ffe760bd5babfa4a0e89d473c6b67
+  - id: intensify.graph
+    kind: module
+    parent_id: intensify-module
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'In-memory graph over a spec: containment, dependency edges, tests, blast radius and search.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/graph/__init__.py}
+      complexity: {loc: 194}
+      fingerprint: sha256:a4d07da4c08ee28347a217c5f7abd54d668210505bb3378b421f8f67f121da29
+  - id: intensify.graph.Graph
+    kind: class
+    parent_id: intensify.graph
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/graph/__init__.py, symbol: Graph}
+      signature: class Graph
+      complexity: {loc: 174}
+      fingerprint: sha256:1e2935f1bdb52d1c1933545544e9c0236112313c663865c445d1a1a86579540a
+  - id: intensify.graph.Graph.from_spec
+    kind: function
+    parent_id: intensify.graph.Graph
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: loaded, type: LoadedSpec}
+      outputs:
+        - {type: Graph}
+    technical:
+      language: python
+      location: {path: src/intensify/graph/__init__.py, symbol: Graph.from_spec}
+      signature: 'def from_spec(cls, loaded: LoadedSpec) -> Graph'
+      complexity: {cyclomatic: 3, loc: 4}
+      fingerprint: sha256:f187f6c0c215eb0af779d905da3edef3c7e8beca53264c5e67cf268ddf6123bc
+  - id: intensify.graph.Graph.from_data
+    kind: function
+    parent_id: intensify.graph.Graph
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: loaded, type: LoadedSpec}
+      outputs:
+        - {type: Graph}
+    technical:
+      language: python
+      location: {path: src/intensify/graph/__init__.py, symbol: Graph.from_data}
+      signature: 'def from_data(cls, loaded: LoadedSpec) -> Graph'
+      complexity: {cyclomatic: 7, loc: 12}
+      fingerprint: sha256:54c0aa264b101c3f99d1b4c24ecedb3da11caa5e6aa6435abc51f6dbd220ada5
+  - id: intensify.graph.Graph.node
+    kind: function
+    parent_id: intensify.graph.Graph
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node_id, type: str}
+      outputs:
+        - {type: Node}
+    technical:
+      language: python
+      location: {path: src/intensify/graph/__init__.py, symbol: Graph.node}
+      signature: 'def node(self, node_id: str) -> Node'
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:c2bc3107c58ef5fb591ccbeaf0874134b47a7dff0cabb2f496fb8b980f3d7969
+  - id: intensify.graph.Graph.get
+    kind: function
+    parent_id: intensify.graph.Graph
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node_id, type: str}
+      outputs:
+        - {type: Node | None}
+    technical:
+      language: python
+      location: {path: src/intensify/graph/__init__.py, symbol: Graph.get}
+      signature: 'def get(self, node_id: str) -> Node | None'
+      complexity: {cyclomatic: 2, loc: 3}
+      fingerprint: sha256:1cfe28412e45d10289819f0fec126d65c1a49bcb264daffd1f522eef43961de5
+  - id: intensify.graph.Graph.nodes
+    kind: function
+    parent_id: intensify.graph.Graph
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: 'list[Node]'}
+    technical:
+      language: python
+      location: {path: src/intensify/graph/__init__.py, symbol: Graph.nodes}
+      signature: def nodes(self) -> list[Node]
+      complexity: {cyclomatic: 2, loc: 2}
+      fingerprint: sha256:f54ce792e281629e80bd73fc9d0d909b970bec58c82c2c3030912a7fbfde1e1a
+  - id: intensify.graph.Graph.local
+    kind: function
+    parent_id: intensify.graph.Graph
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: ref, type: str}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/graph/__init__.py, symbol: Graph.local}
+      signature: 'def local(self, ref: str) -> str'
+      complexity: {cyclomatic: 3, loc: 4}
+      fingerprint: sha256:cd29ee1ade82d21a845c2f42941cf3b677586e0cbb1d98f1acdb6b4aeab2c5f0
+  - id: intensify.graph.Graph.ancestors
+    kind: function
+    parent_id: intensify.graph.Graph
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node_id, type: str}
+      outputs:
+        - {type: 'list[Node]'}
+    technical:
+      language: python
+      location: {path: src/intensify/graph/__init__.py, symbol: Graph.ancestors}
+      signature: 'def ancestors(self, node_id: str) -> list[Node]'
+      complexity: {cyclomatic: 5, loc: 11}
+      fingerprint: sha256:1d5daeaab2f0eb586ba9a9a734e8eadb43fa3a7bfcb6dd43702a21d53304ecab
+  - id: intensify.graph.Graph.descendants
+    kind: function
+    parent_id: intensify.graph.Graph
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node_id, type: str}
+      outputs:
+        - {type: 'list[str]'}
+    technical:
+      language: python
+      location: {path: src/intensify/graph/__init__.py, symbol: Graph.descendants}
+      signature: 'def descendants(self, node_id: str) -> list[str]'
+      complexity: {cyclomatic: 3, loc: 12}
+      fingerprint: sha256:1fa6ccb8f7f960bf33997a9641fbf0013ac42d5da0910d8ec9894aa4345b0fb9
+  - id: intensify.graph.Graph.siblings
+    kind: function
+    parent_id: intensify.graph.Graph
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node_id, type: str}
+      outputs:
+        - {type: 'list[str]'}
+    technical:
+      language: python
+      location: {path: src/intensify/graph/__init__.py, symbol: Graph.siblings}
+      signature: 'def siblings(self, node_id: str) -> list[str]'
+      complexity: {cyclomatic: 5, loc: 5}
+      fingerprint: sha256:b114f5b0a50061d212a0a2f6ba10afaa7c5500d3af413f8178a523f52ee0fd93
+  - id: intensify.graph.Graph.dependencies
+    kind: function
+    parent_id: intensify.graph.Graph
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node_id, type: str}
+      outputs:
+        - {type: 'list[Edge]'}
+    technical:
+      language: python
+      location: {path: src/intensify/graph/__init__.py, symbol: Graph.dependencies}
+      signature: 'def dependencies(self, node_id: str) -> list[Edge]'
+      complexity: {cyclomatic: 3, loc: 2}
+      fingerprint: sha256:349d970e6dbdaf7adfc127422bc7df3059ff4d3e84f6cd447735b32946e7b830
+  - id: intensify.graph.Graph.dependents
+    kind: function
+    parent_id: intensify.graph.Graph
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node_id, type: str}
+      outputs:
+        - {type: 'list[Edge]'}
+    technical:
+      language: python
+      location: {path: src/intensify/graph/__init__.py, symbol: Graph.dependents}
+      signature: 'def dependents(self, node_id: str) -> list[Edge]'
+      complexity: {cyclomatic: 3, loc: 2}
+      fingerprint: sha256:349d970e6dbdaf7adfc127422bc7df3059ff4d3e84f6cd447735b32946e7b830
+  - id: intensify.graph.Graph.tests_of
+    kind: function
+    parent_id: intensify.graph.Graph
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node_id, type: str}
+      outputs:
+        - {type: 'list[str]'}
+    technical:
+      language: python
+      location: {path: src/intensify/graph/__init__.py, symbol: Graph.tests_of}
+      signature: 'def tests_of(self, node_id: str) -> list[str]'
+      complexity: {cyclomatic: 4, loc: 9}
+      fingerprint: sha256:e479342524132bee7a789a7b295fd0b74e32ad3cfa9166f7c07dc906a1a949a6
+  - id: intensify.graph.Graph.blast_radius
+    kind: function
+    parent_id: intensify.graph.Graph
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node_id, type: str}
+      outputs:
+        - {type: 'list[str]'}
+    technical:
+      language: python
+      location: {path: src/intensify/graph/__init__.py, symbol: Graph.blast_radius}
+      signature: 'def blast_radius(self, node_id: str) -> list[str]'
+      complexity: {cyclomatic: 5, loc: 16}
+      fingerprint: sha256:998e83d6a432ab6f6656e08b1c56852afd8b83b20c7cecc4786a89a4b345d9c6
+  - id: intensify.graph.Graph.search
+    kind: function
+    parent_id: intensify.graph.Graph
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: query, type: str, required: false}
+        - {name: kind, type: NodeKind | None, required: false}
+        - {name: state, type: LifecycleState | None, required: false}
+        - {name: tag, type: str | None, required: false}
+        - {name: limit, type: int | None, required: false}
+      outputs:
+        - {type: 'list[Node]'}
+    technical:
+      language: python
+      location: {path: src/intensify/graph/__init__.py, symbol: Graph.search}
+      signature: 'def search(self, query: str = "", *, kind: NodeKind | None = None, state: LifecycleState | None = None, tag: str | None = None, limit: int | None = None) -> list[Node]'
+      complexity: {cyclomatic: 19, loc: 44}
+      fingerprint: sha256:32ea33710c9d098061db5b2608b71688f73c8e0c3bcbaf9a9225498321b48c15
+  - id: intensify.mcp
+    kind: module
+    parent_id: intensify-module
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: MCP server exposing search, context, edits, analyze, verify and drift to IDE agents.
+      rationale: Tools are thin wrappers over the library and reload the spec on every call, so concurrent edits are always seen.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/mcp/__init__.py}
+      complexity: {loc: 255}
+      fingerprint: sha256:2d4e6854a7d5fa73f08c61540b93bda9b54d5845dce9df9e4f35dd9f8f582f10
+  - id: intensify.mcp.create_server
+    kind: function
+    parent_id: intensify.mcp
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Create the MCP server with its tools and the spec resource.
+      author: ai
+    contract:
+      inputs:
+        - {name: spec_path, type: Path}
+      outputs:
+        - {type: MCPServer}
+    technical:
+      language: python
+      location: {path: src/intensify/mcp/__init__.py, symbol: create_server}
+      signature: 'def create_server(spec_path: Path) -> MCPServer: # noqa: PLR0915 - one closure per tool'
+      complexity: {cyclomatic: 1, loc: 193}
+      fingerprint: sha256:898c58ea15ea33c89622840608248a9cb0544a5a57bb389b023135f2b6b0c5ab
+  - id: intensify.merge
+    kind: module
+    parent_id: intensify-module
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Merges analysis results into a loaded spec in place, matching moved code and never touching human-owned fields.
+      rationale: 'This is the core safety property of Intensify: machine edits must never destroy what people wrote.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/merge/__init__.py}
+      complexity: {loc: 535}
+      fingerprint: sha256:754d474cb52688e0ef0ebcf2c2a1213c68628de308d94d3544626065663bbcd7
+    governance:
+      invariants:
+        - {id: human-fields, text: 'Never changes id, intent, governance or hand-written edges, and never deletes nodes.'}
+  - id: intensify.merge.MergeOptions
+    kind: class
+    parent_id: intensify.merge
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/merge/__init__.py, symbol: MergeOptions}
+      signature: class MergeOptions
+      complexity: {loc: 10}
+      fingerprint: sha256:bc3f23d709cadfc1e40d6cfb863c4ea030a95a226ce8913542a392760bbe54ed
+  - id: intensify.merge.MergeOptions.in_scope
+    kind: function
+    parent_id: intensify.merge.MergeOptions
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: path, type: str}
+      outputs:
+        - {type: bool}
+    technical:
+      language: python
+      location: {path: src/intensify/merge/__init__.py, symbol: MergeOptions.in_scope}
+      signature: 'def in_scope(self, path: str) -> bool'
+      complexity: {cyclomatic: 4, loc: 4}
+      fingerprint: sha256:fd2dd6142f8746f124f7861dce01f14f05a6c95f5a0966416dbec973616cc536
+  - id: intensify.merge.Move
+    kind: class
+    parent_id: intensify.merge
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/merge/__init__.py, symbol: Move}
+      signature: class Move
+      complexity: {loc: 4}
+      fingerprint: sha256:20aaf6f8b9739ef668739dc02871118fbad31239101b7112a1d27db2b31be3d7
+  - id: intensify.merge.MergeReport
+    kind: class
+    parent_id: intensify.merge
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/merge/__init__.py, symbol: MergeReport}
+      signature: class MergeReport
+      complexity: {loc: 29}
+      fingerprint: sha256:f8f300e471d100ceeacf72b32f80177925c1365fd3fa2aadea3dcc1bf887ac81
+  - id: intensify.merge.MergeReport.changed
+    kind: function
+    parent_id: intensify.merge.MergeReport
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: bool}
+    technical:
+      language: python
+      location: {path: src/intensify/merge/__init__.py, symbol: MergeReport.changed}
+      signature: def changed(self) -> bool
+      complexity: {cyclomatic: 7, loc: 10}
+      fingerprint: sha256:56cc0abce0fe22aec29155412359c51073efcf3b593a066fbc7207ee365ab80c
+  - id: intensify.merge.merge
+    kind: function
+    parent_id: intensify.merge
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Merge analysis results into a spec in place and report what changed.
+      author: ai
+    contract:
+      inputs:
+        - {name: spec, type: LoadedSpec}
+        - {name: analysis, type: AnalysisResult}
+        - {name: options, type: MergeOptions}
+      outputs:
+        - {type: MergeReport}
+      errors:
+        - {type: ValueError}
+    technical:
+      language: python
+      location: {path: src/intensify/merge/__init__.py, symbol: merge}
+      signature: 'def merge(spec: LoadedSpec, analysis: AnalysisResult, options: MergeOptions) -> MergeReport'
+      complexity: {cyclomatic: 3, loc: 4}
+      fingerprint: sha256:9024a2c701a6d898f4308f8b7e8e81728a6e51247fb52b0e0abe95ebc1145d43
+  - id: intensify.parser
+    kind: module
+    parent_id: intensify-module
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Static analysis entry point: discovers files, runs each language analyzer and decides which symbols become nodes.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/parser/__init__.py}
+      complexity: {loc: 110}
+      fingerprint: sha256:046f06fd3fc392d4179975b74cd04079c8632376713cda2d923c3811d2cc15d0
+    governance:
+      invariants:
+        - id: no-merge
+          text: Analyzers only report what the code contains; merging into the spec is not their job.
+          rule:
+            forbid_edge: {to: intensify.merge*}
+  - id: intensify.parser.analyzers
+    kind: function
+    parent_id: intensify.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: 'list[Analyzer]'}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/__init__.py, symbol: analyzers}
+      signature: def analyzers() -> list[Analyzer]
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:92c451d5cd0c3bd0efef482239fe88fe244e74543ac87ce0d69881c64f6cf63b
+  - id: intensify.parser.analyze_repo
+    kind: function
+    parent_id: intensify.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Analyze every supported file in a repository and decide which symbols should become nodes.
+      rationale: Always parses the whole repository so cross-file references resolve, even when callers only care about some paths.
+      author: ai
+    contract:
+      inputs:
+        - {name: root, type: Path}
+        - {name: options, type: AnalyzeOptions | None, required: false}
+        - {name: include, type: 'list[str] | None', required: false}
+        - {name: exclude, type: 'list[str] | None', required: false}
+      outputs:
+        - {type: AnalysisResult}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/__init__.py, symbol: analyze_repo}
+      signature: 'def analyze_repo(root: Path, *, options: AnalyzeOptions | None = None, include: list[str] | None = None, exclude: list[str] | None = None) -> AnalysisResult'
+      complexity: {cyclomatic: 8, loc: 28}
+      fingerprint: sha256:0820b75d6774fc077103ab9fa3d029b331ba2eae48111043052a24d180aa06f4
+  - id: intensify.parser.symbol_span
+    kind: function
+    parent_id: intensify.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: root, type: Path}
+        - {name: path, type: str}
+        - {name: symbol, type: str | None}
+      outputs:
+        - {type: 'tuple[int, int] | None'}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/__init__.py, symbol: symbol_span}
+      signature: 'def symbol_span(root: Path, path: str, symbol: str | None) -> tuple[int, int] | None'
+      complexity: {cyclomatic: 6, loc: 15}
+      fingerprint: sha256:3d1e372050e05b26e6b83d7d42cb7aae2e38567f28bf6fda2daecabb2fa369df
+  - id: intensify.parser.base
+    kind: module
+    parent_id: intensify.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Language-neutral analysis results: symbols, dependencies and analyzer options.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/parser/base.py}
+      complexity: {loc: 103}
+      fingerprint: sha256:d34a822041075d0c6d1deaf0a79df08f049b05f0f77f1b32453110e99823cc97
+  - id: intensify.parser.base.AnalyzeOptions
+    kind: class
+    parent_id: intensify.parser.base
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/base.py, symbol: AnalyzeOptions}
+      signature: class AnalyzeOptions
+      complexity: {loc: 4}
+      fingerprint: sha256:0536980b0be02fd6cb5babeb7ca740c66f1985e1c2bf1f6ea8efe4fecff6cd5a
+  - id: intensify.parser.base.Symbol
+    kind: class
+    parent_id: intensify.parser.base
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/base.py, symbol: Symbol}
+      signature: class Symbol
+      complexity: {loc: 43}
+      fingerprint: sha256:1e9bfc20b5950f78fdf2692f732c63d34d032465c2a23562b4a8c7a0c2be5203
+  - id: intensify.parser.base.Symbol.name
+    kind: function
+    parent_id: intensify.parser.base.Symbol
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/base.py, symbol: Symbol.name}
+      signature: def name(self) -> str
+      complexity: {cyclomatic: 2, loc: 5}
+      fingerprint: sha256:136db945d16ea6c1b4c9f67a18ba87627089fa9cb8a5ed461e049854d3b5299e
+  - id: intensify.parser.base.Symbol.technical
+    kind: function
+    parent_id: intensify.parser.base.Symbol
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: 'dict[str, Any]'}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/base.py, symbol: Symbol.technical}
+      signature: def technical(self) -> dict[str, Any]
+      complexity: {cyclomatic: 5, loc: 12}
+      fingerprint: sha256:22c59daa45c062e3fe52d1605641adc2bc98ac3db9ffb14c40fa2f02403cef12
+  - id: intensify.parser.base.Dependency
+    kind: class
+    parent_id: intensify.parser.base
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/base.py, symbol: Dependency}
+      signature: class Dependency
+      complexity: {loc: 7}
+      fingerprint: sha256:3eb1e02aee0136939532b42f4ba601f6b8060b8b5b2a902a65493ded9e9e4a08
+  - id: intensify.parser.base.AnalysisResult
+    kind: class
+    parent_id: intensify.parser.base
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/base.py, symbol: AnalysisResult}
+      signature: class AnalysisResult
+      complexity: {loc: 12}
+      fingerprint: sha256:d0e3a36cb8633d4db81d868fad981f85bd451bfa5f3372618e20232ee1e02e15
+  - id: intensify.parser.base.AnalysisResult.extend
+    kind: function
+    parent_id: intensify.parser.base.AnalysisResult
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: other, type: AnalysisResult}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/base.py, symbol: AnalysisResult.extend}
+      signature: 'def extend(self, other: AnalysisResult) -> None'
+      complexity: {cyclomatic: 1, loc: 5}
+      fingerprint: sha256:39f0f9e0e963de88e868c1febac36a403414c5bb20ab24eb969edb56f6a2ef8f
+  - id: intensify.parser.base.Analyzer
+    kind: class
+    parent_id: intensify.parser.base
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/base.py, symbol: Analyzer}
+      signature: class Analyzer(Protocol)
+      complexity: {loc: 12}
+      fingerprint: sha256:8f313648cf23279af70c9c7ecf9daeb0c316aa118416345f9b620bb15b1070db
+  - id: intensify.parser.base.Analyzer.analyze
+    kind: function
+    parent_id: intensify.parser.base.Analyzer
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: root, type: Path}
+        - {name: paths, type: 'list[str]'}
+        - {name: options, type: AnalyzeOptions}
+        - {name: allocator, type: Allocator}
+      outputs:
+        - {type: AnalysisResult}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/base.py, symbol: Analyzer.analyze}
+      signature: 'def analyze(self, root: Path, paths: list[str], options: AnalyzeOptions, allocator: Allocator) -> AnalysisResult'
+      complexity: {cyclomatic: 1, loc: 8}
+      fingerprint: sha256:340e9ca0d43bb59ed1846b78f1d6e5fdb270df5b976ab1c3435391e8c1695675
+  - id: intensify.parser.discovery
+    kind: module
+    parent_id: intensify.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Finds the source files to analyze, respecting .gitignore and include/exclude globs.
+      rationale: Uses `git ls-files` when available because it matches git's ignore semantics exactly; falls back to reading .gitignore.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/parser/discovery.py}
+      complexity: {loc: 87}
+      fingerprint: sha256:49b224cc1ae52e7194c2a494fe462898eb7307a6c1e3614b47f52b971ce423da
+  - id: intensify.parser.discovery.discover
+    kind: function
+    parent_id: intensify.parser.discovery
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: root, type: Path}
+        - {name: extensions, type: 'Iterable[str]'}
+        - {name: include, type: 'list[str] | None', required: false}
+        - {name: exclude, type: 'list[str] | None', required: false}
+      outputs:
+        - {type: 'list[str]'}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/discovery.py, symbol: discover}
+      signature: 'def discover(root: Path, *, extensions: Iterable[str], include: list[str] | None = None, exclude: list[str] | None = None) -> list[str]'
+      complexity: {cyclomatic: 15, loc: 34}
+      fingerprint: sha256:5082e18f1bc84fbfa248b3b683d72aebd6ea22e7ed83bcbf68b3910d0f00192b
+  - id: intensify.parser.ids
+    kind: module
+    parent_id: intensify.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Derives readable, unique node IDs from file paths and symbol names.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/parser/ids.py}
+      complexity: {loc: 53}
+      fingerprint: sha256:98599d6ec53de46cba04c77e99355a233d1b856b87fe39f0396100e672f22b26
+  - id: intensify.parser.ids.segment
+    kind: function
+    parent_id: intensify.parser.ids
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: name, type: str}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/ids.py, symbol: segment}
+      signature: 'def segment(name: str) -> str'
+      complexity: {cyclomatic: 2, loc: 4}
+      fingerprint: sha256:0b2e4a794dc942d17c351412cd0cd3c2be24b396aaa44f9a90db0ecfa95b6cef
+  - id: intensify.parser.ids.join
+    kind: function
+    parent_id: intensify.parser.ids
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: '*parts', type: str, required: false}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/ids.py, symbol: join}
+      signature: 'def join(*parts: str) -> str'
+      complexity: {cyclomatic: 4, loc: 2}
+      fingerprint: sha256:1bd36b70a23794c138aa23d881de96d33e40f937559bea1171d7fab3bd30092d
+  - id: intensify.parser.ids.path_id
+    kind: function
+    parent_id: intensify.parser.ids
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: path, type: str}
+        - {name: index_names, type: 'frozenset[str]', required: false}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/ids.py, symbol: path_id}
+      signature: 'def path_id(path: str, *, index_names: frozenset[str] = frozenset()) -> str'
+      complexity: {cyclomatic: 6, loc: 14}
+      fingerprint: sha256:6dfb1e02c3470a5c93b95da03738b5741a9a5086a410f30b3c4d3866c8d33aee
+  - id: intensify.parser.ids.Allocator
+    kind: class
+    parent_id: intensify.parser.ids
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/ids.py, symbol: Allocator}
+      signature: class Allocator
+      complexity: {loc: 13}
+      fingerprint: sha256:4a41636172fde6a39fbd42a2e66aa8fda5fe2cc814c4487fa03df44448bfe2ed
+  - id: intensify.parser.ids.Allocator.__init__
+    kind: function
+    parent_id: intensify.parser.ids.Allocator
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/ids.py, symbol: Allocator.__init__}
+      signature: def __init__(self) -> None
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:fd84b3c80ba919ede51450c00d205ace873ac3ee4e71cd6add18def7aa231770
+  - id: intensify.parser.ids.Allocator.claim
+    kind: function
+    parent_id: intensify.parser.ids.Allocator
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: base, type: str}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/ids.py, symbol: Allocator.claim}
+      signature: 'def claim(self, base: str) -> str'
+      complexity: {cyclomatic: 2, loc: 7}
+      fingerprint: sha256:85b0ecf140b88414e3d1847ceb313f6b2fc3de48d717ca0d330ebdc9af101ba8
+  - id: intensify.parser.python
+    kind: module
+    parent_id: intensify.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Python analyzer: modules, classes, functions, contracts, calls and inheritance resolved through imports.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/parser/python.py}
+      complexity: {loc: 413}
+      fingerprint: sha256:dec7ef3e9657fddb5c20fff14fadfbf0340ff2fb1ff176aadab80156b126b476
+  - id: intensify.parser.python.is_private
+    kind: function
+    parent_id: intensify.parser.python
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: name, type: str}
+      outputs:
+        - {type: bool}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/python.py, symbol: is_private}
+      signature: 'def is_private(name: str) -> bool'
+      complexity: {cyclomatic: 3, loc: 4}
+      fingerprint: sha256:0cf4397b8b5a100bd6ff76f14469e1365eee7fc494d16572b908985ef8d0d90c
+  - id: intensify.parser.python.is_test_path
+    kind: function
+    parent_id: intensify.parser.python
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: path, type: str}
+      outputs:
+        - {type: bool}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/python.py, symbol: is_test_path}
+      signature: 'def is_test_path(path: str) -> bool'
+      complexity: {cyclomatic: 4, loc: 5}
+      fingerprint: sha256:a1bd0e7fde53fa0fde152151274cba32aaf6074ad0e7f353c645bdbde5f8fc2f
+  - id: intensify.parser.python.PythonAnalyzer
+    kind: class
+    parent_id: intensify.parser.python
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/python.py, symbol: PythonAnalyzer}
+      signature: class PythonAnalyzer
+      complexity: {loc: 210}
+      fingerprint: sha256:6bbea9636ef6b2a0c00f1a8be07915943989e4051f7301df71e8f677f073e5a6
+  - id: intensify.parser.python.PythonAnalyzer.__init__
+    kind: function
+    parent_id: intensify.parser.python.PythonAnalyzer
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/python.py, symbol: PythonAnalyzer.__init__}
+      signature: def __init__(self) -> None
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:b5923b092e3b170dc01a2e5e1593f97970517a6e70e17c2435c1524fc56e26de
+  - id: intensify.parser.python.PythonAnalyzer.analyze
+    kind: function
+    parent_id: intensify.parser.python.PythonAnalyzer
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: root, type: Path}
+        - {name: paths, type: 'list[str]'}
+        - {name: options, type: AnalyzeOptions}
+        - {name: allocator, type: ids.Allocator}
+      outputs:
+        - {type: AnalysisResult}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/python.py, symbol: PythonAnalyzer.analyze}
+      signature: 'def analyze(self, root: Path, paths: list[str], options: AnalyzeOptions, allocator: ids.Allocator) -> AnalysisResult'
+      complexity: {cyclomatic: 25, loc: 47}
+      fingerprint: sha256:2fa3999bde0d6b4bf484f398ec51fc546bedc0935fa61f196407c98e896958d6
+  - id: intensify.parser.treesitter
+    kind: module
+    parent_id: intensify.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Shared tree-sitter helpers: text, signatures, traversal and structural fingerprints.'
+      rationale: Fingerprints ignore names and comments so renamed or moved code can be recognized.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/parser/treesitter.py}
+      complexity: {loc: 69}
+      fingerprint: sha256:7c48484e450fa7706a7ad1b27209078b655fb8229daa2159b3fb6692b7b5a128
+  - id: intensify.parser.treesitter.text
+    kind: function
+    parent_id: intensify.parser.treesitter
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node, type: Node | None}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/treesitter.py, symbol: text}
+      signature: 'def text(node: Node | None) -> str'
+      complexity: {cyclomatic: 3, loc: 4}
+      fingerprint: sha256:943661c01179a123e2b9c3be7b7564f4843eeaf7ff0e7c7cbacc329a881c3cab
+  - id: intensify.parser.treesitter.squash
+    kind: function
+    parent_id: intensify.parser.treesitter
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: source, type: str}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/treesitter.py, symbol: squash}
+      signature: 'def squash(source: str) -> str'
+      complexity: {cyclomatic: 1, loc: 6}
+      fingerprint: sha256:632098a4493b70dc6091e1903f17e547d2ed7c9c1fc125af00bf6c3f665ecd18
+  - id: intensify.parser.treesitter.header
+    kind: function
+    parent_id: intensify.parser.treesitter
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node, type: Node}
+        - {name: body, type: Node | None}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/treesitter.py, symbol: header}
+      signature: 'def header(node: Node, body: Node | None) -> str'
+      complexity: {cyclomatic: 3, loc: 6}
+      fingerprint: sha256:5729f6de98f76c9fca65a19b5828b90118fd872883ce3ec41a09bbfc2ca61fd4
+  - id: intensify.parser.treesitter.walk
+    kind: function
+    parent_id: intensify.parser.treesitter
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node, type: Node}
+        - {name: prune, type: 'Callable[[Node], bool] | None', required: false}
+      outputs:
+        - {type: 'Iterator[Node]'}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/treesitter.py, symbol: walk}
+      signature: 'def walk(node: Node, *, prune: Callable[[Node], bool] | None = None) -> Iterator[Node]'
+      complexity: {cyclomatic: 4, loc: 8}
+      fingerprint: sha256:be9f2136ad01c6ba8d8b5892f1cd05f8bb779cbb306b2fd6a1cdd3ebbc5a4eb0
+  - id: intensify.parser.treesitter.fingerprint
+    kind: function
+    parent_id: intensify.parser.treesitter
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node, type: Node}
+        - {name: identifier_types, type: 'frozenset[str]'}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/treesitter.py, symbol: fingerprint}
+      signature: 'def fingerprint(node: Node, identifier_types: frozenset[str]) -> str'
+      complexity: {cyclomatic: 6, loc: 18}
+      fingerprint: sha256:8565852c6a5c81d856d790885f71893826b2418f7cf3b9c7e9fa400801d98b08
+  - id: intensify.parser.treesitter.line_count
+    kind: function
+    parent_id: intensify.parser.treesitter
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node, type: Node}
+      outputs:
+        - {type: int}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/treesitter.py, symbol: line_count}
+      signature: 'def line_count(node: Node) -> int'
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:5c76579be300ab3987eeed587c5048b508bd1f7eefcf2c8eae7558a67e897eab
+  - id: intensify.parser.typescript
+    kind: module
+    parent_id: intensify.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'TypeScript and JavaScript analyzer: ES module exports and imports, re-exports, tsconfig path aliases, classes, interfaces and calls.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/parser/typescript.py}
+      complexity: {loc: 646}
+      fingerprint: sha256:9228fed8573a8c9adc8a290c2ff5568e22660549b36fef7aaeeeb333d3bfdead
+  - id: intensify.parser.typescript.is_test_path
+    kind: function
+    parent_id: intensify.parser.typescript
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: path, type: str}
+      outputs:
+        - {type: bool}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/typescript.py, symbol: is_test_path}
+      signature: 'def is_test_path(path: str) -> bool'
+      complexity: {cyclomatic: 4, loc: 5}
+      fingerprint: sha256:19d0e066b19c25956227eec6768e790088c253624124ad5813d7286679a261e6
+  - id: intensify.parser.typescript.TypeScriptAnalyzer
+    kind: class
+    parent_id: intensify.parser.typescript
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/typescript.py, symbol: TypeScriptAnalyzer}
+      signature: class TypeScriptAnalyzer
+      complexity: {loc: 333}
+      fingerprint: sha256:5df737aa4883093737a9538dc90331be2b9d42de5521822cb5a73ac9d165c390
+  - id: intensify.parser.typescript.TypeScriptAnalyzer.__init__
+    kind: function
+    parent_id: intensify.parser.typescript.TypeScriptAnalyzer
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/typescript.py, symbol: TypeScriptAnalyzer.__init__}
+      signature: def __init__(self) -> None
+      complexity: {cyclomatic: 2, loc: 5}
+      fingerprint: sha256:26d7229aebfae4be07ab3cb3e3d8abd507bf312bb25fcaa41c49371804ec9ee1
+  - id: intensify.parser.typescript.TypeScriptAnalyzer.analyze
+    kind: function
+    parent_id: intensify.parser.typescript.TypeScriptAnalyzer
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: root, type: Path}
+        - {name: paths, type: 'list[str]'}
+        - {name: options, type: AnalyzeOptions}
+        - {name: allocator, type: ids.Allocator}
+      outputs:
+        - {type: AnalysisResult}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/typescript.py, symbol: TypeScriptAnalyzer.analyze}
+      signature: 'def analyze(self, root: Path, paths: list[str], options: AnalyzeOptions, allocator: ids.Allocator) -> AnalysisResult'
+      complexity: {cyclomatic: 17, loc: 42}
+      fingerprint: sha256:8e3948302dd35f76e487bacc9ed42bf3471a80f8d3b6f26f6fa89c9fc8f5ef18
+  - id: intensify.pipeline
+    kind: module
+    parent_id: intensify-module
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Loads a spec, analyzes the code it describes and merges the two; shared by analyze, drift, verify and the MCP server.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/pipeline.py}
+      complexity: {loc: 103}
+      fingerprint: sha256:afd68876b43f5cfdb4a54272672528c9876881013845b01ae43aff51f29994b4
+  - id: intensify.pipeline.SpecInvalidError
+    kind: class
+    parent_id: intensify.pipeline
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/pipeline.py, symbol: SpecInvalidError}
+      signature: class SpecInvalidError(Exception)
+      complexity: {loc: 6}
+      fingerprint: sha256:49dcd25d4c35275ed6095cc486172aac89cb8b9cddfc068589d05f65970666cb
+  - id: intensify.pipeline.SpecInvalidError.__init__
+    kind: function
+    parent_id: intensify.pipeline.SpecInvalidError
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: loaded, type: LoadedSpec}
+    technical:
+      language: python
+      location: {path: src/intensify/pipeline.py, symbol: SpecInvalidError.__init__}
+      signature: 'def __init__(self, loaded: LoadedSpec) -> None'
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:d6e4b50078bbdf424934b485f648c55429a92f70ae6c3f1f6d72cea2ab2f49ee
+  - id: intensify.pipeline.Merged
+    kind: class
+    parent_id: intensify.pipeline
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/pipeline.py, symbol: Merged}
+      signature: class Merged
+      complexity: {loc: 5}
+      fingerprint: sha256:1eed3b19b9de933a1145f289b72b17bc00edc4fd06b4834fe7a17bf0fa3b9f00
+  - id: intensify.pipeline.analyze_and_merge
+    kind: function
+    parent_id: intensify.pipeline
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Load, analyze and merge in memory without writing anything.
+      author: ai
+    contract:
+      inputs:
+        - {name: spec_path, type: Path}
+        - {name: depth, type: NodeKind | None, required: false}
+        - {name: prune, type: bool, required: false}
+        - {name: paths, type: 'tuple[str, ...]', required: false}
+      outputs:
+        - {type: Merged}
+      errors:
+        - {type: SpecInvalidError}
+    technical:
+      language: python
+      location: {path: src/intensify/pipeline.py, symbol: analyze_and_merge}
+      signature: 'def analyze_and_merge(spec_path: Path, *, depth: NodeKind | None = None, prune: bool = False, paths: tuple[str, ...] = ()) -> Merged'
+      complexity: {cyclomatic: 10, loc: 23}
+      fingerprint: sha256:35e3c0a96f28e3497b98c0ca7b4fc7f5795c12b6f237e66751bc40852d1cc54d
+  - id: intensify.pipeline.AnalyzeOutcome
+    kind: class
+    parent_id: intensify.pipeline
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/pipeline.py, symbol: AnalyzeOutcome}
+      signature: class AnalyzeOutcome
+      complexity: {loc: 6}
+      fingerprint: sha256:5d800ed597e38fc8ebad7f57463ff1ddbbf68588eac2f169c6331e1bc3555ce2
+  - id: intensify.pipeline.analyze_and_write
+    kind: function
+    parent_id: intensify.pipeline
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Analyze and merge, then write the changed spec files and return per-file diffs.
+      author: ai
+    contract:
+      inputs:
+        - {name: spec_path, type: Path}
+        - {name: depth, type: NodeKind | None, required: false}
+        - {name: prune, type: bool, required: false}
+        - {name: paths, type: 'tuple[str, ...]', required: false}
+        - {name: dry_run, type: bool, required: false}
+      outputs:
+        - {type: AnalyzeOutcome}
+    technical:
+      language: python
+      location: {path: src/intensify/pipeline.py, symbol: analyze_and_write}
+      signature: 'def analyze_and_write(spec_path: Path, *, depth: NodeKind | None = None, prune: bool = False, paths: tuple[str, ...] = (), dry_run: bool = False) -> AnalyzeOutcome'
+      complexity: {cyclomatic: 4, loc: 33}
+      fingerprint: sha256:49d644dc2c52b3c1b282dd2050ac4a2d1a9e7b704aa8987890d6094aba7f4a48
+  - id: intensify.skills
+    kind: module
+    parent_id: intensify-module
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Locates the bundled AI skills and installs them where coding agents look for them.
+      rationale: Skills live at the repository root for discoverability and are force-included into the wheel.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/skills.py}
+      complexity: {loc: 97}
+      fingerprint: sha256:c11f7e3f61e2c8130a9e3c5c3fde92b1be1e50defefd826ddb82cf7331af8d8a
+  - id: intensify.skills.Target
+    kind: class
+    parent_id: intensify.skills
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/skills.py, symbol: Target}
+      signature: class Target(StrEnum)
+      complexity: {loc: 4}
+      fingerprint: sha256:36af95cd2743a3a18e2f867c7af88424e994f236c4d2ab115364a6d0de5d49c0
+  - id: intensify.skills.Skill
+    kind: class
+    parent_id: intensify.skills
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/skills.py, symbol: Skill}
+      signature: class Skill
+      complexity: {loc: 7}
+      fingerprint: sha256:abdd7cde6f393b006ba24e94e633c97694842c4fa43ae9dd6d262f34a5e8d861
+  - id: intensify.skills.bundled
+    kind: function
+    parent_id: intensify.skills
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: 'list[Skill]'}
+    technical:
+      language: python
+      location: {path: src/intensify/skills.py, symbol: bundled}
+      signature: def bundled() -> list[Skill]
+      complexity: {cyclomatic: 4, loc: 7}
+      fingerprint: sha256:6193a95507bafa7443825d28c5a0fe82009cace1be2a81bce8eb865b137f333a
+  - id: intensify.skills.parse
+    kind: function
+    parent_id: intensify.skills
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: text, type: str}
+      outputs:
+        - {type: Skill}
+    technical:
+      language: python
+      location: {path: src/intensify/skills.py, symbol: parse}
+      signature: 'def parse(text: str) -> Skill'
+      complexity: {cyclomatic: 4, loc: 11}
+      fingerprint: sha256:9964c807ba6d10954b203b49b8787fcff37eb8dc1a8f672924329a72023b4b6f
+  - id: intensify.skills.render
+    kind: function
+    parent_id: intensify.skills
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: skill, type: Skill}
+        - {name: target, type: Target}
+      outputs:
+        - {type: 'tuple[Path, str]'}
+    technical:
+      language: python
+      location: {path: src/intensify/skills.py, symbol: render}
+      signature: 'def render(skill: Skill, target: Target) -> tuple[Path, str]'
+      complexity: {cyclomatic: 4, loc: 10}
+      fingerprint: sha256:03ef5dde6f4f0b2a84c986eadb585a6aebf95301f23542c4a1f0bbfc2baa4f59
+  - id: intensify.skills.install
+    kind: function
+    parent_id: intensify.skills
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: target, type: Target}
+        - {name: directory, type: Path}
+        - {name: force, type: bool, required: false}
+      outputs:
+        - {type: 'list[tuple[Path, str]]'}
+    technical:
+      language: python
+      location: {path: src/intensify/skills.py, symbol: install}
+      signature: 'def install(target: Target, directory: Path, *, force: bool = False) -> list[tuple[Path, str]]'
+      complexity: {cyclomatic: 5, loc: 21}
+      fingerprint: sha256:7980b717b67d7d3b0e5941a3b4042349e6708b42f6a0ffc3f1692e991f68fc5c
+  - id: intensify.spec
+    kind: module
+    parent_id: intensify-module
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'The Intensify YAML spec: generated models, round-trip loading, validation and safe edits.'
+      rationale: 'The foundation layer: it depends on nothing else in the package.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/spec/__init__.py}
+      complexity: {loc: 28}
+      fingerprint: sha256:cf371da31fe9b489dd669da471052423af9b84f9fc5ae418781cd787526aefaa
+    governance:
+      invariants:
+        - id: no-analysis
+          text: The spec layer knows nothing about code analysis.
+          rule:
+            forbid_edge: {to: intensify.parser*}
+  - id: intensify.spec.constants
+    kind: module
+    parent_id: intensify.spec
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Spec-wide constants: version, file name, schema URL and the placeholder intent.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/spec/constants.py}
+      complexity: {loc: 21}
+      fingerprint: sha256:07a19ce1fb37bc015c489cacdce768602a98736948aab938b68b523424dfa8b9
+  - id: intensify.spec.diagnostics
+    kind: module
+    parent_id: intensify.spec
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Diagnostics reported by loading and validating a spec, with file, path and line.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/spec/diagnostics.py}
+      complexity: {loc: 41}
+      fingerprint: sha256:9e2d15e1b9f7d44b9598fe98f4c6fe61dd2525bd68fb55afe0affe2ca1c85d54
+  - id: intensify.spec.diagnostics.Severity
+    kind: class
+    parent_id: intensify.spec.diagnostics
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/diagnostics.py, symbol: Severity}
+      signature: class Severity(StrEnum)
+      complexity: {loc: 3}
+      fingerprint: sha256:cc8f5640c977049d9dd14d1787fed857075eae3321c47a213cd21549f961f6f6
+  - id: intensify.spec.diagnostics.Diagnostic
+    kind: class
+    parent_id: intensify.spec.diagnostics
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/diagnostics.py, symbol: Diagnostic}
+      signature: class Diagnostic
+      complexity: {loc: 14}
+      fingerprint: sha256:196ae6d310c1707d63ad2868d4c07f3d2ff43dbd4320884044245dda6b85d2d4
+  - id: intensify.spec.diagnostics.Diagnostic.pointer
+    kind: function
+    parent_id: intensify.spec.diagnostics.Diagnostic
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/diagnostics.py, symbol: Diagnostic.pointer}
+      signature: def pointer(self) -> str
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:50fea8c854506b31941a3c4b6bb6b8fc361bdd3c382550a60ef83352f1d50360
+  - id: intensify.spec.diagnostics.format_path
+    kind: function
+    parent_id: intensify.spec.diagnostics
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: path, type: 'Sequence[str | int]'}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/diagnostics.py, symbol: format_path}
+      signature: 'def format_path(path: Sequence[str | int]) -> str'
+      complexity: {cyclomatic: 4, loc: 8}
+      fingerprint: sha256:62e22a31bd22c05cc3b4479f343f2f5d5fccdf389f60f81a61d9e22f64c735b3
+  - id: intensify.spec.edit
+    kind: module
+    parent_id: intensify.spec
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Safe, comment-preserving edits to a spec that validate and roll back on error.
+      rationale: The single write path for the CLI, skills and MCP server, so no caller can leave a broken spec behind.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/spec/edit.py}
+      complexity: {loc: 168}
+      fingerprint: sha256:99558fa66bc53901ed3912dd97a27cf8ea2addeaa7962aa32f279b74c8cad0d2
+  - id: intensify.spec.edit.EditError
+    kind: class
+    parent_id: intensify.spec.edit
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/edit.py, symbol: EditError}
+      signature: class EditError(Exception)
+      complexity: {loc: 6}
+      fingerprint: sha256:985ba675b215973a4c24fd03e1310bbea3ba1b1c456afc255542d84091411065
+  - id: intensify.spec.edit.EditError.__init__
+    kind: function
+    parent_id: intensify.spec.edit.EditError
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: message, type: str}
+        - {name: diagnostics, type: 'list[Diagnostic] | None', required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/edit.py, symbol: EditError.__init__}
+      signature: 'def __init__(self, message: str, diagnostics: list[Diagnostic] | None = None) -> None'
+      complexity: {cyclomatic: 2, loc: 3}
+      fingerprint: sha256:db49c31477c0ec0ae48884da7f92d134d57df2d95592f40bd7d8e0c3e3ae2db1
+  - id: intensify.spec.edit.put
+    kind: function
+    parent_id: intensify.spec.edit
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: mapping, type: CommentedMap}
+        - {name: key, type: str}
+        - {name: value, type: Any}
+        - {name: order, type: 'tuple[str, ...]', required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/edit.py, symbol: put}
+      signature: 'def put(mapping: CommentedMap, key: str, value: Any, order: tuple[str, ...] = NODE_KEY_ORDER) -> None'
+      complexity: {cyclomatic: 9, loc: 22}
+      fingerprint: sha256:59a2f2db3c073fa7b2d245a822e67dad013bcf5c0421845e721b5efa87230f10
+  - id: intensify.spec.edit.to_yaml
+    kind: function
+    parent_id: intensify.spec.edit
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: value, type: Any}
+      outputs:
+        - {type: Any}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/edit.py, symbol: to_yaml}
+      signature: 'def to_yaml(value: Any) -> Any'
+      complexity: {cyclomatic: 11, loc: 15}
+      fingerprint: sha256:30c4ef04abfb16a46e1d7580331e9ae053307d0b1482f892a1d46d6abcbadd59
+  - id: intensify.spec.edit.find
+    kind: function
+    parent_id: intensify.spec.edit
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: loaded, type: LoadedSpec}
+        - {name: node_id, type: str}
+      outputs:
+        - {type: 'tuple[SpecFile, CommentedMap]'}
+      errors:
+        - {type: EditError}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/edit.py, symbol: find}
+      signature: 'def find(loaded: LoadedSpec, node_id: str) -> tuple[SpecFile, CommentedMap]'
+      complexity: {cyclomatic: 3, loc: 5}
+      fingerprint: sha256:63829d5afac080ada67191762b15606400295987dc741c91df42c1acdccc37a1
+  - id: intensify.spec.edit.patch
+    kind: function
+    parent_id: intensify.spec.edit
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: mapping, type: CommentedMap}
+        - {name: changes, type: 'dict[str, Any]'}
+        - {name: order, type: 'tuple[str, ...]', required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/edit.py, symbol: patch}
+      signature: 'def patch(mapping: CommentedMap, changes: dict[str, Any], order: tuple[str, ...] = NODE_KEY_ORDER) -> None'
+      complexity: {cyclomatic: 5, loc: 14}
+      fingerprint: sha256:f6f1f11725c14fb25a756a6db99963ad65d4fcc519776108c12abde114291d7b
+  - id: intensify.spec.edit.add_node
+    kind: function
+    parent_id: intensify.spec.edit
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: loaded, type: LoadedSpec}
+        - {name: node, type: 'dict[str, Any]'}
+      errors:
+        - {type: EditError}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/edit.py, symbol: add_node}
+      signature: 'def add_node(loaded: LoadedSpec, node: dict[str, Any]) -> None'
+      complexity: {cyclomatic: 22, loc: 36}
+      fingerprint: sha256:878aa17ddb2d38932f56402403f45d2c800a3e0f06937cbc09b60004d5f1286b
+  - id: intensify.spec.edit.save
+    kind: function
+    parent_id: intensify.spec.edit
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Write changed spec files, validate the result and restore the originals if it is invalid.
+      author: ai
+    contract:
+      inputs:
+        - {name: loaded, type: LoadedSpec}
+      outputs:
+        - {type: LoadedSpec}
+      errors:
+        - {type: EditError}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/edit.py, symbol: save}
+      signature: 'def save(loaded: LoadedSpec) -> LoadedSpec'
+      complexity: {cyclomatic: 7, loc: 16}
+      fingerprint: sha256:ebcecdf1f1845c99d60b03bdbe2c35ece4672fc02e71cfd776c28844ad76de23
+  - id: intensify.spec.loader
+    kind: module
+    parent_id: intensify.spec
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Loads intensify.yaml and its fragment files, keeping round-trip data and each node's origin file.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/spec/loader.py}
+      complexity: {loc: 192}
+      fingerprint: sha256:952b49bc2bdff28eaa45eab66e54392a64debc726f5ad89d1604cd8b2dfac02a
+  - id: intensify.spec.loader.SpecFile
+    kind: class
+    parent_id: intensify.spec.loader
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/loader.py, symbol: SpecFile}
+      signature: class SpecFile
+      complexity: {loc: 5}
+      fingerprint: sha256:fed2bd7205d9dbcebd9501de545637d6794ac085ecb23fd598425c3614416858
+  - id: intensify.spec.loader.NodeEntry
+    kind: class
+    parent_id: intensify.spec.loader
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/loader.py, symbol: NodeEntry}
+      signature: class NodeEntry
+      complexity: {loc: 5}
+      fingerprint: sha256:f9df5002507b339a3cbe9581918bbf92a6ecc539d1e5a9835989f772f1d673d2
+  - id: intensify.spec.loader.EdgeEntry
+    kind: class
+    parent_id: intensify.spec.loader
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/loader.py, symbol: EdgeEntry}
+      signature: class EdgeEntry
+      complexity: {loc: 4}
+      fingerprint: sha256:20aaf6f8b9739ef668739dc02871118fbad31239101b7112a1d27db2b31be3d7
+  - id: intensify.spec.loader.LoadedSpec
+    kind: class
+    parent_id: intensify.spec.loader
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/loader.py, symbol: LoadedSpec}
+      signature: class LoadedSpec
+      complexity: {loc: 22}
+      fingerprint: sha256:2009b4de328f30196d8c3a0b5fb6b81a891954a13dbcb5fbfb8780fe5049edbb
+  - id: intensify.spec.loader.LoadedSpec.errors
+    kind: function
+    parent_id: intensify.spec.loader.LoadedSpec
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: 'list[Diagnostic]'}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/loader.py, symbol: LoadedSpec.errors}
+      signature: def errors(self) -> list[Diagnostic]
+      complexity: {cyclomatic: 3, loc: 2}
+      fingerprint: sha256:f55027abbe9852858b9e0307cc3252afd346100ebf4c911fea565e6e0efa0d64
+  - id: intensify.spec.loader.LoadedSpec.warnings
+    kind: function
+    parent_id: intensify.spec.loader.LoadedSpec
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: 'list[Diagnostic]'}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/loader.py, symbol: LoadedSpec.warnings}
+      signature: def warnings(self) -> list[Diagnostic]
+      complexity: {cyclomatic: 3, loc: 2}
+      fingerprint: sha256:f55027abbe9852858b9e0307cc3252afd346100ebf4c911fea565e6e0efa0d64
+  - id: intensify.spec.loader.LoadedSpec.ok
+    kind: function
+    parent_id: intensify.spec.loader.LoadedSpec
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: bool}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/loader.py, symbol: LoadedSpec.ok}
+      signature: def ok(self) -> bool
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:bd977b8121afbffc2edb3fb6b142fcac055fe7470eed8079a7732030f0de0b00
+  - id: intensify.spec.loader.resolve_path
+    kind: function
+    parent_id: intensify.spec.loader
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: path, type: Path}
+      outputs:
+        - {type: Path}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/loader.py, symbol: resolve_path}
+      signature: 'def resolve_path(path: Path) -> Path'
+      complexity: {cyclomatic: 2, loc: 3}
+      fingerprint: sha256:d07cefae1b987ad37cbfc28f42d0011b52d03b44decb0d90e3a168a7521bc705
+  - id: intensify.spec.loader.load
+    kind: function
+    parent_id: intensify.spec.loader
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: path, type: Path}
+      outputs:
+        - {type: LoadedSpec}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/loader.py, symbol: load}
+      signature: 'def load(path: Path) -> LoadedSpec'
+      complexity: {cyclomatic: 7, loc: 26}
+      fingerprint: sha256:8170545f0985d13eda5dc94308dbe3f453df984ed25ecd526fb1f92bb3b88371
+  - id: intensify.spec.models
+    kind: module
+    parent_id: intensify.spec
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Pydantic models generated from spec/v1.0/schema.json.
+      rationale: Generated so the models can never drift from the canonical JSON Schema; CI checks they are up to date.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py}
+      complexity: {loc: 438}
+      fingerprint: sha256:25b4464bb25665249e41530e79821d0c5b88c56502b5f0947e703cc05f99d3b8
+  - id: intensify.spec.models.Project
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: Project}
+      signature: class Project(BaseModel)
+      complexity: {loc: 10}
+      fingerprint: sha256:04bb7e258c7d40d0fa4c371d0c44d503f74f9185e24308812e30a531e107400b
+  - id: intensify.spec.models.NodeKind
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: NodeKind}
+      signature: class NodeKind(StrEnum)
+      complexity: {loc: 11}
+      fingerprint: sha256:d31f6e772f4d9913d5186b9eaf8fa3d39dbcd4c5901ff3c7c5cd291cbc467868
+  - id: intensify.spec.models.LifecycleState
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: LifecycleState}
+      signature: class LifecycleState(StrEnum)
+      complexity: {loc: 5}
+      fingerprint: sha256:2f632651ddc7854b58e6a4939ea344ac03db9550208d6d296bf45e80f05ef4a4
+  - id: intensify.spec.models.Provenance
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: Provenance}
+      signature: class Provenance(StrEnum)
+      complexity: {loc: 8}
+      fingerprint: sha256:48fe11395fe852328ad3407e3decd355f172b9728f1458b2432790f74ffc0c7b
+  - id: intensify.spec.models.EdgeType
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: EdgeType}
+      signature: class EdgeType(StrEnum)
+      complexity: {loc: 11}
+      fingerprint: sha256:9dee64315f89eff894dc562b36ec64d05911f5664a3225521b6653c48f022b7c
+  - id: intensify.spec.models.Confidence
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: Confidence}
+      signature: class Confidence(StrEnum)
+      complexity: {loc: 8}
+      fingerprint: sha256:2527f81f7692383ff4fa69c51e505e5f3290d35385fbeb6ef2fe864704a86fcd
+  - id: intensify.spec.models.Author
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: Author}
+      signature: class Author(StrEnum)
+      complexity: {loc: 7}
+      fingerprint: sha256:c285941e52b5e752c8c3f658e26e2c8e568708110ef4d09a10b198924575fbdc
+  - id: intensify.spec.models.Intent
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: Intent}
+      signature: class Intent(BaseModel)
+      complexity: {loc: 20}
+      fingerprint: sha256:34dddde69841199ac39803331528cfe9c5fa5bf936bdb04e11fb5a4d3f52ef5f
+  - id: intensify.spec.models.Parameter
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: Parameter}
+      signature: class Parameter(BaseModel)
+      complexity: {loc: 11}
+      fingerprint: sha256:772c1bb1a7b1d74005f38e167185d93a05297328dba8fc8275ab74beacc768e8
+  - id: intensify.spec.models.Output
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: Output}
+      signature: class Output(BaseModel)
+      complexity: {loc: 7}
+      fingerprint: sha256:8ffd1d67a79ae9a7a062823e826bc1a01af6137949526434adefb50a20e65ec3
+  - id: intensify.spec.models.ErrorMode
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: ErrorMode}
+      signature: class ErrorMode(BaseModel)
+      complexity: {loc: 12}
+      fingerprint: sha256:0126704a70d59367448136acaea10f83ff6816df1bc3035b5c1d00778bf34b9e
+  - id: intensify.spec.models.Location
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: Location}
+      signature: class Location(BaseModel)
+      complexity: {loc: 12}
+      fingerprint: sha256:26d8ca6c92c277eecfba2674b0c849bbf17fa8aa4d354aba7d6704d04550e659
+  - id: intensify.spec.models.Complexity
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: Complexity}
+      signature: class Complexity(BaseModel)
+      complexity: {loc: 6}
+      fingerprint: sha256:afb45de2b47727ec0fa477de1728de0dc1ee1dccd8051788d126f25bea6e61e4
+  - id: intensify.spec.models.EdgePattern
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: EdgePattern}
+      signature: class EdgePattern(BaseModel)
+      complexity: {loc: 13}
+      fingerprint: sha256:24fbbf3b6704adcf5004823da9357b9b2305c1b0397c1d346157cdd853e68382
+  - id: intensify.spec.models.DependentsPattern
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: DependentsPattern}
+      signature: class DependentsPattern(BaseModel)
+      complexity: {loc: 12}
+      fingerprint: sha256:29b3cabee3a91c893d75fe6e7658edbc649b21735e9ba6d28f9d99d9994367fd
+  - id: intensify.spec.models.Edge
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: Edge}
+      signature: class Edge(BaseModel)
+      complexity: {loc: 28}
+      fingerprint: sha256:13820106ec04e3a1660302ec38ee5944689c2986c1b986c5e385a6359cb228df
+  - id: intensify.spec.models.DriftCategory
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: DriftCategory}
+      signature: class DriftCategory(StrEnum)
+      complexity: {loc: 9}
+      fingerprint: sha256:8585aa71f93e0327bc0e93071c025f1de37d4e249266c025cc8d94185cc2a978
+  - id: intensify.spec.models.Depth
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: Depth}
+      signature: class Depth(StrEnum)
+      complexity: {loc: 8}
+      fingerprint: sha256:6227afa24b92189dd21a878e7879109bbe69930439db45dc66c91c1798d0a71d
+  - id: intensify.spec.models.AnalyzeConfig
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: AnalyzeConfig}
+      signature: class AnalyzeConfig(BaseModel)
+      complexity: {loc: 17}
+      fingerprint: sha256:cafa4fb45b0d1f4b96dce4bd56c2f16bb92d830f81db5a61c6799050ccd8aca0
+  - id: intensify.spec.models.DriftConfig
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: DriftConfig}
+      signature: class DriftConfig(BaseModel)
+      complexity: {loc: 14}
+      fingerprint: sha256:9364f7f8baf9840e732d365372237c398f452dde88887d182cd503681fa25ad1
+  - id: intensify.spec.models.VerifyConfig
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: VerifyConfig}
+      signature: class VerifyConfig(BaseModel)
+      complexity: {loc: 8}
+      fingerprint: sha256:0feba85a8333dc9903e57a39dca51d38f310ae754325708d029e5d3e527a7008
+  - id: intensify.spec.models.Contract
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: Contract}
+      signature: class Contract(BaseModel)
+      complexity: {loc: 11}
+      fingerprint: sha256:d399f59bfbe2b3b29988699fa251cb5200331689c747b05bc16819af8dce35f1
+  - id: intensify.spec.models.Technical
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: Technical}
+      signature: class Technical(BaseModel)
+      complexity: {loc: 16}
+      fingerprint: sha256:fca08ec429152c35c0a6823f44861d80ee62307fff76bbe3c752658768eea5c2
+  - id: intensify.spec.models.InvariantRule
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: InvariantRule}
+      signature: class InvariantRule(BaseModel)
+      complexity: {loc: 11}
+      fingerprint: sha256:2e33bea05fa1815e463502cd0b49dcf23bdc54ae16152f95054a9b75b684e868
+  - id: intensify.spec.models.Config
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: Config}
+      signature: class Config(BaseModel)
+      complexity: {loc: 11}
+      fingerprint: sha256:61161ce13c0b569498a4ee5764301dba0b6c8a79a17f06cf7b934b2a6dfdd645
+  - id: intensify.spec.models.Invariant
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: Invariant}
+      signature: class Invariant(BaseModel)
+      complexity: {loc: 11}
+      fingerprint: sha256:14ca57c7652b6bebbbeeb18468872a36296ab2f765362d6267d193d53ec544ba
+  - id: intensify.spec.models.Governance
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: Governance}
+      signature: class Governance(BaseModel)
+      complexity: {loc: 10}
+      fingerprint: sha256:014221523ae390fee2693a49f2d390f3717130b893ffa8190cf094f11e679271
+  - id: intensify.spec.models.Node
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: Node}
+      signature: class Node(BaseModel)
+      complexity: {loc: 28}
+      fingerprint: sha256:27f69e277041c52a27d0e3a0216a6a0c2be2b279d040ebe32193cc240f185dd2
+  - id: intensify.spec.models.IntensifyDocument
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: IntensifyDocument}
+      signature: class IntensifyDocument(BaseModel)
+      complexity: {loc: 20}
+      fingerprint: sha256:f48960f07eca89bf742c2e35816e027acff07145b27a0e04f9736846264910b8
+  - id: intensify.spec.models.IntensifyFragment
+    kind: class
+    parent_id: intensify.spec.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/spec/models.py, symbol: IntensifyFragment}
+      signature: class IntensifyFragment(BaseModel)
+      complexity: {loc: 14}
+      fingerprint: sha256:a85f3969c28439c77873ceb9d2902e137f1f890fdf0daab112d6a9e99f40f009
+  - id: intensify.spec.schema
+    kind: module
+    parent_id: intensify.spec
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Validates YAML against the packaged JSON Schema and rewrites errors into readable, located messages.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/spec/schema.py}
+      complexity: {loc: 99}
+      fingerprint: sha256:05dadc2b230f3a64b8ba534c631a69c5eedddbc1b748dd47079e3c8256f685c5
+  - id: intensify.spec.schema.load_schema
+    kind: function
+    parent_id: intensify.spec.schema
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: version, type: str, required: false}
+      outputs:
+        - {type: 'dict[str, Any]'}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/schema.py, symbol: load_schema}
+      signature: 'def load_schema(version: str = "1.0") -> dict[str, Any]'
+      complexity: {cyclomatic: 1, loc: 4}
+      fingerprint: sha256:48d9f2ba98e07a4fccb71418b3c1ae52c329f856a2db727652afb231d6c6f30c
+  - id: intensify.spec.schema.check
+    kind: function
+    parent_id: intensify.spec.schema
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: data, type: Any}
+        - {name: file, type: Path}
+        - {name: fragment, type: bool}
+        - {name: version, type: str, required: false}
+      outputs:
+        - {type: 'list[Diagnostic]'}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/schema.py, symbol: check}
+      signature: 'def check(data: Any, file: Path, *, fragment: bool, version: str = "1.0") -> list[Diagnostic]'
+      complexity: {cyclomatic: 4, loc: 19}
+      fingerprint: sha256:22e45a88e052ca9128b6159ef4e5755e0da9263c5f38a6091de8d23ebb9f251e
+  - id: intensify.spec.validate
+    kind: module
+    parent_id: intensify.spec
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Semantic validation across nodes, edges and files: IDs, parents, cycles, nesting, lifecycle and edge rules.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/spec/validate.py}
+      complexity: {loc: 211}
+      fingerprint: sha256:c51eb3d42226d2b8c17a0b47ae144621a49cb40ff0e9ad8f531d916361b54e4d
+  - id: intensify.spec.validate.load_and_validate
+    kind: function
+    parent_id: intensify.spec.validate
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Load a spec and run every structural and semantic check.
+      author: ai
+    contract:
+      inputs:
+        - {name: path, type: Path}
+      outputs:
+        - {type: LoadedSpec}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/validate.py, symbol: load_and_validate}
+      signature: 'def load_and_validate(path: Path) -> LoadedSpec'
+      complexity: {cyclomatic: 2, loc: 6}
+      fingerprint: sha256:587182d8c7eecae35442b1b18f7f37b40bbce7215571737372f358fc4aedeed2
+  - id: intensify.spec.validate.validate
+    kind: function
+    parent_id: intensify.spec.validate
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: spec, type: LoadedSpec}
+      outputs:
+        - {type: 'list[Diagnostic]'}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/validate.py, symbol: validate}
+      signature: 'def validate(spec: LoadedSpec) -> list[Diagnostic]'
+      complexity: {cyclomatic: 3, loc: 9}
+      fingerprint: sha256:31436dfd499b62dc972ce15e9a90b24edfaa01e6e05b5b7ea8cdb3bfdc52b2e3
+  - id: intensify.spec.yamlio
+    kind: module
+    parent_id: intensify.spec
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Round-trip YAML reading and writing that keeps comments, key order and formatting.
+      rationale: Adoption depends on tools never reformatting a file people maintain by hand.
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/spec/yamlio.py}
+      complexity: {loc: 80}
+      fingerprint: sha256:388c6c1203521ba1fc51826147b806928af0044ef29d95ef43968a96158774d9
+  - id: intensify.spec.yamlio.loads
+    kind: function
+    parent_id: intensify.spec.yamlio
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: text, type: str}
+      outputs:
+        - {type: Any}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/yamlio.py, symbol: loads}
+      signature: 'def loads(text: str) -> Any'
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:a31baee107fbd8313110f54b100bf09459a38b00ebf1b2d7f06954fea8e834df
+  - id: intensify.spec.yamlio.read
+    kind: function
+    parent_id: intensify.spec.yamlio
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: path, type: Path}
+      outputs:
+        - {type: Any}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/yamlio.py, symbol: read}
+      signature: 'def read(path: Path) -> Any'
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:02898f43721a47836327837514edb141f5a98de38709f76a84f3056e088a437a
+  - id: intensify.spec.yamlio.dumps
+    kind: function
+    parent_id: intensify.spec.yamlio
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: data, type: Any}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/yamlio.py, symbol: dumps}
+      signature: 'def dumps(data: Any) -> str'
+      complexity: {cyclomatic: 1, loc: 4}
+      fingerprint: sha256:7ef48a7c8eb294f5138d828e9df85dbb5d67465abe239564198897235dd3c259
+  - id: intensify.spec.yamlio.write
+    kind: function
+    parent_id: intensify.spec.yamlio
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: data, type: Any}
+        - {name: path, type: Path}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/yamlio.py, symbol: write}
+      signature: 'def write(data: Any, path: Path) -> None'
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:86f25d45da8484600a7139e1f3f6afb0d60e78ab18ba75aebfa98ed7225146d7
+  - id: intensify.spec.yamlio.to_plain
+    kind: function
+    parent_id: intensify.spec.yamlio
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: data, type: Any}
+      outputs:
+        - {type: Any}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/yamlio.py, symbol: to_plain}
+      signature: 'def to_plain(data: Any) -> Any'
+      complexity: {cyclomatic: 7, loc: 11}
+      fingerprint: sha256:bd2bb223f04cdc616038f42367b808115fec59c2f1e4843af3f13b7ee4813c8a
+  - id: intensify.spec.yamlio.line_of
+    kind: function
+    parent_id: intensify.spec.yamlio
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: data, type: Any}
+        - {name: path, type: 'Sequence[str | int]'}
+      outputs:
+        - {type: int | None}
+    technical:
+      language: python
+      location: {path: src/intensify/spec/yamlio.py, symbol: line_of}
+      signature: 'def line_of(data: Any, path: Sequence[str | int]) -> int | None'
+      complexity: {cyclomatic: 7, loc: 19}
+      fingerprint: sha256:d94a262112d1dcbc0ffa0c98cf1aca81ff723c3a4d8c8e49e2b09995a9aefe68
+  - id: intensify.verify
+    kind: module
+    parent_id: intensify-module
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Checks a node's code against its contract, invariants and tests, then marks it active.
+      rationale: 'Closes the agent loop: a planned node becomes active only when its implementation provably matches the spec.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/verify.py}
+      complexity: {loc: 167}
+      fingerprint: sha256:ff24a290a46dd798c2ad49e7c9e7b625c5a7b79673ebc4467b39bb50f3e1bb63
+  - id: intensify.verify.NodeNotFoundError
+    kind: class
+    parent_id: intensify.verify
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/verify.py, symbol: NodeNotFoundError}
+      signature: class NodeNotFoundError(Exception)
+      complexity: {loc: 2}
+      fingerprint: sha256:20d00506149aefbdbf86c9e1c3ddce2774fe8b402f3d72e74a7f548526b0c0b7
+  - id: intensify.verify.Check
+    kind: class
+    parent_id: intensify.verify
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/verify.py, symbol: Check}
+      signature: class Check
+      complexity: {loc: 5}
+      fingerprint: sha256:603d6e4ee6edfb60e352ce754d024361c4bb5e51107fc3128cae82aa2d28600a
+  - id: intensify.verify.VerifyResult
+    kind: class
+    parent_id: intensify.verify
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/verify.py, symbol: VerifyResult}
+      signature: class VerifyResult
+      complexity: {loc: 10}
+      fingerprint: sha256:58bbc51355795ba73d5f2d793291539ca8c222013fd3ea968acd62fb1f782a08
+  - id: intensify.verify.VerifyResult.ok
+    kind: function
+    parent_id: intensify.verify.VerifyResult
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: bool}
+    technical:
+      language: python
+      location: {path: src/intensify/verify.py, symbol: VerifyResult.ok}
+      signature: def ok(self) -> bool
+      complexity: {cyclomatic: 2, loc: 2}
+      fingerprint: sha256:1e2509ff830eaeb57e1f30e2c591676954ce80665b075ea1e9da57fa336f8552
+  - id: intensify.verify.verify
+    kind: function
+    parent_id: intensify.verify
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Run every verification check for one node and mark it active when all pass.
+      author: ai
+    contract:
+      inputs:
+        - {name: spec_path, type: Path}
+        - {name: node_id, type: str}
+        - {name: run_tests, type: bool, required: false}
+        - {name: require_tests, type: bool, required: false}
+        - {name: dry_run, type: bool, required: false}
+      outputs:
+        - {type: VerifyResult}
+      errors:
+        - {type: NodeNotFoundError}
+    technical:
+      language: python
+      location: {path: src/intensify/verify.py, symbol: verify}
+      signature: 'def verify(spec_path: Path, node_id: str, *, run_tests: bool = True, require_tests: bool = True, dry_run: bool = False) -> VerifyResult'
+      complexity: {cyclomatic: 34, loc: 91}
+      fingerprint: sha256:5c4cc24fde966ce8803fdbf07db3dd4ed5e9760331d33d47d5ec1361a4a7a1c5
+  - id: tests
+    kind: module
+    parent_id: intensify
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: The test suite.
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/__init__.py}
+      complexity: {loc: 1}
+      fingerprint: sha256:2748e84fd8037b1197c4fabc8098be187c21f3d3cae20f5a49ba13e7d215d704
+  - id: tests.conftest
+    kind: module
+    parent_id: tests
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Shared pytest fixtures: temporary specs and copies of the fixture repositories.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/conftest.py}
+      complexity: {loc: 44}
+      fingerprint: sha256:a68ea51871239aed6a41df38c9d9f7e5a7d9e0b10dad86b8e65c5e6fb1f31215
+  - id: tests.unit
+    kind: module
+    parent_id: tests
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Unit and end-to-end tests, grouped by area.
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/__init__.py}
+      complexity: {loc: 1}
+      fingerprint: sha256:2748e84fd8037b1197c4fabc8098be187c21f3d3cae20f5a49ba13e7d215d704
+  - id: tests.unit.agents
+    kind: module
+    parent_id: tests.unit
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Tests for agents.
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/agents/__init__.py}
+      complexity: {loc: 1}
+      fingerprint: sha256:2748e84fd8037b1197c4fabc8098be187c21f3d3cae20f5a49ba13e7d215d704
+  - id: tests.unit.agents.conftest
+    kind: module
+    parent_id: tests.unit.agents
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Tests for agents.conftest.
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/agents/conftest.py}
+      complexity: {loc: 61}
+      fingerprint: sha256:b1c01e0094b62ee9c26891b60336f10811576b16e2ae545bc94ed2894a502fc6
+  - id: tests.unit.agents.test_cli_agents
+    kind: module
+    parent_id: tests.unit.agents
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for agents: cli agents.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/agents/test_cli_agents.py}
+      complexity: {loc: 128}
+      fingerprint: sha256:6f4a9b04bbc2b579a097835966f23dfda97ef3e8ceee5719ec5765585815740c
+  - id: tests.unit.agents.test_context_verify
+    kind: module
+    parent_id: tests.unit.agents
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for agents: context verify.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/agents/test_context_verify.py}
+      complexity: {loc: 142}
+      fingerprint: sha256:59f4961c06e3c3d5e7b60ea941a80d0864eec51c6f011799b5c1ebdf95e4d671
+  - id: tests.unit.agents.test_graph_edit
+    kind: module
+    parent_id: tests.unit.agents
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for agents: graph edit.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/agents/test_graph_edit.py}
+      complexity: {loc: 88}
+      fingerprint: sha256:6f823fcd572abf955e74eb43051adbe07ea1262e3554dff8b05f026a003d84d9
+  - id: tests.unit.agents.test_mcp
+    kind: module
+    parent_id: tests.unit.agents
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for agents: mcp.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/agents/test_mcp.py}
+      complexity: {loc: 117}
+      fingerprint: sha256:b06f8683cf8355497dea3b61e689af96ac14e3c7eb947d8a7cfa9e31f2d4d06d
+  - id: tests.unit.cli
+    kind: module
+    parent_id: tests.unit
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Tests for cli.
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/cli/__init__.py}
+      complexity: {loc: 1}
+      fingerprint: sha256:2748e84fd8037b1197c4fabc8098be187c21f3d3cae20f5a49ba13e7d215d704
+  - id: tests.unit.cli.test_analyze
+    kind: module
+    parent_id: tests.unit.cli
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for cli: analyze.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/cli/test_analyze.py}
+      complexity: {loc: 78}
+      fingerprint: sha256:6c755f9da0ba50f277b4e317c19bfb68ffa467296cc9897a56e852bb816bf92d
+  - id: tests.unit.cli.test_app
+    kind: module
+    parent_id: tests.unit.cli
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for cli: app.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/cli/test_app.py}
+      complexity: {loc: 18}
+      fingerprint: sha256:8f92b7cc2294dd28664573fa9788aacba60440f14183801377596161c9177dfd
+  - id: tests.unit.cli.test_drift
+    kind: module
+    parent_id: tests.unit.cli
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for cli: drift.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/cli/test_drift.py}
+      complexity: {loc: 96}
+      fingerprint: sha256:d471efc4ce1499c75e23861c4fcb978a221edd45f179302c1adef78d4013b5c3
+  - id: tests.unit.cli.test_init
+    kind: module
+    parent_id: tests.unit.cli
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for cli: init.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/cli/test_init.py}
+      complexity: {loc: 77}
+      fingerprint: sha256:622d868a441fc4d82b81add390772df44c5970d527a961f7c0dc7400df563a14
+  - id: tests.unit.cli.test_validate
+    kind: module
+    parent_id: tests.unit.cli
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for cli: validate.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/cli/test_validate.py}
+      complexity: {loc: 50}
+      fingerprint: sha256:424b2ee545eedf86d2515540d033e8b6f1dace00bc2f6351240e996dd9e052b9
+  - id: tests.unit.differ
+    kind: module
+    parent_id: tests.unit
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Tests for differ.
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/differ/__init__.py}
+      complexity: {loc: 1}
+      fingerprint: sha256:2748e84fd8037b1197c4fabc8098be187c21f3d3cae20f5a49ba13e7d215d704
+  - id: tests.unit.differ.test_drift
+    kind: module
+    parent_id: tests.unit.differ
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for differ: drift.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/differ/test_drift.py}
+      complexity: {loc: 366}
+      fingerprint: sha256:187cf41d64f0c6b3681e4b955cd98c5a0be7a24d27b9c6a3e4d8aaef14f5d81b
+  - id: tests.unit.merge
+    kind: module
+    parent_id: tests.unit
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Tests for merge.
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/merge/__init__.py}
+      complexity: {loc: 1}
+      fingerprint: sha256:2748e84fd8037b1197c4fabc8098be187c21f3d3cae20f5a49ba13e7d215d704
+  - id: tests.unit.merge.test_merge
+    kind: module
+    parent_id: tests.unit.merge
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for merge: merge.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/merge/test_merge.py}
+      complexity: {loc: 277}
+      fingerprint: sha256:92c29208bb735d150605b057def2c7ac8a7672bc55f5ccdea8dffba2e99fcdeb
+  - id: tests.unit.parser
+    kind: module
+    parent_id: tests.unit
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Tests for parser.
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/parser/__init__.py}
+      complexity: {loc: 1}
+      fingerprint: sha256:2748e84fd8037b1197c4fabc8098be187c21f3d3cae20f5a49ba13e7d215d704
+  - id: tests.unit.parser.test_ids_discovery
+    kind: module
+    parent_id: tests.unit.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for parser: ids discovery.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/parser/test_ids_discovery.py}
+      complexity: {loc: 77}
+      fingerprint: sha256:c89660390366d9300a1e01a134f072827762ae47c7b1e7f71ffcc9b051feed6a
+  - id: tests.unit.parser.test_python
+    kind: module
+    parent_id: tests.unit.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for parser: python.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/parser/test_python.py}
+      complexity: {loc: 127}
+      fingerprint: sha256:69679727d1612ab31c18cf1d205706ed6251e36d5f90b16624e65907f1c64f25
+  - id: tests.unit.parser.test_typescript
+    kind: module
+    parent_id: tests.unit.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for parser: typescript.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/parser/test_typescript.py}
+      complexity: {loc: 114}
+      fingerprint: sha256:5a59cdfdd1910b76f3ada83ddbeaaedf47bbd2000a4de52404de10a7465d02eb
+  - id: tests.unit.spec
+    kind: module
+    parent_id: tests.unit
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Tests for spec.
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/spec/__init__.py}
+      complexity: {loc: 1}
+      fingerprint: sha256:2748e84fd8037b1197c4fabc8098be187c21f3d3cae20f5a49ba13e7d215d704
+  - id: tests.unit.spec.test_schema
+    kind: module
+    parent_id: tests.unit.spec
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for spec: schema.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/spec/test_schema.py}
+      complexity: {loc: 30}
+      fingerprint: sha256:3f77fdb4c9659204536ba606eae363cc3061c102ec247517da2bad9c844a9d12
+  - id: tests.unit.spec.test_validate
+    kind: module
+    parent_id: tests.unit.spec
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for spec: validate.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/spec/test_validate.py}
+      complexity: {loc: 355}
+      fingerprint: sha256:c8712e321a4f61306f8a936412fc97a0a5770739eca36256376da80dda28c5a9
+  - id: tests.unit.spec.test_yamlio
+    kind: module
+    parent_id: tests.unit.spec
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for spec: yamlio.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/spec/test_yamlio.py}
+      complexity: {loc: 57}
+      fingerprint: sha256:11752c2ad461cc5bb772e97644621309597b3b3bd2d7bf6b1bbf4f7b142899fd
+  - id: tests.unit.test_golden
+    kind: module
+    parent_id: tests.unit
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: Tests for golden.
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/test_golden.py}
+      complexity: {loc: 36}
+      fingerprint: sha256:4abf81aaafb09ebaf2779b7a9dae7f0a71cf8a9df5e88017f0753a00a4beeddd
+edges:
+  - {from: intensify.__main__, to: intensify.cli.main, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.analyze.analyze, to: intensify.cli.analyze.print_report, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.analyze.analyze, to: intensify.cli.validate.render_text, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.analyze.analyze, to: intensify.pipeline.analyze_and_write, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.context.context, to: intensify.cli.node.load_or_exit, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.context.context, to: intensify.context.build, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.context.context, to: intensify.context.render_markdown, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.context.context, to: intensify.context.to_dict, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.drift.drift, to: intensify.cli.drift.render_text, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.drift.drift, to: intensify.cli.validate.render_text, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.drift.drift, to: intensify.differ.detect, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.drift.drift, to: intensify.differ.report.to_codequality, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.drift.drift, to: intensify.differ.report.to_json, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.drift.drift, to: intensify.differ.report.to_markdown, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.drift.drift, to: intensify.differ.report.to_sarif, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.init.init, to: intensify.cli.analyze.print_report, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.init.init, to: intensify.cli.init.render, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.init.init, to: intensify.cli.init.slugify, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.init.init, to: intensify.pipeline.analyze_and_write, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.mcp.mcp, to: intensify.mcp.create_server, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.mcp.mcp, to: intensify.spec.loader.resolve_path, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.node, to: intensify.spec.edit.save, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.node.add, to: intensify.cli.node.load_or_exit, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.node.add, to: intensify.spec.edit.add_node, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.node.get, to: intensify.cli.node.load_or_exit, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.node.get, to: intensify.spec.edit.find, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.node.get, to: intensify.spec.yamlio.dumps, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.node.get, to: intensify.spec.yamlio.to_plain, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.node.list_nodes, to: intensify.cli.node.load_or_exit, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.node.list_nodes, to: intensify.graph.Graph.from_spec, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.node.load_or_exit, to: intensify.cli.validate.render_text, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.node.set_node, to: intensify.cli.node.load_or_exit, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.node.set_node, to: intensify.spec.edit.find, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.node.set_node, to: intensify.spec.edit.patch, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.node.set_node, to: intensify.spec.yamlio.to_plain, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.skills.install_skills, to: intensify.skills.install, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.skills.list_skills, to: intensify.skills.bundled, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.validate.validate, to: intensify.cli.validate.render_json, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.validate.validate, to: intensify.cli.validate.render_text, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.verify.verify, to: intensify.cli.validate.render_text, type: CALLS, provenance: analyzed}
+  - {from: intensify.cli.verify.verify, to: intensify.verify.verify, type: CALLS, provenance: analyzed}
+  - {from: intensify.context, to: intensify.parser.symbol_span, type: CALLS, provenance: analyzed}
+  - {from: intensify.context.build, to: intensify.context.Bundle, type: CALLS, provenance: analyzed}
+  - {from: intensify.context.build, to: intensify.context.Related, type: CALLS, provenance: analyzed}
+  - {from: intensify.context.build, to: intensify.graph.Graph.from_spec, type: CALLS, provenance: analyzed}
+  - {from: intensify.differ, to: intensify.spec.yamlio.line_of, type: CALLS, provenance: analyzed}
+  - {from: intensify.differ.DriftReport.ok, to: intensify.differ.DriftReport.count, type: CALLS, provenance: analyzed}
+  - {from: intensify.differ.base.keys_at, to: intensify.differ.base.BaseRefError, type: CALLS, provenance: analyzed}
+  - {from: intensify.differ.base.keys_at, to: intensify.differ.base.repo_prefix, type: CALLS, provenance: analyzed}
+  - {from: intensify.differ.base.keys_at, to: intensify.differ.detect, type: CALLS, provenance: analyzed}
+  - {from: intensify.differ.detect, to: intensify.differ.DriftReport, type: CALLS, provenance: analyzed}
+  - {from: intensify.differ.detect, to: intensify.differ.base.keys_at, type: CALLS, provenance: analyzed}
+  - {from: intensify.differ.detect, to: intensify.pipeline.analyze_and_merge, type: CALLS, provenance: analyzed}
+  - {from: intensify.differ.report, to: intensify.differ.base.repo_prefix, type: CALLS, provenance: analyzed}
+  - {from: intensify.graph.Graph.ancestors, to: intensify.graph.Graph.get, type: CALLS, provenance: analyzed}
+  - {from: intensify.graph.Graph.blast_radius, to: intensify.graph.Graph.dependents, type: CALLS, provenance: analyzed}
+  - {from: intensify.graph.Graph.blast_radius, to: intensify.graph.Graph.local, type: CALLS, provenance: analyzed}
+  - {from: intensify.graph.Graph.from_data, to: intensify.spec.yamlio.to_plain, type: CALLS, provenance: analyzed}
+  - {from: intensify.graph.Graph.search, to: intensify.graph.Graph.nodes, type: CALLS, provenance: analyzed}
+  - {from: intensify.graph.Graph.siblings, to: intensify.graph.Graph.get, type: CALLS, provenance: analyzed}
+  - {from: intensify.graph.Graph.tests_of, to: intensify.graph.Graph.descendants, type: CALLS, provenance: analyzed}
+  - {from: intensify.graph.Graph.tests_of, to: intensify.graph.Graph.local, type: CALLS, provenance: analyzed}
+  - {from: intensify.mcp.create_server, to: intensify.context.build, type: CALLS, provenance: analyzed}
+  - {from: intensify.mcp.create_server, to: intensify.context.render_markdown, type: CALLS, provenance: analyzed}
+  - {from: intensify.mcp.create_server, to: intensify.differ.detect, type: CALLS, provenance: analyzed}
+  - {from: intensify.mcp.create_server, to: intensify.differ.report.to_json, type: CALLS, provenance: analyzed}
+  - {from: intensify.mcp.create_server, to: intensify.graph.Graph.from_spec, type: CALLS, provenance: analyzed}
+  - {from: intensify.mcp.create_server, to: intensify.pipeline.analyze_and_write, type: CALLS, provenance: analyzed}
+  - {from: intensify.mcp.create_server, to: intensify.spec.edit.add_node, type: CALLS, provenance: analyzed}
+  - {from: intensify.mcp.create_server, to: intensify.spec.edit.find, type: CALLS, provenance: analyzed}
+  - {from: intensify.mcp.create_server, to: intensify.spec.edit.patch, type: CALLS, provenance: analyzed}
+  - {from: intensify.mcp.create_server, to: intensify.spec.edit.save, type: CALLS, provenance: analyzed}
+  - {from: intensify.mcp.create_server, to: intensify.spec.models.LifecycleState, type: CALLS, provenance: analyzed}
+  - {from: intensify.mcp.create_server, to: intensify.spec.models.NodeKind, type: CALLS, provenance: analyzed}
+  - {from: intensify.mcp.create_server, to: intensify.spec.yamlio.dumps, type: CALLS, provenance: analyzed}
+  - {from: intensify.mcp.create_server, to: intensify.verify.verify, type: CALLS, provenance: analyzed}
+  - {from: intensify.merge, to: intensify.spec.edit.put, type: CALLS, provenance: analyzed}
+  - {from: intensify.merge, to: intensify.spec.edit.to_yaml, type: CALLS, provenance: analyzed}
+  - {from: intensify.merge, to: intensify.spec.yamlio.to_plain, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.analyze_repo, to: intensify.parser.analyzers, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.analyze_repo, to: intensify.parser.base.AnalysisResult, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.analyze_repo, to: intensify.parser.base.AnalyzeOptions, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.analyze_repo, to: intensify.parser.discovery.discover, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.analyze_repo, to: intensify.parser.ids.Allocator, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.analyzers, to: intensify.parser.python.PythonAnalyzer, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.analyzers, to: intensify.parser.typescript.TypeScriptAnalyzer, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.ids.join, to: intensify.parser.ids.segment, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.ids.path_id, to: intensify.parser.ids.segment, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python, to: intensify.parser.ids.path_id, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python, to: intensify.parser.treesitter.text, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python, to: intensify.parser.treesitter.walk, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python.PythonAnalyzer, to: intensify.parser.base.Symbol, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python.PythonAnalyzer, to: intensify.parser.ids.join, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python.PythonAnalyzer, to: intensify.parser.python.is_private, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python.PythonAnalyzer, to: intensify.parser.python.is_test_path, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python.PythonAnalyzer, to: intensify.parser.treesitter.fingerprint, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python.PythonAnalyzer, to: intensify.parser.treesitter.header, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python.PythonAnalyzer, to: intensify.parser.treesitter.line_count, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python.PythonAnalyzer, to: intensify.parser.treesitter.text, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python.PythonAnalyzer, to: intensify.parser.treesitter.walk, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python.PythonAnalyzer.__init__, to: intensify.parser.ids.Allocator, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python.PythonAnalyzer.analyze, to: intensify.parser.base.AnalysisResult, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python.PythonAnalyzer.analyze, to: intensify.parser.base.Dependency, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python.PythonAnalyzer.analyze, to: intensify.parser.ids.join, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python.PythonAnalyzer.analyze, to: intensify.parser.ids.path_id, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.symbol_span, to: intensify.parser.analyzers, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.symbol_span, to: intensify.parser.base.AnalyzeOptions, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.symbol_span, to: intensify.parser.ids.Allocator, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.treesitter.header, to: intensify.parser.treesitter.squash, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.typescript, to: intensify.parser.treesitter.squash, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.typescript, to: intensify.parser.treesitter.text, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.typescript, to: intensify.parser.treesitter.walk, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.typescript.TypeScriptAnalyzer, to: intensify.parser.base.Symbol, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.typescript.TypeScriptAnalyzer, to: intensify.parser.ids.join, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.typescript.TypeScriptAnalyzer, to: intensify.parser.treesitter.fingerprint, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.typescript.TypeScriptAnalyzer, to: intensify.parser.treesitter.header, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.typescript.TypeScriptAnalyzer, to: intensify.parser.treesitter.line_count, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.typescript.TypeScriptAnalyzer, to: intensify.parser.treesitter.text, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.typescript.TypeScriptAnalyzer, to: intensify.parser.treesitter.walk, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.typescript.TypeScriptAnalyzer.__init__, to: intensify.parser.ids.Allocator, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.typescript.TypeScriptAnalyzer.analyze, to: intensify.parser.base.AnalysisResult, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.typescript.TypeScriptAnalyzer.analyze, to: intensify.parser.base.Dependency, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.typescript.TypeScriptAnalyzer.analyze, to: intensify.parser.ids.path_id, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.typescript.TypeScriptAnalyzer.analyze, to: intensify.parser.typescript.is_test_path, type: CALLS, provenance: analyzed}
+  - {from: intensify.pipeline.analyze_and_merge, to: intensify.merge.MergeOptions, type: CALLS, provenance: analyzed}
+  - {from: intensify.pipeline.analyze_and_merge, to: intensify.merge.merge, type: CALLS, provenance: analyzed}
+  - {from: intensify.pipeline.analyze_and_merge, to: intensify.parser.analyze_repo, type: CALLS, provenance: analyzed}
+  - {from: intensify.pipeline.analyze_and_merge, to: intensify.pipeline.Merged, type: CALLS, provenance: analyzed}
+  - {from: intensify.pipeline.analyze_and_merge, to: intensify.pipeline.SpecInvalidError, type: CALLS, provenance: analyzed}
+  - {from: intensify.pipeline.analyze_and_merge, to: intensify.spec.models.NodeKind, type: CALLS, provenance: analyzed}
+  - {from: intensify.pipeline.analyze_and_write, to: intensify.pipeline.AnalyzeOutcome, type: CALLS, provenance: analyzed}
+  - {from: intensify.pipeline.analyze_and_write, to: intensify.pipeline.analyze_and_merge, type: CALLS, provenance: analyzed}
+  - {from: intensify.pipeline.analyze_and_write, to: intensify.spec.yamlio.dumps, type: CALLS, provenance: analyzed}
+  - {from: intensify.skills.bundled, to: intensify.skills.parse, type: CALLS, provenance: analyzed}
+  - {from: intensify.skills.install, to: intensify.skills.bundled, type: CALLS, provenance: analyzed}
+  - {from: intensify.skills.install, to: intensify.skills.render, type: CALLS, provenance: analyzed}
+  - {from: intensify.skills.parse, to: intensify.skills.Skill, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.diagnostics.Diagnostic.pointer, to: intensify.spec.diagnostics.format_path, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.edit.add_node, to: intensify.spec.edit.EditError, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.edit.add_node, to: intensify.spec.edit.to_yaml, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.edit.find, to: intensify.spec.edit.EditError, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.edit.patch, to: intensify.spec.edit.put, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.edit.patch, to: intensify.spec.edit.to_yaml, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.edit.save, to: intensify.spec.edit.EditError, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.edit.save, to: intensify.spec.validate.load_and_validate, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.edit.save, to: intensify.spec.yamlio.dumps, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.loader, to: intensify.spec.diagnostics.Diagnostic, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.loader, to: intensify.spec.schema.check, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.loader, to: intensify.spec.yamlio.line_of, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.loader, to: intensify.spec.yamlio.read, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.loader.load, to: intensify.spec.loader.LoadedSpec, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.loader.load, to: intensify.spec.loader.resolve_path, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.loader.load, to: intensify.spec.yamlio.to_plain, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.schema.check, to: intensify.spec.diagnostics.Diagnostic, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.schema.check, to: intensify.spec.yamlio.line_of, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.schema.check, to: intensify.spec.yamlio.to_plain, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.validate, to: intensify.spec.diagnostics.Diagnostic, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.validate, to: intensify.spec.yamlio.line_of, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.validate.load_and_validate, to: intensify.spec.loader.load, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.validate.load_and_validate, to: intensify.spec.validate.validate, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.yamlio.read, to: intensify.spec.yamlio.loads, type: CALLS, provenance: analyzed}
+  - {from: intensify.spec.yamlio.write, to: intensify.spec.yamlio.dumps, type: CALLS, provenance: analyzed}
+  - {from: intensify.verify, to: intensify.pipeline.analyze_and_merge, type: CALLS, provenance: analyzed}
+  - {from: intensify.verify, to: intensify.spec.edit.find, type: CALLS, provenance: analyzed}
+  - {from: intensify.verify, to: intensify.spec.edit.put, type: CALLS, provenance: analyzed}
+  - {from: intensify.verify, to: intensify.spec.edit.save, type: CALLS, provenance: analyzed}
+  - {from: intensify.verify.verify, to: intensify.differ.detect, type: CALLS, provenance: analyzed}
+  - {from: intensify.verify.verify, to: intensify.graph.Graph.from_data, type: CALLS, provenance: analyzed}
+  - {from: intensify.verify.verify, to: intensify.pipeline.analyze_and_merge, type: CALLS, provenance: analyzed}
+  - {from: intensify.verify.verify, to: intensify.verify.Check, type: CALLS, provenance: analyzed}
+  - {from: intensify.verify.verify, to: intensify.verify.NodeNotFoundError, type: CALLS, provenance: analyzed}
+  - {from: intensify.verify.verify, to: intensify.verify.VerifyResult, type: CALLS, provenance: analyzed}
+  - {from: tests.unit.agents.conftest, to: intensify.cli.init.render, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.agents.conftest, to: intensify.pipeline.analyze_and_write, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.agents.conftest, to: intensify.spec.yamlio.loads, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.agents.conftest, to: intensify.spec.yamlio.read, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.agents.conftest, to: intensify.spec.yamlio.write, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.agents.test_context_verify, to: intensify.context.build, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.agents.test_context_verify, to: intensify.context.render_markdown, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.agents.test_context_verify, to: intensify.context.to_dict, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.agents.test_context_verify, to: intensify.spec.yamlio.read, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.agents.test_context_verify, to: intensify.spec.yamlio.write, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.agents.test_context_verify, to: intensify.verify.verify, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.agents.test_graph_edit, to: intensify.graph.Graph.from_spec, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.agents.test_graph_edit, to: intensify.spec.edit.add_node, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.agents.test_graph_edit, to: intensify.spec.edit.find, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.agents.test_graph_edit, to: intensify.spec.edit.patch, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.agents.test_graph_edit, to: intensify.spec.edit.save, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.agents.test_mcp, to: intensify.mcp.create_server, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.cli.test_drift, to: intensify.cli.init.render, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.cli.test_drift, to: intensify.pipeline.analyze_and_write, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.cli.test_init, to: intensify.cli.init.slugify, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.differ.test_drift, to: intensify.cli.init.render, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.differ.test_drift, to: intensify.differ.detect, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.differ.test_drift, to: intensify.differ.report.to_codequality, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.differ.test_drift, to: intensify.differ.report.to_json, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.differ.test_drift, to: intensify.differ.report.to_markdown, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.differ.test_drift, to: intensify.differ.report.to_sarif, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.differ.test_drift, to: intensify.pipeline.analyze_and_write, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.differ.test_drift, to: intensify.spec.yamlio.loads, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.differ.test_drift, to: intensify.spec.yamlio.read, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.differ.test_drift, to: intensify.spec.yamlio.write, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.merge.test_merge, to: intensify.cli.init.render, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.merge.test_merge, to: intensify.pipeline.analyze_and_write, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.parser.test_ids_discovery, to: intensify.parser.discovery.discover, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.parser.test_ids_discovery, to: intensify.parser.ids.Allocator, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.parser.test_ids_discovery, to: intensify.parser.ids.path_id, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.parser.test_ids_discovery, to: intensify.parser.ids.segment, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.parser.test_python, to: intensify.parser.analyze_repo, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.parser.test_typescript, to: intensify.parser.analyze_repo, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.spec.test_schema, to: intensify.spec.schema.load_schema, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.spec.test_validate, to: intensify.spec.loader.resolve_path, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.spec.test_yamlio, to: intensify.spec.yamlio.dumps, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.spec.test_yamlio, to: intensify.spec.yamlio.line_of, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.spec.test_yamlio, to: intensify.spec.yamlio.loads, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.spec.test_yamlio, to: intensify.spec.yamlio.to_plain, type: VERIFIES, provenance: analyzed}

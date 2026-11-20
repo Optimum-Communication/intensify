@@ -18,3 +18,11 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
+      # Keep intensify.yaml in step with the code (dogfooding). Like a formatter, this fails
+      # the commit when it changes the file; stage the update and commit again.
+      - id: intensify-analyze
+        name: intensify analyze
+        entry: uv run intensify analyze
+        language: system
+        pass_filenames: false
+        files: ^(src|tests)/.*\.py$|^intensify\.yaml$

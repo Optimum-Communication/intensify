@@ -33,7 +33,7 @@ uv run pre-commit install
 | `src/intensify/differ/` | Drift detection and reporters |
 | `src/intensify/context/` | Context bundles for AI agents |
 | `src/intensify/mcp/` | MCP server |
-| `skills/` | AI agent skills |
+| `skills/` | AI agent skills (bundled into the wheel as `intensify/_skills`) |
 | `action/` | CI integrations |
 | `tests/fixtures/repos/` | Small sample repos the analyzers run against (not project code: excluded from ruff, mypy and pytest collection) |
 | `tests/golden/` | Exact `intensify.yaml` output of `init --analyze` per fixture repo |
@@ -46,6 +46,14 @@ uv run pre-commit install
 - `src/intensify/spec/schemas/vX.Y.json`: a copy of the schema shipped inside the package for validation.
 
 Never edit either by hand. Change the schema, run `make gen`, and commit all three. Keep `spec.md` and `examples/` in step: the tests validate every example. Published versions of the schema are immutable, so breaking changes need a new version directory.
+
+## Intensify describes itself
+
+The repository's own [`intensify.yaml`](intensify.yaml) describes the package, and CI runs the drift Action against it. Layering rules are enforced as invariants: for example, nothing outside `intensify.cli` may depend on the CLI.
+
+- The `intensify-analyze` pre-commit hook refreshes the spec whenever Python files change. Like a formatter, it fails the commit when it updates the file: stage `intensify.yaml` and commit again.
+- Describe new modules and public functions: `uv run intensify node list --unenriched`, then `uv run intensify node set <id> --summary "..."`.
+- If drift reports an invariant violation, fix the dependency rather than loosening the rule, unless the architecture has really changed.
 
 ## Golden files
 
