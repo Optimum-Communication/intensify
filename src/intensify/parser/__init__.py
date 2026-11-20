@@ -6,6 +6,7 @@ from pathlib import Path
 
 from intensify.parser.base import AnalysisResult, AnalyzeOptions, Analyzer, Dependency, Symbol
 from intensify.parser.discovery import discover
+from intensify.parser.go import GoAnalyzer
 from intensify.parser.ids import Allocator
 from intensify.parser.java import JavaAnalyzer
 from intensify.parser.python import PythonAnalyzer
@@ -18,7 +19,7 @@ _KIND_RANK = {kind: rank for rank, kind in enumerate(NodeKind)}
 
 
 def analyzers() -> list[Analyzer]:
-    return [PythonAnalyzer(), TypeScriptAnalyzer(), JavaAnalyzer()]
+    return [PythonAnalyzer(), TypeScriptAnalyzer(), JavaAnalyzer(), GoAnalyzer()]
 
 
 def analyze_repo(
