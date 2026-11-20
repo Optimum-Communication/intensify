@@ -1655,8 +1655,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/parser/__init__.py}
-      complexity: {loc: 113}
-      fingerprint: sha256:edfc462420b05546378755759fd9163e3649ccc7153d7000baf037d11a1cac0c
+      complexity: {loc: 115}
+      fingerprint: sha256:14ab5a0068645d664b2ae04dce8bc1a8a11d7b647b6addadbc8512cdcf184831
     governance:
       invariants:
         - id: no-merge
@@ -1700,8 +1700,8 @@ nodes:
       language: python
       location: {path: src/intensify/parser/__init__.py, symbol: analyze_repo}
       signature: 'def analyze_repo(root: Path, *, options: AnalyzeOptions | None = None, include: list[str] | None = None, exclude: list[str] | None = None) -> AnalysisResult'
-      complexity: {cyclomatic: 8, loc: 28}
-      fingerprint: sha256:0820b75d6774fc077103ab9fa3d029b331ba2eae48111043052a24d180aa06f4
+      complexity: {cyclomatic: 8, loc: 29}
+      fingerprint: sha256:64e396689c6644c7605046a853c0cce813c55028e782a0c7444b299fe4359b47
   - id: intensify.parser.symbol_span
     kind: function
     parent_id: intensify.parser
@@ -2027,8 +2027,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/parser/python.py}
-      complexity: {loc: 413}
-      fingerprint: sha256:dec7ef3e9657fddb5c20fff14fadfbf0340ff2fb1ff176aadab80156b126b476
+      complexity: {loc: 418}
+      fingerprint: sha256:ca665c38f8bda1798d7eae6687eb9759098f0cd1d32fd7ab7d02815a08cc14ed
   - id: intensify.parser.python.is_private
     kind: function
     parent_id: intensify.parser.python
@@ -2063,8 +2063,8 @@ nodes:
       language: python
       location: {path: src/intensify/parser/python.py, symbol: is_test_path}
       signature: 'def is_test_path(path: str) -> bool'
-      complexity: {cyclomatic: 4, loc: 5}
-      fingerprint: sha256:a1bd0e7fde53fa0fde152151274cba32aaf6074ad0e7f353c645bdbde5f8fc2f
+      complexity: {cyclomatic: 5, loc: 10}
+      fingerprint: sha256:8c59af39efe37a9ade503b2f6146fe6c400f69f4c57a56c091bae76387c6336d
   - id: intensify.parser.python.PythonAnalyzer
     kind: class
     parent_id: intensify.parser.python
@@ -2549,6 +2549,98 @@ nodes:
       signature: 'def analyze(self, root: Path, paths: list[str], options: AnalyzeOptions, allocator: ids.Allocator) -> AnalysisResult'
       complexity: {cyclomatic: 19, loc: 49}
       fingerprint: sha256:4ec46689bcb5ba0198b86aa4b018cd8685135f962be4b24c18942b18a93dd5b0
+  - id: intensify.parser.data
+    kind: module
+    parent_id: intensify.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Data-access detection: READS_FROM and WRITES_TO edges to ORM model classes, from SQL in string literals, calls that name a model and calls on repositories, matched by table name.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/parser/data.py}
+      complexity: {loc: 715}
+      fingerprint: sha256:f4c5fc57218da3b0c9bec83c287678fbf436338b3831f594053d006657f787e1
+  - id: intensify.parser.data.SqlTables
+    kind: class
+    parent_id: intensify.parser.data
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/data.py, symbol: SqlTables}
+      signature: class SqlTables
+      complexity: {loc: 3}
+      fingerprint: sha256:1e1678fd432ff36a6394900f4054155227cf5ab567758b621ac4cb9c5036c58d
+  - id: intensify.parser.data.sql_tables
+    kind: function
+    parent_id: intensify.parser.data
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: source, type: str}
+      outputs:
+        - {type: SqlTables | None}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/data.py, symbol: sql_tables}
+      signature: 'def sql_tables(source: str) -> SqlTables | None'
+      complexity: {cyclomatic: 32, loc: 50}
+      fingerprint: sha256:bc2cf31f4dc47c45c2a318df9c396f0da2048f9f14f15f1053bc4ad6f9b29c6c
+  - id: intensify.parser.data.classify
+    kind: function
+    parent_id: intensify.parser.data
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: method, type: str}
+      outputs:
+        - {type: bool | None}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/data.py, symbol: classify}
+      signature: 'def classify(method: str) -> bool | None'
+      complexity: {cyclomatic: 4, loc: 10}
+      fingerprint: sha256:a8032d0216bf4a9511ba5b07c0fe27f5c5bc16097da4c2d8054c0896f61fc9a2
+  - id: intensify.parser.data.Model
+    kind: class
+    parent_id: intensify.parser.data
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/data.py, symbol: Model}
+      signature: class Model
+      complexity: {loc: 6}
+      fingerprint: sha256:c1f8d148f0ead51a72da9c2a89c2eefc259c14ac4d827bd929807a4c1875b939
+  - id: intensify.parser.data.detect
+    kind: function
+    parent_id: intensify.parser.data
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: root, type: Path}
+        - {name: result, type: AnalysisResult}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/data.py, symbol: detect}
+      signature: 'def detect(root: Path, result: AnalysisResult) -> None'
+      complexity: {cyclomatic: 23, loc: 58}
+      fingerprint: sha256:fa05dfbb22ce1280aae852bf770cb9001be79b2e4a9c79b7e6a8f8a9ab480f74
   - id: intensify.pipeline
     kind: module
     parent_id: intensify-module
@@ -5059,8 +5151,8 @@ nodes:
     technical:
       language: python
       location: {path: tests/unit/parser/test_python.py}
-      complexity: {loc: 127}
-      fingerprint: sha256:69679727d1612ab31c18cf1d205706ed6251e36d5f90b16624e65907f1c64f25
+      complexity: {loc: 144}
+      fingerprint: sha256:fa58828968e999306293e8dabb845f31cd73c5750c6cf2a83e309b3d276931b8
   - id: tests.unit.parser.test_typescript
     kind: module
     parent_id: tests.unit.parser
@@ -5113,6 +5205,19 @@ nodes:
       location: {path: tests/unit/parser/test_kotlin.py}
       complexity: {loc: 168}
       fingerprint: sha256:97668304710e6de4704f3649b3e70e8bd1b5bf1ab0930e0da4a969a4b9a01725
+  - id: tests.unit.parser.test_data
+    kind: module
+    parent_id: tests.unit.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for parser: data.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/parser/test_data.py}
+      complexity: {loc: 138}
+      fingerprint: sha256:d024845e6f0951ed6df0e7f90303b574020efd98c2c34a06fa61e53b834e7ce2
   - id: tests.unit.spec
     kind: module
     parent_id: tests.unit
@@ -5176,8 +5281,8 @@ nodes:
     technical:
       language: python
       location: {path: tests/unit/test_golden.py}
-      complexity: {loc: 36}
-      fingerprint: sha256:579ff0698942036181df4bb4dd2b8aac1fbd44cf43135d44d36ea2b2767e5d53
+      complexity: {loc: 38}
+      fingerprint: sha256:a2b14039407aaca77a075a6c104f8f5fe3c79b17d90d5ca37cb2dbb652a4e893
   - id: tests.unit.cloud
     kind: module
     parent_id: tests.unit
@@ -5547,3 +5652,12 @@ edges:
   - {from: intensify.parser.kotlin.KotlinAnalyzer.analyze, to: intensify.parser.java.is_test_path, type: CALLS, provenance: analyzed}
   - {from: tests.unit.parser.test_kotlin, to: intensify.parser.analyze_repo, type: VERIFIES, provenance: analyzed}
   - {from: tests.unit.parser.test_kotlin, to: intensify.parser.symbol_span, type: VERIFIES, provenance: analyzed}
+  - {from: intensify.parser.analyze_repo, to: intensify.parser.data.detect, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.data, to: intensify.parser.treesitter.text, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.data, to: intensify.parser.treesitter.walk, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.data.detect, to: intensify.parser.base.Dependency, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.data.sql_tables, to: intensify.parser.data.SqlTables, type: CALLS, provenance: analyzed}
+  - {from: tests.unit.parser.test_data, to: intensify.parser.analyze_repo, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.parser.test_data, to: intensify.parser.data.classify, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.parser.test_data, to: intensify.parser.data.sql_tables, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.parser.test_python, to: intensify.parser.python.is_test_path, type: VERIFIES, provenance: analyzed}

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from intensify.parser import data
 from intensify.parser.base import AnalysisResult, AnalyzeOptions, Analyzer, Dependency, Symbol
 from intensify.parser.discovery import discover
 from intensify.parser.go import GoAnalyzer
@@ -49,6 +50,7 @@ def analyze_repo(
         paths = [f for f in files if f.endswith(analyzer.extensions)]
         if paths:
             result.extend(analyzer.analyze(root, paths, options, allocator))
+    data.detect(root, result)
     _finalize(result, options)
     return result
 

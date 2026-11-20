@@ -1,0 +1,811 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Optimum-Communication/intensify/main/spec/v1.0/schema.json
+#
+# Intensify spec: the intent graph of this repository.
+# Reference: https://github.com/Optimum-Communication/intensify/blob/main/spec/v1.0/spec.md
+intensify: "1.0"
+
+project:
+  id: data-shop
+  name: "data_shop"
+
+config:
+  analyze:
+    depth: function  # finest node kind `intensify analyze` creates: module | class | function
+    public_only: true  # skip private symbols
+  drift:
+    fail_on: [undocumented_edge, contract_mismatch, invariant_violation, missing_node]
+
+nodes:
+  - id: data-shop
+    kind: repo
+    lifecycle_state: active
+    intent:
+      summary: "TODO: describe intent"
+  - id: go.store.store
+    kind: module
+    parent_id: data-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: go/store/store.go}
+      complexity: {loc: 37}
+      fingerprint: sha256:46702710312749d9095bed8133d3e149af2b5c77a703cc144064df1995fa9872
+  - id: go.store.store.Payment
+    kind: class
+    parent_id: go.store.store
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: go/store/store.go, symbol: Payment}
+      signature: type Payment struct
+      complexity: {loc: 4}
+      fingerprint: sha256:39884b5e085bc1167817f7b6068e80a15fe59a2e4eeb28521c0b26cdd731a4c8
+  - id: go.store.store.Ledger
+    kind: class
+    parent_id: go.store.store
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: go/store/store.go, symbol: Ledger}
+      signature: type Ledger struct
+      complexity: {loc: 1}
+      fingerprint: sha256:911b2b1155d0851a60c722f7a5619f5fbb5b45b0077c1581a7ee321afa89d551
+  - id: go.store.store.Ledger.TableName
+    kind: function
+    parent_id: go.store.store.Ledger
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: string}
+    technical:
+      language: go
+      location: {path: go/store/store.go, symbol: Ledger.TableName}
+      signature: func (Ledger) TableName() string
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:75ebd8ab729a511e9a5bf07ae62c56b65d8b5fe4253684f053c2e4b851a96182
+  - id: go.store.store.Record
+    kind: function
+    parent_id: go.store.store
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: db, type: '*sql.DB'}
+        - {name: g, type: '*gorm.DB'}
+        - {name: id, type: int}
+      outputs:
+        - {type: error}
+    technical:
+      language: go
+      location: {path: go/store/store.go, symbol: Record}
+      signature: func Record(db *sql.DB, g *gorm.DB, id int) error
+      complexity: {cyclomatic: 2, loc: 7}
+      fingerprint: sha256:f7c95e3e6a792ffd5214cc8268f1679bd688a8786c1683193ec63d931a07b2b6
+  - id: go.store.store.Total
+    kind: function
+    parent_id: go.store.store
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: db, type: '*sql.DB'}
+      outputs:
+        - {type: int}
+        - {type: error}
+    technical:
+      language: go
+      location: {path: go/store/store.go, symbol: Total}
+      signature: func Total(db *sql.DB) (int, error)
+      complexity: {cyclomatic: 1, loc: 5}
+      fingerprint: sha256:3972e71588aef66c6f968f6ac01bde9f8c20a08aa3e02ab9f2072e3cd3b54eee
+  - id: com.shop.Catalog
+    kind: module
+    parent_id: data-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: jvm/src/main/java/com/shop/Catalog.java}
+      complexity: {loc: 33}
+      fingerprint: sha256:27fab5fd40f315d65a50de692430df41ad874be42c00437f88caa11c25dd2ad4
+  - id: com.shop.Catalog.Catalog
+    kind: class
+    parent_id: com.shop.Catalog
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: jvm/src/main/java/com/shop/Catalog.java, symbol: Catalog}
+      signature: public class Catalog
+      complexity: {loc: 27}
+      fingerprint: sha256:3429dff780e1811e1b132e03a1b8608883a911f8a3fdaf29d91aa68108069442
+  - id: com.shop.Catalog.Catalog.Catalog
+    kind: function
+    parent_id: com.shop.Catalog.Catalog
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: products, type: ProductRepository}
+        - {name: em, type: EntityManager}
+    technical:
+      language: java
+      location: {path: jvm/src/main/java/com/shop/Catalog.java, symbol: Catalog.Catalog}
+      signature: public Catalog(ProductRepository products, EntityManager em)
+      complexity: {cyclomatic: 1, loc: 4}
+      fingerprint: sha256:4d094e7e245e55822bfc1635fddd1cbb8fb8e8c612bc3e316ac30883d7e74bc2
+  - id: com.shop.Catalog.Catalog.byId
+    kind: function
+    parent_id: com.shop.Catalog.Catalog
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: id, type: long}
+      outputs:
+        - {type: Product}
+    technical:
+      language: java
+      location: {path: jvm/src/main/java/com/shop/Catalog.java, symbol: Catalog.byId}
+      signature: public Product byId(long id)
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:afe9eacf7ab624c317195c1839dd1f74fd19d221f499f12bc4647b3f15a67c90
+  - id: com.shop.Catalog.Catalog.add
+    kind: function
+    parent_id: com.shop.Catalog.Catalog
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: p, type: Product}
+    technical:
+      language: java
+      location: {path: jvm/src/main/java/com/shop/Catalog.java, symbol: Catalog.add}
+      signature: public void add(Product p)
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:85f97bf0eec6ce3b1af25e928449d21661f2036ef67e9034dd63d645de8c5f62
+  - id: com.shop.Catalog.Catalog.expensive
+    kind: function
+    parent_id: com.shop.Catalog.Catalog
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: long}
+    technical:
+      language: java
+      location: {path: jvm/src/main/java/com/shop/Catalog.java, symbol: Catalog.expensive}
+      signature: public long expensive()
+      complexity: {cyclomatic: 1, loc: 4}
+      fingerprint: sha256:abbc12c088fbd3584cdab200dd3139cb5c672838f62b40669ce9773efcb3d541
+  - id: com.shop.Catalog.Catalog.reprice
+    kind: function
+    parent_id: com.shop.Catalog.Catalog
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: c, type: Connection}
+      errors:
+        - {type: Exception}
+    technical:
+      language: java
+      location: {path: jvm/src/main/java/com/shop/Catalog.java, symbol: Catalog.reprice}
+      signature: public void reprice(Connection c) throws Exception
+      complexity: {cyclomatic: 1, loc: 4}
+      fingerprint: sha256:2251d603197970bb806c851b738f5f72850426a381c4a7b24ee2894cd2517de3
+  - id: com.shop.Product
+    kind: module
+    parent_id: data-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: jvm/src/main/java/com/shop/Product.java}
+      complexity: {loc: 11}
+      fingerprint: sha256:b2f766695fe67107c4c234d44803ef334e4555e901105e5c437c965772747279
+  - id: com.shop.Product.Product
+    kind: class
+    parent_id: com.shop.Product
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: jvm/src/main/java/com/shop/Product.java, symbol: Product}
+      signature: public class Product
+      complexity: {loc: 5}
+      fingerprint: sha256:84614376f4457c786877eb6812d58b2d8ee73ef8b7308829b778d62e9c7f5f31
+  - id: com.shop.ProductRepository
+    kind: module
+    parent_id: data-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: jvm/src/main/java/com/shop/ProductRepository.java}
+      complexity: {loc: 6}
+      fingerprint: sha256:72bbe714d722268b1b78c836355e3923769265cfc38479e9a04c2dfbc1582697
+  - id: com.shop.ProductRepository.ProductRepository
+    kind: class
+    parent_id: com.shop.ProductRepository
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: jvm/src/main/java/com/shop/ProductRepository.java, symbol: ProductRepository}
+      signature: public interface ProductRepository extends JpaRepository<Product, Long>
+      complexity: {loc: 1}
+      fingerprint: sha256:e99e5e0dabb778006ad86622e34af2e7bf0d6f40b77b27c1d9a5d08d72a2a0e0
+  - id: com.shop.Stock
+    kind: module
+    parent_id: data-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: jvm/src/main/kotlin/com/shop/Stock.kt}
+      complexity: {loc: 18}
+      fingerprint: sha256:8a18753c1e67e83a7d74b47ef0b0509f541b1df4096d51f8013d0a4747e9ede6
+  - id: com.shop.Stock.StockLevel
+    kind: class
+    parent_id: com.shop.Stock
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: jvm/src/main/kotlin/com/shop/Stock.kt, symbol: StockLevel}
+      signature: 'class StockLevel(val productId: Long, val qty: Int)'
+      complexity: {loc: 2}
+      fingerprint: sha256:42f6f19ded4b72d617851e0efa5c35ee11a9e057ec38207d0bb8582dda2e2365
+  - id: com.shop.Stock.StockRepository
+    kind: class
+    parent_id: com.shop.Stock
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: jvm/src/main/kotlin/com/shop/Stock.kt, symbol: StockRepository}
+      signature: 'interface StockRepository : CrudRepository<StockLevel, Long>'
+      complexity: {loc: 1}
+      fingerprint: sha256:213eea2c8b792367a22aa3454642ca1db77ce8dc5aff28c355e242bb925422e4
+  - id: com.shop.Stock.Warehouse
+    kind: class
+    parent_id: com.shop.Stock
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: jvm/src/main/kotlin/com/shop/Stock.kt, symbol: Warehouse}
+      signature: 'class Warehouse(private val stock: StockRepository)'
+      complexity: {loc: 7}
+      fingerprint: sha256:96cf6e60c5d8e255f3eded13553830d41de58d8f3371aa322d79a2380fe14031
+  - id: com.shop.Stock.Warehouse.levels
+    kind: function
+    parent_id: com.shop.Stock.Warehouse
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: List<StockLevel>}
+    technical:
+      language: kotlin
+      location: {path: jvm/src/main/kotlin/com/shop/Stock.kt, symbol: Warehouse.levels}
+      signature: 'fun levels(): List<StockLevel>'
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:d926fc3ee127442ad6d630d3e877ccb16521fd5fcb933afdef46d87c1f6b52fe
+  - id: com.shop.Stock.Warehouse.receive
+    kind: function
+    parent_id: com.shop.Stock.Warehouse
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: level, type: StockLevel}
+    technical:
+      language: kotlin
+      location: {path: jvm/src/main/kotlin/com/shop/Stock.kt, symbol: Warehouse.receive}
+      signature: 'fun receive(level: StockLevel)'
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:d5a16353c96deb9776dc3329fee3f029e9ad2fb4379d46ad299eb090bd80d75e
+  - id: shop
+    kind: module
+    parent_id: data-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: py/shop/__init__.py}
+      complexity: {loc: 1}
+      fingerprint: sha256:2748e84fd8037b1197c4fabc8098be187c21f3d3cae20f5a49ba13e7d215d704
+  - id: shop.models
+    kind: module
+    parent_id: shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: py/shop/models.py}
+      complexity: {loc: 18}
+      fingerprint: sha256:cf8b82f97976d943b4e61c7332fabc8a7a5d0da79e72731910c588069094822f
+  - id: shop.models.Base
+    kind: class
+    parent_id: shop.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: py/shop/models.py, symbol: Base}
+      signature: class Base(DeclarativeBase)
+      complexity: {loc: 2}
+      fingerprint: sha256:20d00506149aefbdbf86c9e1c3ddce2774fe8b402f3d72e74a7f548526b0c0b7
+  - id: shop.models.Order
+    kind: class
+    parent_id: shop.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: py/shop/models.py, symbol: Order}
+      signature: class Order(Base)
+      complexity: {loc: 2}
+      fingerprint: sha256:d46c91fb5550f25d2e7b1b557c3aafaaf6b4b622f4f3354f8e3e7b4eff059100
+  - id: shop.models.Customer
+    kind: class
+    parent_id: shop.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: py/shop/models.py, symbol: Customer}
+      signature: class Customer(Base)
+      complexity: {loc: 2}
+      fingerprint: sha256:26fe6a2a0ef1b69eff91170d9dfd972fa5e333bde4f43e4107570412f9d6c1da
+  - id: shop.models.Note
+    kind: class
+    parent_id: shop.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: py/shop/models.py, symbol: Note}
+      signature: class Note
+      complexity: {loc: 2}
+      fingerprint: sha256:188e198e222210e0d5ddd2ec937e89d68cebc36d0c8fe58c93a9bfb25b3cc3ff
+  - id: shop.orders
+    kind: module
+    parent_id: shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: py/shop/orders/__init__.py}
+      complexity: {loc: 1}
+      fingerprint: sha256:2748e84fd8037b1197c4fabc8098be187c21f3d3cae20f5a49ba13e7d215d704
+  - id: shop.orders.models
+    kind: module
+    parent_id: shop.orders
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: py/shop/orders/models.py}
+      complexity: {loc: 11}
+      fingerprint: sha256:0f04657476e3fa01f638fd5fa5b806897defcc70fa7453f82ba41b22815d7a67
+  - id: shop.orders.models.Invoice
+    kind: class
+    parent_id: shop.orders.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: py/shop/orders/models.py, symbol: Invoice}
+      signature: class Invoice(models.Model)
+      complexity: {loc: 2}
+      fingerprint: sha256:f430d0a67c05cf99110a850c0e7db7c33df2f61050e965ebb8cb00a90745ee6f
+  - id: shop.orders.models.Refund
+    kind: class
+    parent_id: shop.orders.models
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: py/shop/orders/models.py, symbol: Refund}
+      signature: class Refund(models.Model)
+      complexity: {loc: 3}
+      fingerprint: sha256:3568f5816e9dee5191bfefdcb306a32a5fb46ab2562266f30d39faa2e5a82863
+  - id: shop.orders.models.Refund.Meta
+    kind: class
+    parent_id: shop.orders.models.Refund
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: py/shop/orders/models.py, symbol: Refund.Meta}
+      signature: class Meta
+      complexity: {loc: 2}
+      fingerprint: sha256:c90a08c111c5e78045c543acf3f2b555ee026b758d57293cd3534d2b4df3f076
+  - id: shop.orders.views
+    kind: module
+    parent_id: shop.orders
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: py/shop/orders/views.py}
+      complexity: {loc: 14}
+      fingerprint: sha256:fbabc1335571539f0a915ab58ad980b3b74cdf45186dd0614eb10278f6e8486d
+  - id: shop.orders.views.invoices
+    kind: function
+    parent_id: shop.orders.views
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: py/shop/orders/views.py, symbol: invoices}
+      signature: def invoices()
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:773ba3be0dcb4fd03da4d6be9bc6c5d7a9dc9d0bcb127eb3dbe8ee9337f18d30
+  - id: shop.orders.views.void
+    kind: function
+    parent_id: shop.orders.views
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: number}
+    technical:
+      language: python
+      location: {path: py/shop/orders/views.py, symbol: void}
+      signature: def void(number)
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:28447806077c83cc410e9227afc1ac3d696155937fd62a69e857a66bca18a93c
+  - id: shop.orders.views.refund_total
+    kind: function
+    parent_id: shop.orders.views
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: db}
+    technical:
+      language: python
+      location: {path: py/shop/orders/views.py, symbol: refund_total}
+      signature: def refund_total(db)
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:b83204c92e4dd2af86a4e9734671cbbbcca046ab4a65803bd673f4b4f534d7ee
+  - id: shop.repo
+    kind: module
+    parent_id: shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: py/shop/repo.py}
+      complexity: {loc: 41}
+      fingerprint: sha256:069d40da9bb206b4d5f359471f9604502383d658b4d4d304663cb8334bd21013
+  - id: shop.repo.recent
+    kind: function
+    parent_id: shop.repo
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: session}
+        - {name: since}
+    technical:
+      language: python
+      location: {path: py/shop/repo.py, symbol: recent}
+      signature: def recent(session, since)
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:b37d53878b72a0e5eec35b1a85754c3d0b57a9087e6c7fe13234190faf87118a
+  - id: shop.repo.open_orders
+    kind: function
+    parent_id: shop.repo
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: session}
+    technical:
+      language: python
+      location: {path: py/shop/repo.py, symbol: open_orders}
+      signature: def open_orders(session)
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:66edd3b20986eefe77fa07c583f765eb7d3a0c9b1e01bf852a83ea3eab938c75
+  - id: shop.repo.place
+    kind: function
+    parent_id: shop.repo
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: session}
+        - {name: customer_id}
+    technical:
+      language: python
+      location: {path: py/shop/repo.py, symbol: place}
+      signature: def place(session, customer_id)
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:397cd0b968a8c2abdfc8e1c6506d2ea58358e60e958ec3d65311aa0c3f77513c
+  - id: shop.repo.purge
+    kind: function
+    parent_id: shop.repo
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: session}
+    technical:
+      language: python
+      location: {path: py/shop/repo.py, symbol: purge}
+      signature: def purge(session)
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:cd9ac86f0e8fdd0a1bf82055d021f9d5a31fbaa7bf59c35302fc585cd6f0236a
+  - id: shop.repo.rename
+    kind: function
+    parent_id: shop.repo
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: conn}
+        - {name: customer_id}
+        - {name: name}
+    technical:
+      language: python
+      location: {path: py/shop/repo.py, symbol: rename}
+      signature: def rename(conn, customer_id, name)
+      complexity: {cyclomatic: 1, loc: 5}
+      fingerprint: sha256:222b64e0da80cfdd18b6bbe102075ee1d5cdcd0b5af058da610657c74a7604b4
+  - id: shop.repo.message
+    kind: function
+    parent_id: shop.repo
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: py/shop/repo.py, symbol: message}
+      signature: def message()
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:49c3f08e26b82779eb73f17f37fb57e27fc2c5c4507fae8eec3df2a023bf9c30
+  - id: shop.repo.count
+    kind: function
+    parent_id: shop.repo
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: session}
+    technical:
+      language: python
+      location: {path: py/shop/repo.py, symbol: count}
+      signature: def count(session)
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:994c5463d2bf7f98ac65dc60b4c8c74dff7660d694784e0be43502fa831f13bc
+  - id: ts.src.user
+    kind: module
+    parent_id: data-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: typescript
+      location: {path: ts/src/user.ts}
+      complexity: {loc: 24}
+      fingerprint: sha256:c356ed611c163f9fe706fc0b09b8f954455bdcdff7860ddcdbd1a2dd0c0e908d
+  - id: ts.src.user.User
+    kind: class
+    parent_id: ts.src.user
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: typescript
+      location: {path: ts/src/user.ts, symbol: User}
+      signature: class User
+      complexity: {loc: 4}
+      fingerprint: sha256:0cdbdd8a097debca191b0772708097d17078a4a43ed896feb95417030d0a3ee4
+  - id: ts.src.user.Users
+    kind: class
+    parent_id: ts.src.user
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: typescript
+      location: {path: ts/src/user.ts, symbol: Users}
+      signature: class Users
+      complexity: {loc: 15}
+      fingerprint: sha256:0f508d7ade72509da113885496202416c63df278bb8b03cb28a449f84748b572
+  - id: ts.src.user.Users.constructor
+    kind: function
+    parent_id: ts.src.user.Users
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: repo, type: Repository<User>}
+    technical:
+      language: typescript
+      location: {path: ts/src/user.ts, symbol: Users.constructor}
+      signature: 'constructor(private readonly repo: Repository<User>)'
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:67c57635bb6def8395a542bf05d7c008708f46f70f6cc5abc0e685ba7e2c5c0c
+  - id: ts.src.user.Users.active
+    kind: function
+    parent_id: ts.src.user.Users
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: 'Promise<User[]>'}
+    technical:
+      language: typescript
+      location: {path: ts/src/user.ts, symbol: Users.active}
+      signature: 'active(): Promise<User[]>'
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:1a5680e673beb37c89e5d63f45250b3860b9c3d1b94a6adde7070dc0b989cb74
+  - id: ts.src.user.Users.remove
+    kind: function
+    parent_id: ts.src.user.Users
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: id, type: number}
+      outputs:
+        - {type: Promise<void>}
+    technical:
+      language: typescript
+      location: {path: ts/src/user.ts, symbol: Users.remove}
+      signature: 'async remove(id: number): Promise<void>'
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:7023b60a2affa1a171575a041ba0e43961ea9341849c540a2d01676087b8bae6
+  - id: ts.src.user.Users.audit
+    kind: function
+    parent_id: ts.src.user.Users
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: db, type: '{ query(sql: string): unknown }'}
+        - {name: id, type: number}
+    technical:
+      language: typescript
+      location: {path: ts/src/user.ts, symbol: Users.audit}
+      signature: 'audit(db: { query(sql: string): unknown }, id: number)'
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:2b6cc9cc6fdad32afda1d4ade24c97e1f5e22175e236bdb9ba674aeb10baed34
+edges:
+  - {from: com.shop.Catalog.Catalog.add, to: com.shop.Product.Product, type: WRITES_TO, confidence: medium, provenance: analyzed}
+  - {from: com.shop.Catalog.Catalog.byId, to: com.shop.Product.Product, type: READS_FROM, confidence: medium, provenance: analyzed}
+  - {from: com.shop.Catalog.Catalog.expensive, to: com.shop.Product.Product, type: READS_FROM, confidence: medium, provenance: analyzed}
+  - {from: com.shop.Catalog.Catalog.reprice, to: com.shop.Product.Product, type: WRITES_TO, confidence: medium, provenance: analyzed}
+  - {from: com.shop.Catalog.Catalog.reprice, to: com.shop.Stock.StockLevel, type: READS_FROM, confidence: medium, provenance: analyzed}
+  - {from: com.shop.Stock.Warehouse.levels, to: com.shop.Stock.StockLevel, type: READS_FROM, confidence: medium, provenance: analyzed}
+  - {from: com.shop.Stock.Warehouse.receive, to: com.shop.Stock.StockLevel, type: WRITES_TO, confidence: medium, provenance: analyzed}
+  - {from: go.store.store.Record, to: go.store.store.Payment, type: CALLS, provenance: analyzed}
+  - {from: go.store.store.Record, to: go.store.store.Payment, type: WRITES_TO, confidence: medium, provenance: analyzed}
+  - {from: go.store.store.Total, to: go.store.store.Payment, type: READS_FROM, confidence: medium, provenance: analyzed}
+  - {from: shop.models.Customer, to: shop.models.Base, type: IMPLEMENTS, provenance: analyzed}
+  - {from: shop.models.Order, to: shop.models.Base, type: IMPLEMENTS, provenance: analyzed}
+  - {from: shop.orders.views.invoices, to: shop.orders.models.Invoice, type: READS_FROM, confidence: medium, provenance: analyzed}
+  - {from: shop.orders.views.refund_total, to: shop.orders.models.Refund, type: READS_FROM, confidence: medium, provenance: analyzed}
+  - {from: shop.orders.views.void, to: shop.orders.models.Invoice, type: WRITES_TO, confidence: medium, provenance: analyzed}
+  - {from: shop.repo, to: shop.models.Customer, type: READS_FROM, confidence: medium, provenance: analyzed}
+  - {from: shop.repo, to: shop.models.Order, type: READS_FROM, confidence: medium, provenance: analyzed}
+  - {from: shop.repo.count, to: shop.models.Customer, type: READS_FROM, confidence: medium, provenance: analyzed}
+  - {from: shop.repo.open_orders, to: shop.models.Order, type: READS_FROM, confidence: medium, provenance: analyzed}
+  - {from: shop.repo.place, to: shop.models.Order, type: CALLS, provenance: analyzed}
+  - {from: shop.repo.place, to: shop.models.Order, type: WRITES_TO, confidence: medium, provenance: analyzed}
+  - {from: shop.repo.purge, to: shop.models.Order, type: WRITES_TO, confidence: medium, provenance: analyzed}
+  - {from: shop.repo.rename, to: shop.models.Customer, type: WRITES_TO, confidence: medium, provenance: analyzed}
+  - {from: ts.src.user.Users.active, to: ts.src.user.User, type: READS_FROM, confidence: medium, provenance: analyzed}
+  - {from: ts.src.user.Users.remove, to: ts.src.user.User, type: WRITES_TO, confidence: medium, provenance: analyzed}
