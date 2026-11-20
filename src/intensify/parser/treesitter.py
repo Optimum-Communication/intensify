@@ -10,6 +10,7 @@ from tree_sitter import Node
 
 _WS = re.compile(r"\s+")
 _TRAILER = re.compile(r"\s*(=>|\{|:)$")
+_COMMENTS = frozenset({"comment", "line_comment", "block_comment"})
 
 
 def text(node: Node | None) -> str:
@@ -53,7 +54,7 @@ def fingerprint(node: Node, identifier_types: frozenset[str]) -> str:
     stack = [node]
     while stack:
         current = stack.pop()
-        if current.type == "comment":
+        if current.type in _COMMENTS:
             continue
         digest.update(current.type.encode())
         if current.child_count == 0:

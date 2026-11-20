@@ -13,7 +13,18 @@ MAX_FILE_BYTES = 1_000_000
 """Larger files are almost always generated or minified, and are skipped."""
 
 _ALWAYS_SKIP_DIRS = frozenset(
-    {".git", "node_modules", ".venv", "venv", "__pycache__", "dist", "build", ".tox", ".mypy_cache"}
+    {
+        ".git",
+        "node_modules",
+        ".venv",
+        "venv",
+        "__pycache__",
+        "dist",
+        "build",
+        ".tox",
+        ".mypy_cache",
+        ".gradle",
+    }
 )
 
 
