@@ -1655,8 +1655,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/parser/__init__.py}
-      complexity: {loc: 111}
-      fingerprint: sha256:4005032e7ecd7b423ba2efa07a1272450678a4104b977c643b5dcaa3f0f6a852
+      complexity: {loc: 112}
+      fingerprint: sha256:c5df677633debd367a5bc760ac2d8f396ffdb5143c9d9c12c3893b3448816c2c
     governance:
       invariants:
         - id: no-merge
@@ -1678,7 +1678,7 @@ nodes:
       location: {path: src/intensify/parser/__init__.py, symbol: analyzers}
       signature: def analyzers() -> list[Analyzer]
       complexity: {cyclomatic: 1, loc: 2}
-      fingerprint: sha256:a50d652e67143abffdaa6962495e9ec64195a3df071ff05a4e0a26072f429a96
+      fingerprint: sha256:143011d47b801a426c14e5a60318be6930de195b10e9f0623cc9785a107b62c9
   - id: intensify.parser.analyze_repo
     kind: function
     parent_id: intensify.parser
@@ -2393,6 +2393,102 @@ nodes:
       signature: 'def analyze(self, root: Path, paths: list[str], options: AnalyzeOptions, allocator: ids.Allocator) -> AnalysisResult'
       complexity: {cyclomatic: 20, loc: 50}
       fingerprint: sha256:6c05f6631635fb78a431f83b0dee2241b72a75828ea4722387fc9a017d9492bc
+  - id: intensify.parser.go
+    kind: module
+    parent_id: intensify.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Go analyzer: one module per file, named types, functions and methods under their receiver type, calls resolved through go.mod imports, declared and inferred types, fields and embedding, and implicit interface satisfaction.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/parser/go.py}
+      complexity: {loc: 949}
+      fingerprint: sha256:46897ed670eb73aa3f8e9bda3c0fe82935971a29bbec0c627f7fdea97462305a
+  - id: intensify.parser.go.is_test_path
+    kind: function
+    parent_id: intensify.parser.go
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: path, type: str}
+      outputs:
+        - {type: bool}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/go.py, symbol: is_test_path}
+      signature: 'def is_test_path(path: str) -> bool'
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:e9303e2428e3e56b9494f9312ea8969f1612f6a1367b2da3ba9dc2ab7188a673
+  - id: intensify.parser.go.exported
+    kind: function
+    parent_id: intensify.parser.go
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: name, type: str}
+      outputs:
+        - {type: bool}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/go.py, symbol: exported}
+      signature: 'def exported(name: str) -> bool'
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:d5d03f597b89cfbeaa03fd6a4d2b19df1eb581d93861b31f531e4c18a9d9a8c2
+  - id: intensify.parser.go.GoAnalyzer
+    kind: class
+    parent_id: intensify.parser.go
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/go.py, symbol: GoAnalyzer}
+      signature: class GoAnalyzer
+      complexity: {loc: 56}
+      fingerprint: sha256:12cee7ab8110f78dbce01a1a1d296fe590cf8e94095fd0e673f4b6a6af373e61
+  - id: intensify.parser.go.GoAnalyzer.__init__
+    kind: function
+    parent_id: intensify.parser.go.GoAnalyzer
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/go.py, symbol: GoAnalyzer.__init__}
+      signature: def __init__(self) -> None
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:082f2ba5af427a343f13df4c978ba267cbdc523c8c0fd6496d5628ed294ea2dd
+  - id: intensify.parser.go.GoAnalyzer.analyze
+    kind: function
+    parent_id: intensify.parser.go.GoAnalyzer
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: root, type: Path}
+        - {name: paths, type: 'list[str]'}
+        - {name: options, type: AnalyzeOptions}
+        - {name: allocator, type: ids.Allocator}
+      outputs:
+        - {type: AnalysisResult}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/go.py, symbol: GoAnalyzer.analyze}
+      signature: 'def analyze(self, root: Path, paths: list[str], options: AnalyzeOptions, allocator: ids.Allocator) -> AnalysisResult'
+      complexity: {cyclomatic: 20, loc: 49}
+      fingerprint: sha256:310f2a5677c1e8c9051744b88365295c802d6c9fe2d585b1eef9f411723d39f4
   - id: intensify.pipeline
     kind: module
     parent_id: intensify-module
@@ -4931,6 +5027,19 @@ nodes:
       location: {path: tests/unit/parser/test_java.py}
       complexity: {loc: 158}
       fingerprint: sha256:84d70cea64a186762bbc8e80caa0b11c00518d7827ea0c0d0519ccf47a941298
+  - id: tests.unit.parser.test_go
+    kind: module
+    parent_id: tests.unit.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for parser: go.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/parser/test_go.py}
+      complexity: {loc: 189}
+      fingerprint: sha256:34e04e57d637d06a8bb5f5fa2ca95ba07bac7212ea9a0d9ad050dde000ea18a4
   - id: tests.unit.spec
     kind: module
     parent_id: tests.unit
@@ -4995,7 +5104,7 @@ nodes:
       language: python
       location: {path: tests/unit/test_golden.py}
       complexity: {loc: 36}
-      fingerprint: sha256:127fe86835a46142a8f01f0e05b10aa98dd13805575af443307291fa3e6236af
+      fingerprint: sha256:dd2b4e0c267ef99c7fa5b732ef69cda68f09d2d962f42e1fdc98e7882690156c
   - id: tests.unit.cloud
     kind: module
     parent_id: tests.unit
@@ -5331,3 +5440,19 @@ edges:
   - {from: intensify.parser.java.JavaAnalyzer.analyze, to: intensify.parser.java.is_test_path, type: CALLS, provenance: analyzed}
   - {from: tests.unit.parser.test_java, to: intensify.parser.analyze_repo, type: VERIFIES, provenance: analyzed}
   - {from: tests.unit.parser.test_java, to: intensify.parser.symbol_span, type: VERIFIES, provenance: analyzed}
+  - {from: intensify.parser.analyzers, to: intensify.parser.go.GoAnalyzer, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.go, to: intensify.parser.base.Dependency, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.go, to: intensify.parser.base.Symbol, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.go, to: intensify.parser.ids.join, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.go, to: intensify.parser.treesitter.fingerprint, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.go, to: intensify.parser.treesitter.header, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.go, to: intensify.parser.treesitter.line_count, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.go, to: intensify.parser.treesitter.squash, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.go, to: intensify.parser.treesitter.text, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.go, to: intensify.parser.treesitter.walk, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.go.GoAnalyzer.analyze, to: intensify.parser.base.AnalysisResult, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.go.GoAnalyzer.analyze, to: intensify.parser.base.Dependency, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.go.GoAnalyzer.analyze, to: intensify.parser.go.is_test_path, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.go.GoAnalyzer.analyze, to: intensify.parser.ids.path_id, type: CALLS, provenance: analyzed}
+  - {from: tests.unit.parser.test_go, to: intensify.parser.analyze_repo, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.parser.test_go, to: intensify.parser.symbol_span, type: VERIFIES, provenance: analyzed}

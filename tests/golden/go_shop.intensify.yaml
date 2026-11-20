@@ -1,0 +1,496 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Optimum-Communication/intensify/main/spec/v1.0/schema.json
+#
+# Intensify spec: the intent graph of this repository.
+# Reference: https://github.com/Optimum-Communication/intensify/blob/main/spec/v1.0/spec.md
+intensify: "1.0"
+
+project:
+  id: go-shop
+  name: "go_shop"
+
+config:
+  analyze:
+    depth: function  # finest node kind `intensify analyze` creates: module | class | function
+    public_only: true  # skip private symbols
+  drift:
+    fail_on: [undocumented_edge, contract_mismatch, invariant_violation, missing_node]
+
+nodes:
+  - id: go-shop
+    kind: repo
+    lifecycle_state: active
+    intent:
+      summary: "TODO: describe intent"
+  - id: cart.cart
+    kind: module
+    parent_id: go-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: cart/cart.go}
+      complexity: {loc: 55}
+      fingerprint: sha256:2457dbc2e4c585d9504819353833d76a9035f4bec094181d1a2a71ba112109c8
+  - id: cart.cart.Line
+    kind: class
+    parent_id: cart.cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: cart/cart.go, symbol: Line}
+      signature: type Line struct
+      complexity: {loc: 5}
+      fingerprint: sha256:3f04f108bc6a22aa737f5160638a3a0ec0c35318643bd80f70a2d4508ae47058
+  - id: cart.cart.Cart
+    kind: class
+    parent_id: cart.cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: cart/cart.go, symbol: Cart}
+      signature: type Cart struct
+      complexity: {loc: 5}
+      fingerprint: sha256:338126401e9a6b71a639f89e64c9e77fb2f2b0dceaba403c6243b3cd3f29a6e0
+  - id: cart.cart.Cart.Add
+    kind: function
+    parent_id: cart.cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: sku, type: string}
+        - {name: cents, type: int}
+        - {name: qty, type: int}
+      outputs:
+        - {type: error}
+      errors:
+        - {type: '*Error'}
+    technical:
+      language: go
+      location: {path: cart/cart.go, symbol: Cart.Add}
+      signature: func (c *Cart) Add(sku string, cents, qty int) error
+      complexity: {cyclomatic: 3, loc: 8}
+      fingerprint: sha256:967ca1b82c3bd64c166262991d94f92e875d7cd5a882317f345fcf16f4e6f63d
+  - id: cart.cart.Cart.Total
+    kind: function
+    parent_id: cart.cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: int}
+        - {type: error}
+    technical:
+      language: go
+      location: {path: cart/cart.go, symbol: Cart.Total}
+      signature: func (c *Cart) Total() (int, error)
+      complexity: {cyclomatic: 3, loc: 10}
+      fingerprint: sha256:ac68933a7356d14baf19fcfc4384a99b13628235a011e644210552f069b9d3f2
+  - id: cart.cart.Cart.Empty
+    kind: function
+    parent_id: cart.cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: bool}
+    technical:
+      language: go
+      location: {path: cart/errors.go, symbol: Cart.Empty}
+      signature: func (c *Cart) Empty() bool
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:6407b1c2d7d8989af6a0b2f07ae99ed6e75a8c69057e3a8e16dbb82c86242f25
+  - id: cart.cart.New
+    kind: function
+    parent_id: cart.cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: rules, type: '...pr.Rule', required: false}
+      outputs:
+        - {type: '*Cart'}
+    technical:
+      language: go
+      location: {path: cart/cart.go, symbol: New}
+      signature: func New(rules ...pr.Rule) *Cart
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:df3293ead92857f5a484c709090313589d86ecebaf1fed8f20fdf4009a3c9b69
+  - id: cart.cart_test
+    kind: module
+    parent_id: go-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: cart/cart_test.go}
+      complexity: {loc: 19}
+      fingerprint: sha256:0a2356113815cef4a422fd78a85457b5df206561c706b258445e84a64199f354
+  - id: cart.errors
+    kind: module
+    parent_id: go-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: cart/errors.go}
+      complexity: {loc: 16}
+      fingerprint: sha256:5c5f25cafe43b584c01c293cb2d56888a00d340651e5dc9337bd0664592a1859
+  - id: cart.errors.Error
+    kind: class
+    parent_id: cart.errors
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: cart/errors.go, symbol: Error}
+      signature: type Error struct
+      complexity: {loc: 3}
+      fingerprint: sha256:911b2b1155d0851a60c722f7a5619f5fbb5b45b0077c1581a7ee321afa89d551
+  - id: cart.errors.Error.Error
+    kind: function
+    parent_id: cart.errors.Error
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: string}
+    technical:
+      language: go
+      location: {path: cart/errors.go, symbol: Error.Error}
+      signature: func (e *Error) Error() string
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:27863fc0a5b05e4d7068ab7bf9bb1494e17d2703ea2f5d27bd2e473a73bdfc42
+  - id: cmd.shop.main
+    kind: module
+    parent_id: go-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: cmd/shop/main.go}
+      complexity: {loc: 16}
+      fingerprint: sha256:d8fdac9e568ba97710a3e70d0c539452db0bcdeea0067678e358ef4ea612ab77
+  - id: internal.log.log
+    kind: module
+    parent_id: go-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: internal/log/log.go}
+      complexity: {loc: 13}
+      fingerprint: sha256:02774558862bac4761bf36e79a8011a33fae1095da4fce2e25d802dcefd140ff
+  - id: internal.log.log.Logger
+    kind: class
+    parent_id: internal.log.log
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: internal/log/log.go, symbol: Logger}
+      signature: type Logger struct
+      complexity: {loc: 1}
+      fingerprint: sha256:911b2b1155d0851a60c722f7a5619f5fbb5b45b0077c1581a7ee321afa89d551
+  - id: internal.log.log.Logger.Info
+    kind: function
+    parent_id: internal.log.log.Logger
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: msg, type: string}
+    technical:
+      language: go
+      location: {path: internal/log/log.go, symbol: Logger.Info}
+      signature: func (l *Logger) Info(msg string)
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:f8575973f480a3aaf3a05b7ccb29b735276cf7f7ca8a236cee4d395319348914
+  - id: internal.log.log.New
+    kind: function
+    parent_id: internal.log.log
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: prefix, type: string}
+      outputs:
+        - {type: '*Logger'}
+    technical:
+      language: go
+      location: {path: internal/log/log.go, symbol: New}
+      signature: func New(prefix string) *Logger
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:fdbb0e3f3382bf70db00f62133d4d4991d309bdba58afe2074c6a024a0fd6469
+  - id: payments.gateway
+    kind: module
+    parent_id: go-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: payments/gateway.go}
+      complexity: {loc: 43}
+      fingerprint: sha256:e381f183381a89a6a4c48481f4388008fbec04bfa965a6a49ca79e5408afc6c0
+  - id: payments.gateway.Gateway
+    kind: class
+    parent_id: payments.gateway
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: payments/gateway.go, symbol: Gateway}
+      signature: type Gateway struct
+      complexity: {loc: 3}
+      fingerprint: sha256:911b2b1155d0851a60c722f7a5619f5fbb5b45b0077c1581a7ee321afa89d551
+  - id: payments.gateway.Gateway.Charge
+    kind: function
+    parent_id: payments.gateway.Gateway
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: ctx, type: context.Context}
+        - {name: c, type: '*cart.Cart'}
+        - {name: token, type: string}
+      outputs:
+        - {type: string}
+        - {type: error}
+      errors:
+        - {type: ErrDeclined}
+    technical:
+      language: go
+      location: {path: payments/gateway.go, symbol: Gateway.Charge}
+      signature: func (g *Gateway) Charge(ctx context.Context, c *cart.Cart, token string) (string, error)
+      complexity: {cyclomatic: 6, loc: 20}
+      fingerprint: sha256:426b76c747966c783d7ff6f9ed47c0ebf9c2386e9f636f2bc953c08af4f5020d
+  - id: pricing.pricing
+    kind: module
+    parent_id: go-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: pricing/pricing.go}
+      complexity: {loc: 46}
+      fingerprint: sha256:cf3c45952906c2d8f0e7adf9e3de66327d8628733fd2756fc8cdcc88371df21f
+  - id: pricing.pricing.Rule
+    kind: class
+    parent_id: pricing.pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: pricing/pricing.go, symbol: Rule}
+      signature: type Rule interface
+      complexity: {loc: 3}
+      fingerprint: sha256:efda93cebb64b2d946a27fbbb10a418018bf3d6617757e6e890d3577575119cb
+  - id: pricing.pricing.Rule.Apply
+    kind: function
+    parent_id: pricing.pricing.Rule
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: int}
+      outputs:
+        - {type: int}
+    technical:
+      language: go
+      location: {path: pricing/pricing.go, symbol: Rule.Apply}
+      signature: Apply(cents int) int
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:c83732322231acc3433a41f839397938b2d5125163ac70d700381c8a045fdf7a
+  - id: pricing.pricing.Named
+    kind: class
+    parent_id: pricing.pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: pricing/pricing.go, symbol: Named}
+      signature: type Named interface
+      complexity: {loc: 4}
+      fingerprint: sha256:75882a46f6c63e2940ebb7a76c983a4c9b8703956db34b79132d5f01af7b5224
+  - id: pricing.pricing.Named.Name
+    kind: function
+    parent_id: pricing.pricing.Named
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: string}
+    technical:
+      language: go
+      location: {path: pricing/pricing.go, symbol: Named.Name}
+      signature: Name() string
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:45fa46d4b24b0ddf98e5b83662f0567b7903d49b23f62b3c9477729f6eade41f
+  - id: pricing.pricing.HalfOff
+    kind: class
+    parent_id: pricing.pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: pricing/pricing.go, symbol: HalfOff}
+      signature: type HalfOff struct
+      complexity: {loc: 1}
+      fingerprint: sha256:d016f408968c4b20f521e54ea2a6615115bd6f9cabbfc0349845ee396471c2e3
+  - id: pricing.pricing.HalfOff.Apply
+    kind: function
+    parent_id: pricing.pricing.HalfOff
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: int}
+      outputs:
+        - {type: int}
+    technical:
+      language: go
+      location: {path: pricing/pricing.go, symbol: HalfOff.Apply}
+      signature: func (HalfOff) Apply(cents int) int
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:d5b4654777999873aaefc478695ec8c442c2128697c70e81a76ea5d939c3974e
+  - id: pricing.pricing.HalfOff.Name
+    kind: function
+    parent_id: pricing.pricing.HalfOff
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: string}
+    technical:
+      language: go
+      location: {path: pricing/pricing.go, symbol: HalfOff.Name}
+      signature: func (HalfOff) Name() string
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:6cc2089f96190235849f3321192d7c1d901e8ce322a95184d235fe47f4fd95da
+  - id: pricing.pricing.Cents
+    kind: class
+    parent_id: pricing.pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: go
+      location: {path: pricing/pricing.go, symbol: Cents}
+      signature: type Cents int
+      complexity: {loc: 1}
+      fingerprint: sha256:a22b0e8d272d85816c00c127d43b9deeabec1bb0d4f6a66adc8e9c8625878996
+  - id: pricing.pricing.Round
+    kind: function
+    parent_id: pricing.pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: int}
+      outputs:
+        - {type: int}
+    technical:
+      language: go
+      location: {path: pricing/pricing.go, symbol: Round}
+      signature: func Round(cents int) int
+      complexity: {cyclomatic: 3, loc: 10}
+      fingerprint: sha256:472cf2f4db09fd4910df46518fdd8a3c3e24815ebaa7f8a1d314ad510394748d
+  - id: pricing.pricing.Map
+    kind: function
+    parent_id: pricing.pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: xs, type: '[]T'}
+        - {name: f, type: func(T) T}
+      outputs:
+        - {type: '[]T'}
+    technical:
+      language: go
+      location: {path: pricing/pricing.go, symbol: Map}
+      signature: func Map[T any](xs []T, f func(T) T) []T
+      complexity: {cyclomatic: 2, loc: 7}
+      fingerprint: sha256:da8ba994c693758df10b80448987d331ab7eab417522ff02e8fa9b6adfdb3d05
+edges:
+  - {from: cart.cart.Cart.Add, to: cart.cart.Line, type: CALLS, provenance: analyzed}
+  - {from: cart.cart.Cart.Add, to: cart.errors.Error, type: CALLS, provenance: analyzed}
+  - {from: cart.cart.Cart.Add, to: internal.log.log.Logger.Info, type: CALLS, provenance: analyzed}
+  - {from: cart.cart.Cart.Total, to: pricing.pricing.Round, type: CALLS, provenance: analyzed}
+  - {from: cart.cart.Cart.Total, to: pricing.pricing.Rule.Apply, type: CALLS, provenance: analyzed}
+  - {from: cart.cart.New, to: cart.cart.Cart, type: CALLS, provenance: analyzed}
+  - {from: cart.cart.New, to: internal.log.log.New, type: CALLS, provenance: analyzed}
+  - {from: cart.cart_test, to: cart.cart.Cart.Add, type: VERIFIES, provenance: analyzed}
+  - {from: cart.cart_test, to: cart.cart.Cart.Total, type: VERIFIES, provenance: analyzed}
+  - {from: cart.cart_test, to: cart.cart.New, type: VERIFIES, provenance: analyzed}
+  - {from: cart.cart_test, to: pricing.pricing.HalfOff, type: VERIFIES, provenance: analyzed}
+  - {from: cmd.shop.main, to: cart.cart.Cart.Add, type: CALLS, provenance: analyzed}
+  - {from: cmd.shop.main, to: cart.cart.New, type: CALLS, provenance: analyzed}
+  - {from: cmd.shop.main, to: payments.gateway.Gateway.Charge, type: CALLS, provenance: analyzed}
+  - {from: internal.log.log.New, to: internal.log.log.Logger, type: CALLS, provenance: analyzed}
+  - {from: payments.gateway.Gateway.Charge, to: cart.cart.Cart.Empty, type: CALLS, provenance: analyzed}
+  - {from: payments.gateway.Gateway.Charge, to: cart.cart.Cart.Total, type: CALLS, provenance: analyzed}
+  - {from: pricing.pricing.HalfOff, to: pricing.pricing.Named, type: IMPLEMENTS, confidence: medium, provenance: analyzed}
+  - {from: pricing.pricing.HalfOff, to: pricing.pricing.Rule, type: IMPLEMENTS, confidence: medium, provenance: analyzed}
+  - {from: pricing.pricing.Named, to: pricing.pricing.Rule, type: IMPLEMENTS, provenance: analyzed}

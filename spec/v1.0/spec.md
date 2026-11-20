@@ -124,7 +124,7 @@ Usually maintained by `intensify analyze`.
 
 | Field | Description |
 |---|---|
-| `language` | e.g. `python`, `typescript`, `java`. |
+| `language` | e.g. `python`, `typescript`, `java`, `go`. |
 | `location.path` | File path relative to the repository root, with `/` separators. Required inside `location`. |
 | `location.symbol` | Symbol in the file, e.g. `RefundRepository.save`. Omit for module nodes. |
 | `signature` | The declaration as written in code. |

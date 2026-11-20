@@ -9,7 +9,7 @@ This repository holds the open-source pieces:
 - **AI skills** (`skills/`): enrichment (draft intent from code and git history) and node implementation for coding agents.
 - **CI integration** (`action/`): a GitHub Action and a GitLab CI template for drift checks on pull requests.
 
-> **Status:** alpha (v0.1). The spec, the CLI (`init`, `validate`, `analyze` for Python, TypeScript/JavaScript and Java, `drift`, `node`, `context`, `verify`), CI integrations, AI skills, the MCP server and Intensify Cloud sync (`login`, `project`, `sync`) all work. Intensify checks itself: see its own [`intensify.yaml`](intensify.yaml).
+> **Status:** alpha (v0.1). The spec, the CLI (`init`, `validate`, `analyze` for Python, TypeScript/JavaScript, Java and Go, `drift`, `node`, `context`, `verify`), CI integrations, AI skills, the MCP server and Intensify Cloud sync (`login`, `project`, `sync`) all work. Intensify checks itself: see its own [`intensify.yaml`](intensify.yaml).
 
 ## Install
 
