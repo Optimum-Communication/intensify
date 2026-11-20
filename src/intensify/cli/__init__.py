@@ -5,6 +5,7 @@ from typing import Annotated
 import typer
 
 from intensify import __version__
+from intensify.cli.analyze import analyze
 from intensify.cli.init import init
 from intensify.cli.validate import validate
 
@@ -40,6 +41,7 @@ def root(
 
 app.command()(init)
 app.command()(validate)
+app.command()(analyze)
 
 
 def main() -> None:

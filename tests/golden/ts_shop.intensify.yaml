@@ -1,0 +1,298 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Optimum-Communication/intensify/main/spec/v1.0/schema.json
+#
+# Intensify spec: the intent graph of this repository.
+# Reference: https://github.com/Optimum-Communication/intensify/blob/main/spec/v1.0/spec.md
+intensify: "1.0"
+
+project:
+  id: ts-shop
+  name: "ts_shop"
+
+config:
+  analyze:
+    depth: function  # finest node kind `intensify analyze` creates: module | class | function
+    public_only: true  # skip private symbols
+  drift:
+    fail_on: [undocumented_edge, contract_mismatch, invariant_violation, missing_node]
+
+nodes:
+  - id: ts-shop
+    kind: repo
+    lifecycle_state: active
+    intent:
+      summary: "TODO: describe intent"
+  - id: cart-test
+    kind: module
+    parent_id: ts-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: typescript
+      location: {path: src/cart.test.ts}
+      complexity: {loc: 11}
+      fingerprint: sha256:d88d6327482505dc729bdb0aaf02661b859b05b1c4ae3af8c2fbefdaad4fe29c
+  - id: cart
+    kind: module
+    parent_id: ts-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: typescript
+      location: {path: src/cart.ts}
+      complexity: {loc: 28}
+      fingerprint: sha256:63f554a99f811544ab722c28fa8a671504aff01ab0e90ff2c3f5536af33aad92
+  - id: cart.CartError
+    kind: class
+    parent_id: cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: typescript
+      location: {path: src/cart.ts, symbol: CartError}
+      signature: class CartError extends Error
+      complexity: {loc: 1}
+      fingerprint: sha256:5906bc912169d9a1404745ab5112bdba39f882bbb262a8f1cc97737f220f580b
+  - id: cart.Cart
+    kind: class
+    parent_id: cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: typescript
+      location: {path: src/cart.ts, symbol: Cart}
+      signature: class Cart
+      complexity: {loc: 22}
+      fingerprint: sha256:2e4196e6a5f6ac6423b168c28db3683e84f42405505c0c312847e4acebfd2a3f
+  - id: cart.Cart.constructor
+    kind: function
+    parent_id: cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: owner, type: string}
+    technical:
+      language: typescript
+      location: {path: src/cart.ts, symbol: Cart.constructor}
+      signature: 'constructor(readonly owner: string)'
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:b239c4f4ab52e42f230a76e377c697375281d3b7ab305986b6e885a44ecb0545
+  - id: cart.Cart.add
+    kind: function
+    parent_id: cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: sku, type: string}
+        - {name: cents, type: number}
+        - {name: qty, required: false}
+      errors:
+        - {type: CartError}
+    technical:
+      language: typescript
+      location: {path: src/cart.ts, symbol: Cart.add}
+      signature: 'add(sku: string, cents: number, qty = 1): void'
+      complexity: {cyclomatic: 3, loc: 7}
+      fingerprint: sha256:047ca61066ef27eae858ab6a2ffee05def0538cdf071460b1b939c11870e7dbe
+  - id: cart.Cart.total
+    kind: function
+    parent_id: cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: code, type: string, required: false}
+      outputs:
+        - {type: number}
+    technical:
+      language: typescript
+      location: {path: src/cart.ts, symbol: Cart.total}
+      signature: 'total(code?: string): number'
+      complexity: {cyclomatic: 2, loc: 4}
+      fingerprint: sha256:d6d18bdf0bdfc59b96a433e4a89262d77d54c22aae0895bbf8faf4594dea4a5a
+  - id: index
+    kind: module
+    parent_id: ts-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: typescript
+      location: {path: src/index.ts}
+      complexity: {loc: 3}
+      fingerprint: sha256:aa430bf6aff9386add121c8ab8224819f77592092fc1424ab9a4e3b11126cb7f
+  - id: pricing
+    kind: module
+    parent_id: ts-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: typescript
+      location: {path: src/pricing.ts}
+      complexity: {loc: 19}
+      fingerprint: sha256:783123dc3b4009dc97ae28bd6423480ffc41eeab5cafadd542de1fc3dbad0704
+  - id: pricing.subtotal
+    kind: function
+    parent_id: pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: items, type: 'Array<[string, number]>'}
+      outputs:
+        - {type: number}
+    technical:
+      language: typescript
+      location: {path: src/pricing.ts, symbol: subtotal}
+      signature: 'function subtotal(items: Array<[string, number]>): number'
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:e68a1454c5193f06150fdc07b14ed686c1166bbbe38cbc2546e3098570626095
+  - id: pricing.applyDiscount
+    kind: function
+    parent_id: pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: number}
+        - {name: code, type: string, required: false}
+      outputs:
+        - {type: number}
+    technical:
+      language: typescript
+      location: {path: src/pricing.ts, symbol: applyDiscount}
+      signature: 'const applyDiscount = (cents: number, code?: string): number'
+      complexity: {cyclomatic: 2, loc: 2}
+      fingerprint: sha256:6159c3b92a0b140d5584a1c2b4d3745e75bfed2a3c5e17e0bc0876047ded5eeb
+  - id: pricing.HalfOff
+    kind: class
+    parent_id: pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: typescript
+      location: {path: src/pricing.ts, symbol: HalfOff}
+      signature: class HalfOff implements PriceRule
+      complexity: {loc: 5}
+      fingerprint: sha256:5f4c27f9c01f9d5aa60104b7d09f284217b4811df0f69fdb750751b9e752237d
+  - id: pricing.HalfOff.apply
+    kind: function
+    parent_id: pricing.HalfOff
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: number}
+      outputs:
+        - {type: number}
+    technical:
+      language: typescript
+      location: {path: src/pricing.ts, symbol: HalfOff.apply}
+      signature: 'apply(cents: number): number'
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:ea3df655ad5b802427bc282dd8bd5ee042d959af629ad0ee1ab5066ddb993d99
+  - id: types
+    kind: module
+    parent_id: ts-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: typescript
+      location: {path: src/types.ts}
+      complexity: {loc: 4}
+      fingerprint: sha256:9c6c59dc532e107e0f491af7ae94db80bd33a65708685edc60314bd6c927d841
+  - id: types.PriceRule
+    kind: class
+    parent_id: types
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: typescript
+      location: {path: src/types.ts, symbol: PriceRule}
+      signature: interface PriceRule
+      complexity: {loc: 3}
+      fingerprint: sha256:064d602f8a61bc771a49d1d28122c7d802f8f98272aaed14504c57860fc82bdf
+  - id: util.log
+    kind: module
+    parent_id: ts-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: javascript
+      location: {path: src/util/log.js}
+      complexity: {loc: 8}
+      fingerprint: sha256:bfb1fa4ce4a345c4e6e2f38a7b1f8d23a7eba38f3f484b9574b681bbd36d6ad4
+  - id: util.log.info
+    kind: function
+    parent_id: util.log
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: message}
+    technical:
+      language: javascript
+      location: {path: src/util/log.js, symbol: info}
+      signature: function info(message)
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:216f151d5066130f13227246c79ef2b3ebe594907f00c1b76c349b84fc27195b
+  - id: util.log.warn
+    kind: function
+    parent_id: util.log
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: message}
+        - {name: '...rest', required: false}
+    technical:
+      language: javascript
+      location: {path: src/util/log.js, symbol: warn}
+      signature: function warn(message, ...rest)
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:2d7cb8479543cf19fe1300db0eb61c6f97ac7446e639d37011cb4a675544127f
+edges:
+  - {from: cart-test, to: cart.Cart, type: VERIFIES, provenance: analyzed}
+  - {from: cart-test, to: pricing.applyDiscount, type: VERIFIES, provenance: analyzed}
+  - {from: cart.Cart.add, to: cart.CartError, type: CALLS, provenance: analyzed}
+  - {from: cart.Cart.add, to: util.log.info, type: CALLS, provenance: analyzed}
+  - {from: cart.Cart.total, to: pricing.applyDiscount, type: CALLS, provenance: analyzed}
+  - {from: cart.Cart.total, to: pricing.subtotal, type: CALLS, provenance: analyzed}
+  - {from: pricing.HalfOff, to: types.PriceRule, type: IMPLEMENTS, provenance: analyzed}
+  - {from: pricing.HalfOff.apply, to: pricing.applyDiscount, type: CALLS, provenance: analyzed}
