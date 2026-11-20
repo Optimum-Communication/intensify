@@ -274,3 +274,27 @@ def test_package_named_like_the_repo_gets_a_kind_suffix(copy_repo: CopyRepo) -> 
     assert after["shop"].kind == "repo"
     assert after["shop-module"].kind == "module"
     assert after["shop.cart"].parent_id == "shop-module"
+
+
+@pytest.mark.parametrize("fixture", ["java_shop", "kotlin_shop"])
+def test_overloads_keep_their_nodes(copy_repo: CopyRepo, fixture: str) -> None:
+    root = copy_repo(fixture)
+    (root / "intensify.yaml").write_text(render("shop", "Shop", "A tiny shop."))
+    run(root)
+    first, second = (nodes(root)[i] for i in ("com.shop.Cart.Cart.add", "com.shop.Cart.Cart.add-2"))
+    assert first.technical is not None
+    assert second.technical is not None
+    # Both overloads share the location `Cart.add`; a second run must not swap or re-add them.
+    outcome = run(root)
+    assert not outcome.report.changed
+    assert nodes(root)["com.shop.Cart.Cart.add"].technical == first.technical
+
+    # Editing one overload updates its own node only.
+    path = next(p for p in root.rglob("Cart.*") if p.suffix in {".java", ".kt"})
+    path.write_text(path.read_text().replace("qty <= 0", "qty < 1", 1))
+    outcome = run(root)
+    after = nodes(root)
+    assert "com.shop.Cart.Cart.add" in outcome.report.updated
+    assert "com.shop.Cart.Cart.add-2" not in outcome.report.updated
+    assert not outcome.report.added
+    assert after["com.shop.Cart.Cart.add-2"].technical == second.technical

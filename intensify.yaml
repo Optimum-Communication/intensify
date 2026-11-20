@@ -1543,8 +1543,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/merge/__init__.py}
-      complexity: {loc: 535}
-      fingerprint: sha256:754d474cb52688e0ef0ebcf2c2a1213c68628de308d94d3544626065663bbcd7
+      complexity: {loc: 574}
+      fingerprint: sha256:19f594338a7edd96d0f4ebedb1abc5d62044ebed758be1541fb403034004eeba
     governance:
       invariants:
         - {id: human-fields, text: 'Never changes id, intent, governance or hand-written edges, and never deletes nodes.'}
@@ -5020,8 +5020,8 @@ nodes:
     technical:
       language: python
       location: {path: tests/unit/merge/test_merge.py}
-      complexity: {loc: 277}
-      fingerprint: sha256:92c29208bb735d150605b057def2c7ac8a7672bc55f5ccdea8dffba2e99fcdeb
+      complexity: {loc: 301}
+      fingerprint: sha256:035102df7165351a9d85693ea2260696a869d052a4acd90489acb19e786a6ffd
   - id: tests.unit.parser
     kind: module
     parent_id: tests.unit
