@@ -2027,8 +2027,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/parser/python.py}
-      complexity: {loc: 413}
-      fingerprint: sha256:dec7ef3e9657fddb5c20fff14fadfbf0340ff2fb1ff176aadab80156b126b476
+      complexity: {loc: 418}
+      fingerprint: sha256:ca665c38f8bda1798d7eae6687eb9759098f0cd1d32fd7ab7d02815a08cc14ed
   - id: intensify.parser.python.is_private
     kind: function
     parent_id: intensify.parser.python
@@ -2063,8 +2063,8 @@ nodes:
       language: python
       location: {path: src/intensify/parser/python.py, symbol: is_test_path}
       signature: 'def is_test_path(path: str) -> bool'
-      complexity: {cyclomatic: 4, loc: 5}
-      fingerprint: sha256:a1bd0e7fde53fa0fde152151274cba32aaf6074ad0e7f353c645bdbde5f8fc2f
+      complexity: {cyclomatic: 5, loc: 10}
+      fingerprint: sha256:8c59af39efe37a9ade503b2f6146fe6c400f69f4c57a56c091bae76387c6336d
   - id: intensify.parser.python.PythonAnalyzer
     kind: class
     parent_id: intensify.parser.python
@@ -5151,8 +5151,8 @@ nodes:
     technical:
       language: python
       location: {path: tests/unit/parser/test_python.py}
-      complexity: {loc: 127}
-      fingerprint: sha256:69679727d1612ab31c18cf1d205706ed6251e36d5f90b16624e65907f1c64f25
+      complexity: {loc: 144}
+      fingerprint: sha256:fa58828968e999306293e8dabb845f31cd73c5750c6cf2a83e309b3d276931b8
   - id: tests.unit.parser.test_typescript
     kind: module
     parent_id: tests.unit.parser
@@ -5660,3 +5660,4 @@ edges:
   - {from: tests.unit.parser.test_data, to: intensify.parser.analyze_repo, type: VERIFIES, provenance: analyzed}
   - {from: tests.unit.parser.test_data, to: intensify.parser.data.classify, type: VERIFIES, provenance: analyzed}
   - {from: tests.unit.parser.test_data, to: intensify.parser.data.sql_tables, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.parser.test_python, to: intensify.parser.python.is_test_path, type: VERIFIES, provenance: analyzed}

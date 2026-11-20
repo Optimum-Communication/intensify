@@ -46,7 +46,12 @@ def is_test_path(path: str) -> bool:
     pure = PurePosixPath(path)
     name = pure.name
     in_test_dir = any(part in {"tests", "test"} for part in pure.parent.parts)
-    return in_test_dir or name.startswith("test_") or name.endswith("_test.py")
+    return (
+        in_test_dir
+        or name.startswith("test_")
+        or name.endswith("_test.py")
+        or name in {"tests.py", "test.py", "conftest.py"}  # Django's per-app tests, pytest
+    )
 
 
 @dataclass

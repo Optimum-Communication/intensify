@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from intensify.parser import AnalysisResult, AnalyzeOptions, Symbol, analyze_repo
+from intensify.parser.python import is_test_path
 from intensify.spec.models import EdgeType, NodeKind
 from tests.conftest import FIXTURE_REPOS
 
@@ -124,3 +125,19 @@ def test_syntax_errors_are_warnings(tmp_path: Path) -> None:
     result = analyze_repo(tmp_path)
     assert result.warnings == ["broken.py: syntax errors; results may be incomplete"]
     assert any(s.id == "broken.ok" for s in result.symbols)
+
+
+@pytest.mark.parametrize(
+    ("path", "is_test"),
+    [
+        ("shop/test_cart.py", True),
+        ("shop/cart_test.py", True),
+        ("tests/helpers.py", True),
+        ("blog/tests.py", True),  # Django keeps an app's tests in tests.py
+        ("conftest.py", True),
+        ("shop/testing.py", False),
+        ("shop/contest.py", False),
+    ],
+)
+def test_is_test_path(path: str, is_test: bool) -> None:
+    assert is_test_path(path) is is_test
