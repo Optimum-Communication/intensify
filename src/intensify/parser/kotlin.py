@@ -18,8 +18,8 @@ from tree_sitter import Language, Node, Parser
 
 from intensify.parser import ids
 from intensify.parser.base import AnalysisResult, AnalyzeOptions, Dependency, Symbol
-from intensify.parser.java import is_test_path
-from intensify.parser.treesitter import fingerprint, line_count, squash, text, walk
+from intensify.parser.java import is_test_path, overloaded_methods
+from intensify.parser.treesitter import fingerprint, line_count, name_point, squash, text, walk
 from intensify.spec.models import EdgeType, NodeKind
 
 LANGUAGE = Language(tree_sitter_kotlin.language())
@@ -143,6 +143,8 @@ class _Call:
     ctx: _Ctx
     base: _Ref | None
     name: str
+    point: tuple[int, int] = (0, 0)
+    """Position of the called name, for a language server."""
 
 
 @dataclass
@@ -158,6 +160,8 @@ class _Module:
     """Local name (the alias, if any) -> fully qualified name."""
     star_imports: list[str] = field(default_factory=list)
     calls: list[_Call] = field(default_factory=list)
+    sites: list[tuple[str, tuple[int, int]]] = field(default_factory=list)
+    """Scope and position of calls that can't be resolved statically at all."""
     heritage: list[tuple[str, _Type]] = field(default_factory=list)
 
     def __hash__(self) -> int:
@@ -246,6 +250,7 @@ class KotlinAnalyzer:
 
         resolver = _Resolver(modules, self._classes, self._funcs, self._packages)
         test_ids = {s.id for m in modules if m.is_test for s in m.symbols}
+        overloaded = overloaded_methods(result.symbols)
         for module in modules:
             for class_id, written in module.heritage:
                 info = self._classes[class_id]
@@ -256,9 +261,18 @@ class KotlinAnalyzer:
                     resolver.bases[class_id].append(target)
                     result.dependencies.append(Dependency(class_id, target, EdgeType.IMPLEMENTS))
         for module in modules:
+            for scope, point in module.sites:
+                source = module.id if module.is_test else scope
+                result.site(source, module.is_test, module.path, point)
             for call in module.calls:
                 target = resolver.call(call)
-                if target is None or target in test_ids:
+                source = module.id if module.is_test else call.scope
+                if target is None or target in overloaded:
+                    # Unresolved, or the first of several overloads: a language server can tell.
+                    if target is None or target not in test_ids:
+                        result.site(source, module.is_test, module.path, call.point, target)
+                    continue
+                if target in test_ids:
                     continue
                 if module.is_test:
                     result.dependencies.append(Dependency(module.id, target, EdgeType.VERIFIES))
@@ -479,18 +493,32 @@ class KotlinAnalyzer:
                 local_names.add("it")
                 local_types.pop("it", None)
             elif n.type == "call_expression":
-                callee = n.named_children[0] if n.named_children else None
-                if callee is None:
-                    continue
-                if callee.type == "identifier":
-                    name = text(callee)
-                    if name not in local_names:
-                        module.calls.append(_Call(scope, ctx, None, name))
-                elif callee.type == "navigation_expression":
-                    parts = callee.named_children
-                    base = _expr(parts[0], local_types, local_names) if len(parts) > 1 else None
-                    if base is not None:
-                        module.calls.append(_Call(scope, ctx, base, text(parts[-1])))
+                _call(module, n, scope, ctx, local_types, local_names)
+
+
+def _call(
+    module: _Module,
+    node: Node,
+    scope: str,
+    ctx: _Ctx,
+    local_types: dict[str, _Ref],
+    local_names: set[str],
+) -> None:
+    callee = node.named_children[0] if node.named_children else None
+    if callee is None:
+        return
+    point = name_point(callee)
+    if callee.type == "identifier":
+        name = text(callee)
+        if name not in local_names:  # a local is a function value, with nothing to resolve
+            module.calls.append(_Call(scope, ctx, None, name, point))
+    elif callee.type == "navigation_expression":
+        parts = callee.named_children
+        base = _expr(parts[0], local_types, local_names) if len(parts) > 1 else None
+        if base is not None:
+            module.calls.append(_Call(scope, ctx, base, text(parts[-1]), point))
+        else:
+            module.sites.append((scope, point))
 
 
 class _Resolver:

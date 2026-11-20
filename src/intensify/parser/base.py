@@ -73,6 +73,23 @@ class Dependency:
     confidence: Confidence = Confidence.high
 
 
+@dataclass(frozen=True)
+class CallSite:
+    """A call the analyzer couldn't resolve for certain, for a language server to look up."""
+
+    source: str
+    """Derived ID the edge comes from: the calling symbol, or the test module for tests."""
+    type: EdgeType
+    """``CALLS``, or ``VERIFIES`` from a test."""
+    path: str
+    line: int
+    """1-based line of the called name."""
+    column: int
+    """0-based byte column of the called name."""
+    fallback: str | None = None
+    """Static guess (the first of several overloads), used when no server answers."""
+
+
 @dataclass
 class AnalysisResult:
     symbols: list[Symbol] = field(default_factory=list)
@@ -80,12 +97,47 @@ class AnalysisResult:
     files: dict[str, str] = field(default_factory=dict)
     """Analyzed file path -> language."""
     warnings: list[str] = field(default_factory=list)
+    call_sites: list[CallSite] = field(default_factory=list)
+    """Unresolved and overloaded calls. Fallbacks become edges in ``analyze_repo``."""
 
     def extend(self, other: AnalysisResult) -> None:
         self.symbols.extend(other.symbols)
         self.dependencies.extend(other.dependencies)
         self.files.update(other.files)
         self.warnings.extend(other.warnings)
+        self.call_sites.extend(other.call_sites)
+
+    def site(
+        self,
+        source: str,
+        is_test: bool,
+        path: str,
+        point: tuple[int, int],
+        fallback: str | None = None,
+    ) -> None:
+        """Record a call site at ``point`` (tree-sitter row and byte column)."""
+        self.call_sites.append(
+            CallSite(
+                source,
+                EdgeType.VERIFIES if is_test else EdgeType.CALLS,
+                path,
+                point[0] + 1,
+                point[1],
+                fallback,
+            )
+        )
+
+
+def innermost(symbols: list[Symbol], line: int) -> Symbol | None:
+    """The symbol with the smallest span that contains ``line`` (1-based)."""
+    best: Symbol | None = None
+    for sym in symbols:
+        loc = sym.complexity.get("loc", 1)
+        if sym.line <= line < sym.line + loc and (
+            best is None or loc < best.complexity.get("loc", 1)
+        ):
+            best = sym
+    return best
 
 
 class Analyzer(Protocol):

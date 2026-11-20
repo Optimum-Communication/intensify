@@ -1655,8 +1655,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/parser/__init__.py}
-      complexity: {loc: 115}
-      fingerprint: sha256:14ab5a0068645d664b2ae04dce8bc1a8a11d7b647b6addadbc8512cdcf184831
+      complexity: {loc: 125}
+      fingerprint: sha256:f903a5d14242c089b95a0e5e102a11abe963576028f6aee479c806d809b7a0c4
     governance:
       invariants:
         - id: no-merge
@@ -1694,14 +1694,15 @@ nodes:
         - {name: options, type: AnalyzeOptions | None, required: false}
         - {name: include, type: 'list[str] | None', required: false}
         - {name: exclude, type: 'list[str] | None', required: false}
+        - {name: lsp, type: LspOptions | None, required: false}
       outputs:
         - {type: AnalysisResult}
     technical:
       language: python
       location: {path: src/intensify/parser/__init__.py, symbol: analyze_repo}
-      signature: 'def analyze_repo(root: Path, *, options: AnalyzeOptions | None = None, include: list[str] | None = None, exclude: list[str] | None = None) -> AnalysisResult'
-      complexity: {cyclomatic: 8, loc: 29}
-      fingerprint: sha256:64e396689c6644c7605046a853c0cce813c55028e782a0c7444b299fe4359b47
+      signature: 'def analyze_repo(root: Path, *, options: AnalyzeOptions | None = None, include: list[str] | None = None, exclude: list[str] | None = None, lsp: LspOptions | None = None) -> AnalysisResult'
+      complexity: {cyclomatic: 12, loc: 37}
+      fingerprint: sha256:fb4a3305a999c98d84bdaa3a731f040a8e7493da8d9e419beeac43705efc369e
   - id: intensify.parser.symbol_span
     kind: function
     parent_id: intensify.parser
@@ -1733,8 +1734,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/parser/base.py}
-      complexity: {loc: 103}
-      fingerprint: sha256:d34a822041075d0c6d1deaf0a79df08f049b05f0f77f1b32453110e99823cc97
+      complexity: {loc: 155}
+      fingerprint: sha256:50ca0d089b625cb6e64b894e25913945a066da58ef1824d51ecfb99949da70de
   - id: intensify.parser.base.AnalyzeOptions
     kind: class
     parent_id: intensify.parser.base
@@ -1817,8 +1818,8 @@ nodes:
       language: python
       location: {path: src/intensify/parser/base.py, symbol: AnalysisResult}
       signature: class AnalysisResult
-      complexity: {loc: 12}
-      fingerprint: sha256:d0e3a36cb8633d4db81d868fad981f85bd451bfa5f3372618e20232ee1e02e15
+      complexity: {loc: 35}
+      fingerprint: sha256:266cdc141e864cc15baa36e0c2228a87ea0249dc5a5a24fb54d1c65072e00b93
   - id: intensify.parser.base.AnalysisResult.extend
     kind: function
     parent_id: intensify.parser.base.AnalysisResult
@@ -1833,8 +1834,28 @@ nodes:
       language: python
       location: {path: src/intensify/parser/base.py, symbol: AnalysisResult.extend}
       signature: 'def extend(self, other: AnalysisResult) -> None'
-      complexity: {cyclomatic: 1, loc: 5}
-      fingerprint: sha256:39f0f9e0e963de88e868c1febac36a403414c5bb20ab24eb969edb56f6a2ef8f
+      complexity: {cyclomatic: 1, loc: 6}
+      fingerprint: sha256:915ed7e3d1230c349ac7a7659aea6602b8e6eaa38513b611b9d28204a38e6180
+  - id: intensify.parser.base.AnalysisResult.site
+    kind: function
+    parent_id: intensify.parser.base.AnalysisResult
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: source, type: str}
+        - {name: is_test, type: bool}
+        - {name: path, type: str}
+        - {name: point, type: 'tuple[int, int]'}
+        - {name: fallback, type: str | None, required: false}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/base.py, symbol: AnalysisResult.site}
+      signature: 'def site(self, source: str, is_test: bool, path: str, point: tuple[int, int], fallback: str | None = None) -> None'
+      complexity: {cyclomatic: 2, loc: 19}
+      fingerprint: sha256:7860901d16621a967d0a55cc1828a8f3d9d8ae544cb2ce50c30091a600db8430
   - id: intensify.parser.base.Analyzer
     kind: class
     parent_id: intensify.parser.base
@@ -1869,6 +1890,38 @@ nodes:
       signature: 'def analyze(self, root: Path, paths: list[str], options: AnalyzeOptions, allocator: Allocator) -> AnalysisResult'
       complexity: {cyclomatic: 1, loc: 8}
       fingerprint: sha256:340e9ca0d43bb59ed1846b78f1d6e5fdb270df5b976ab1c3435391e8c1695675
+  - id: intensify.parser.base.CallSite
+    kind: class
+    parent_id: intensify.parser.base
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/base.py, symbol: CallSite}
+      signature: class CallSite
+      complexity: {loc: 14}
+      fingerprint: sha256:a70cb408b0ee123e1771aab71997c7d41ebaa659eea9e4521cf26e2a126c3de3
+  - id: intensify.parser.base.innermost
+    kind: function
+    parent_id: intensify.parser.base
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: symbols, type: 'list[Symbol]'}
+        - {name: line, type: int}
+      outputs:
+        - {type: Symbol | None}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/base.py, symbol: innermost}
+      signature: 'def innermost(symbols: list[Symbol], line: int) -> Symbol | None'
+      complexity: {cyclomatic: 5, loc: 10}
+      fingerprint: sha256:85aa5e360fb90f82c2741f2b40d38b35f087981bdc1a70ba97d427a8ab780061
   - id: intensify.parser.discovery
     kind: module
     parent_id: intensify.parser
@@ -2027,8 +2080,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/parser/python.py}
-      complexity: {loc: 418}
-      fingerprint: sha256:ca665c38f8bda1798d7eae6687eb9759098f0cd1d32fd7ab7d02815a08cc14ed
+      complexity: {loc: 432}
+      fingerprint: sha256:fc30551f7cebe0504e445568d20316a84c4424b79e7bd676e9d40e7d6d0844d9
   - id: intensify.parser.python.is_private
     kind: function
     parent_id: intensify.parser.python
@@ -2076,8 +2129,8 @@ nodes:
       language: python
       location: {path: src/intensify/parser/python.py, symbol: PythonAnalyzer}
       signature: class PythonAnalyzer
-      complexity: {loc: 210}
-      fingerprint: sha256:6bbea9636ef6b2a0c00f1a8be07915943989e4051f7301df71e8f677f073e5a6
+      complexity: {loc: 221}
+      fingerprint: sha256:08600396e1d3f0a7dd16c5a9aacf36a1cae1ca486f080b410f5f398b01517055
   - id: intensify.parser.python.PythonAnalyzer.__init__
     kind: function
     parent_id: intensify.parser.python.PythonAnalyzer
@@ -2110,8 +2163,8 @@ nodes:
       language: python
       location: {path: src/intensify/parser/python.py, symbol: PythonAnalyzer.analyze}
       signature: 'def analyze(self, root: Path, paths: list[str], options: AnalyzeOptions, allocator: ids.Allocator) -> AnalysisResult'
-      complexity: {cyclomatic: 25, loc: 47}
-      fingerprint: sha256:2fa3999bde0d6b4bf484f398ec51fc546bedc0935fa61f196407c98e896958d6
+      complexity: {cyclomatic: 28, loc: 54}
+      fingerprint: sha256:9f57b45827e689ce5bc58671e41aa99a5e211afa6bdf5c847f5150d6cbc245c3
   - id: intensify.parser.treesitter
     kind: module
     parent_id: intensify.parser
@@ -2124,8 +2177,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/parser/treesitter.py}
-      complexity: {loc: 70}
-      fingerprint: sha256:9c1791e2187d04bea73afdbc8a92928d5097f9f5d96308899f9071e63c247a1b
+      complexity: {loc: 100}
+      fingerprint: sha256:d3ae617d7eff65b2bba7d692c2abaccfe2e95007ad0668b0bbe50093b75e29f5
   - id: intensify.parser.treesitter.text
     kind: function
     parent_id: intensify.parser.treesitter
@@ -2237,6 +2290,24 @@ nodes:
       signature: 'def line_count(node: Node) -> int'
       complexity: {cyclomatic: 1, loc: 2}
       fingerprint: sha256:5c76579be300ab3987eeed587c5048b508bd1f7eefcf2c8eae7558a67e897eab
+  - id: intensify.parser.treesitter.name_point
+    kind: function
+    parent_id: intensify.parser.treesitter
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: node, type: Node}
+      outputs:
+        - {type: 'tuple[int, int]'}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/treesitter.py, symbol: name_point}
+      signature: 'def name_point(node: Node) -> tuple[int, int]'
+      complexity: {cyclomatic: 7, loc: 11}
+      fingerprint: sha256:e9a1fe842be22a8893af550440d9e20c549605c017feee6cbb790ebc68c405b0
   - id: intensify.parser.typescript
     kind: module
     parent_id: intensify.parser
@@ -2248,8 +2319,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/parser/typescript.py}
-      complexity: {loc: 646}
-      fingerprint: sha256:9228fed8573a8c9adc8a290c2ff5568e22660549b36fef7aaeeeb333d3bfdead
+      complexity: {loc: 668}
+      fingerprint: sha256:dbab043a59746cc76ec8cc4e3ab942c7ee52c5c2414287af7a8755e96c57877a
   - id: intensify.parser.typescript.is_test_path
     kind: function
     parent_id: intensify.parser.typescript
@@ -2279,8 +2350,8 @@ nodes:
       language: python
       location: {path: src/intensify/parser/typescript.py, symbol: TypeScriptAnalyzer}
       signature: class TypeScriptAnalyzer
-      complexity: {loc: 333}
-      fingerprint: sha256:5df737aa4883093737a9538dc90331be2b9d42de5521822cb5a73ac9d165c390
+      complexity: {loc: 344}
+      fingerprint: sha256:88378d923a9402d3e16e1a822202663edf34ec8d22b22db621419a43ee40424e
   - id: intensify.parser.typescript.TypeScriptAnalyzer.__init__
     kind: function
     parent_id: intensify.parser.typescript.TypeScriptAnalyzer
@@ -2313,8 +2384,8 @@ nodes:
       language: python
       location: {path: src/intensify/parser/typescript.py, symbol: TypeScriptAnalyzer.analyze}
       signature: 'def analyze(self, root: Path, paths: list[str], options: AnalyzeOptions, allocator: ids.Allocator) -> AnalysisResult'
-      complexity: {cyclomatic: 17, loc: 42}
-      fingerprint: sha256:8e3948302dd35f76e487bacc9ed42bf3471a80f8d3b6f26f6fa89c9fc8f5ef18
+      complexity: {cyclomatic: 20, loc: 49}
+      fingerprint: sha256:325df6acc60f2969ecacc55b85b5bad8a88182da0f8d979de5d63faab1b4c37f
   - id: intensify.parser.java
     kind: module
     parent_id: intensify.parser
@@ -2326,8 +2397,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/parser/java.py}
-      complexity: {loc: 597}
-      fingerprint: sha256:e5e6c9c8557421d9db57e35700b945ebb284770a0b1e5ea2d2f3c7b1bd6ecbdb
+      complexity: {loc: 628}
+      fingerprint: sha256:73622023c1fab5ecfa82e2d3db958676047c16b1619089d878df598aed6c419c
   - id: intensify.parser.java.is_test_path
     kind: function
     parent_id: intensify.parser.java
@@ -2357,8 +2428,8 @@ nodes:
       language: python
       location: {path: src/intensify/parser/java.py, symbol: JavaAnalyzer}
       signature: class JavaAnalyzer
-      complexity: {loc: 231}
-      fingerprint: sha256:50abce5a639d5c967a95d3e1fcd6d8d076eec84d95eef6db54fdb1ee959b6020
+      complexity: {loc: 249}
+      fingerprint: sha256:3bfcf87b19db107f7db60ed521a32b81a52cbd5c058218c3df851d11e6edb8b5
   - id: intensify.parser.java.JavaAnalyzer.__init__
     kind: function
     parent_id: intensify.parser.java.JavaAnalyzer
@@ -2391,8 +2462,26 @@ nodes:
       language: python
       location: {path: src/intensify/parser/java.py, symbol: JavaAnalyzer.analyze}
       signature: 'def analyze(self, root: Path, paths: list[str], options: AnalyzeOptions, allocator: ids.Allocator) -> AnalysisResult'
-      complexity: {cyclomatic: 20, loc: 50}
-      fingerprint: sha256:6c05f6631635fb78a431f83b0dee2241b72a75828ea4722387fc9a017d9492bc
+      complexity: {cyclomatic: 26, loc: 60}
+      fingerprint: sha256:9b6b4afd95fc1038dc24e57ac6e22637cdbe47f32c7ee108071f75f3916965bc
+  - id: intensify.parser.java.overloaded_methods
+    kind: function
+    parent_id: intensify.parser.java
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: symbols, type: 'list[Symbol]'}
+      outputs:
+        - {type: 'set[str]'}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/java.py, symbol: overloaded_methods}
+      signature: 'def overloaded_methods(symbols: list[Symbol]) -> set[str]'
+      complexity: {cyclomatic: 6, loc: 7}
+      fingerprint: sha256:32bbbbbd7a6a26040b384c15f29b76a455ea0b43c49563353245499a06da5022
   - id: intensify.parser.go
     kind: module
     parent_id: intensify.parser
@@ -2404,8 +2493,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/parser/go.py}
-      complexity: {loc: 949}
-      fingerprint: sha256:46897ed670eb73aa3f8e9bda3c0fe82935971a29bbec0c627f7fdea97462305a
+      complexity: {loc: 987}
+      fingerprint: sha256:78675a206d473b24fbaa31b5af4055dd27bd2a9751d1608cc472410658d6f6c8
   - id: intensify.parser.go.is_test_path
     kind: function
     parent_id: intensify.parser.go
@@ -2453,8 +2542,8 @@ nodes:
       language: python
       location: {path: src/intensify/parser/go.py, symbol: GoAnalyzer}
       signature: class GoAnalyzer
-      complexity: {loc: 56}
-      fingerprint: sha256:12cee7ab8110f78dbce01a1a1d296fe590cf8e94095fd0e673f4b6a6af373e61
+      complexity: {loc: 63}
+      fingerprint: sha256:0d4f88deb7cb3021752b66f492ae0a39e5a71a81eba37fc479cf7e897cf2c1fa
   - id: intensify.parser.go.GoAnalyzer.__init__
     kind: function
     parent_id: intensify.parser.go.GoAnalyzer
@@ -2487,8 +2576,8 @@ nodes:
       language: python
       location: {path: src/intensify/parser/go.py, symbol: GoAnalyzer.analyze}
       signature: 'def analyze(self, root: Path, paths: list[str], options: AnalyzeOptions, allocator: ids.Allocator) -> AnalysisResult'
-      complexity: {cyclomatic: 20, loc: 49}
-      fingerprint: sha256:310f2a5677c1e8c9051744b88365295c802d6c9fe2d585b1eef9f411723d39f4
+      complexity: {cyclomatic: 23, loc: 56}
+      fingerprint: sha256:ed48baac02b4684825734702da8097763fdf29135d1567d53a33e8e2f57c6de4
   - id: intensify.parser.kotlin
     kind: module
     parent_id: intensify.parser
@@ -2500,8 +2589,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/parser/kotlin.py}
-      complexity: {loc: 1031}
-      fingerprint: sha256:26ce448bbf59a440ddee3af6854e9ca41c7eb2dda6fdf708a9f7d59202dad190
+      complexity: {loc: 1059}
+      fingerprint: sha256:4f0308fb3e4ad306727aaf6ca9119144c4e09e344da547cb7165122b9c73bf36
   - id: intensify.parser.kotlin.KotlinAnalyzer
     kind: class
     parent_id: intensify.parser.kotlin
@@ -2513,8 +2602,8 @@ nodes:
       language: python
       location: {path: src/intensify/parser/kotlin.py, symbol: KotlinAnalyzer}
       signature: class KotlinAnalyzer
-      complexity: {loc: 286}
-      fingerprint: sha256:7a525da2304239168ddf93e1a3106bbd306617588a026e08d95c7a73f01d5f98
+      complexity: {loc: 285}
+      fingerprint: sha256:9a0e728085a46e5a40cf330340b95f62b192a757e51719afb230122e5a3fc9ee
   - id: intensify.parser.kotlin.KotlinAnalyzer.__init__
     kind: function
     parent_id: intensify.parser.kotlin.KotlinAnalyzer
@@ -2547,8 +2636,8 @@ nodes:
       language: python
       location: {path: src/intensify/parser/kotlin.py, symbol: KotlinAnalyzer.analyze}
       signature: 'def analyze(self, root: Path, paths: list[str], options: AnalyzeOptions, allocator: ids.Allocator) -> AnalysisResult'
-      complexity: {cyclomatic: 19, loc: 49}
-      fingerprint: sha256:4ec46689bcb5ba0198b86aa4b018cd8685135f962be4b24c18942b18a93dd5b0
+      complexity: {cyclomatic: 25, loc: 59}
+      fingerprint: sha256:fc3aed54dd55a33b9c2b32d7aa7c3b86a28fa8e2c82b5015085dedab0110abbb
   - id: intensify.parser.data
     kind: module
     parent_id: intensify.parser
@@ -2560,8 +2649,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/parser/data.py}
-      complexity: {loc: 715}
-      fingerprint: sha256:f4c5fc57218da3b0c9bec83c287678fbf436338b3831f594053d006657f787e1
+      complexity: {loc: 704}
+      fingerprint: sha256:3cc0252edb555ff98a000509661a2d0c751b270a08f6de048516387b8039e3f6
   - id: intensify.parser.data.SqlTables
     kind: class
     parent_id: intensify.parser.data
@@ -2641,6 +2730,303 @@ nodes:
       signature: 'def detect(root: Path, result: AnalysisResult) -> None'
       complexity: {cyclomatic: 23, loc: 58}
       fingerprint: sha256:fa05dfbb22ce1280aae852bf770cb9001be79b2e4a9c79b7e6a8f8a9ab480f74
+  - id: intensify.parser.lsp
+    kind: module
+    parent_id: intensify.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "LSP call resolution: asks each language's server where the calls static analysis could not resolve (and overloaded calls) are defined, and adds high-confidence edges to the symbols they land on."
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/__init__.py}
+      complexity: {loc: 223}
+      fingerprint: sha256:92542a73e9e98f03afb089331109579457839a21d38a7fde061a73884a1d8be1
+  - id: intensify.parser.lsp.LspOptions
+    kind: class
+    parent_id: intensify.parser.lsp
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/__init__.py, symbol: LspOptions}
+      signature: class LspOptions
+      complexity: {loc: 8}
+      fingerprint: sha256:31811ad7fdf46ee8bbae1da436cd88bb897a68b499cef570c2e632e2887359b3
+  - id: intensify.parser.lsp.resolve
+    kind: function
+    parent_id: intensify.parser.lsp
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: root, type: Path}
+        - {name: result, type: AnalysisResult}
+        - {name: options, type: LspOptions}
+      outputs:
+        - {type: 'set[CallSite]'}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/__init__.py, symbol: resolve}
+      signature: 'def resolve(root: Path, result: AnalysisResult, options: LspOptions) -> set[CallSite]'
+      complexity: {cyclomatic: 14, loc: 43}
+      fingerprint: sha256:f7a3f1f460887d3029ce4a7654248efb22b6acf0ed468e53b4806f24b848e311
+  - id: intensify.parser.lsp.client
+    kind: module
+    parent_id: intensify.parser.lsp
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "Minimal LSP client: JSON-RPC over a server's stdio with initialize, didOpen, definition and shutdown, answering the server's own requests with empty results."
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/client.py}
+      complexity: {loc: 197}
+      fingerprint: sha256:08062521d5865aaacf4f2fe0a7a74e9f6043907481a2b6d78088655a31b558a3
+  - id: intensify.parser.lsp.client.LspError
+    kind: class
+    parent_id: intensify.parser.lsp.client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/client.py, symbol: LspError}
+      signature: class LspError(Exception)
+      complexity: {loc: 2}
+      fingerprint: sha256:464d9199380d1dbadc657bdbc34bcd28f7ba4d69e67c498e97ed4b558311cf0e
+  - id: intensify.parser.lsp.client.Client
+    kind: class
+    parent_id: intensify.parser.lsp.client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/client.py, symbol: Client}
+      signature: class Client
+      complexity: {loc: 135}
+      fingerprint: sha256:f273379dba0b53ffa48b8e8c32a1805364c2a930833573527a677fc8d61f836b
+  - id: intensify.parser.lsp.client.Client.__init__
+    kind: function
+    parent_id: intensify.parser.lsp.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: command, type: 'Sequence[str]'}
+        - {name: root, type: Path}
+      errors:
+        - {type: LspError}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/client.py, symbol: Client.__init__}
+      signature: 'def __init__(self, command: Sequence[str], root: Path) -> None'
+      complexity: {cyclomatic: 2, loc: 19}
+      fingerprint: sha256:9866acf07c40c63bdb64f332e84d778a33ed64ca30bde9ac9b79425fe39fd091
+  - id: intensify.parser.lsp.client.Client.initialize
+    kind: function
+    parent_id: intensify.parser.lsp.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: root, type: Path}
+        - {name: timeout, type: float}
+      errors:
+        - {type: LspError}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/client.py, symbol: Client.initialize}
+      signature: 'def initialize(self, root: Path, timeout: float) -> None'
+      complexity: {cyclomatic: 2, loc: 18}
+      fingerprint: sha256:f2a30f5be13e1a3dae83b59b55b26940a986b53f030291f684926226756b46c4
+  - id: intensify.parser.lsp.client.Client.open
+    kind: function
+    parent_id: intensify.parser.lsp.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: uri, type: str}
+        - {name: language_id, type: str}
+        - {name: source, type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/client.py, symbol: Client.open}
+      signature: 'def open(self, uri: str, language_id: str, source: str) -> None'
+      complexity: {cyclomatic: 1, loc: 5}
+      fingerprint: sha256:534c30bd2e3f3e1f1d1bdf1c24bc5719df7152a6be0467ddcded2bb13fb836fb
+  - id: intensify.parser.lsp.client.Client.definition
+    kind: function
+    parent_id: intensify.parser.lsp.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: uri, type: str}
+        - {name: line, type: int}
+        - {name: character, type: int}
+      outputs:
+        - {type: int}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/client.py, symbol: Client.definition}
+      signature: 'def definition(self, uri: str, line: int, character: int) -> int'
+      complexity: {cyclomatic: 1, loc: 6}
+      fingerprint: sha256:cca178b1b37f8a33c518af7dfb0d40ac1bf44bcae3d6df3b55cc4804746f726f
+  - id: intensify.parser.lsp.client.Client.close
+    kind: function
+    parent_id: intensify.parser.lsp.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/client.py, symbol: Client.close}
+      signature: def close(self) -> None
+      complexity: {cyclomatic: 3, loc: 15}
+      fingerprint: sha256:67e731bf29125ac883926cc24bbd05f6353f1bf20954853b08d41b8e606a75db
+  - id: intensify.parser.lsp.client.Client.request
+    kind: function
+    parent_id: intensify.parser.lsp.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: method, type: str}
+        - {name: params, type: Any}
+      outputs:
+        - {type: int}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/client.py, symbol: Client.request}
+      signature: 'def request(self, method: str, params: Any) -> int'
+      complexity: {cyclomatic: 1, loc: 4}
+      fingerprint: sha256:32f1c708fe35faf38ab29d8cfbe597729943a1b2995a5b7fde930d8615cb020d
+  - id: intensify.parser.lsp.client.Client.notify
+    kind: function
+    parent_id: intensify.parser.lsp.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: method, type: str}
+        - {name: params, type: Any}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/client.py, symbol: Client.notify}
+      signature: 'def notify(self, method: str, params: Any) -> None'
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:bf2af3cdbe1a190b2359a8edb414e813f406ff86cf6edfa77f85999e96823e14
+  - id: intensify.parser.lsp.client.Client.wait
+    kind: function
+    parent_id: intensify.parser.lsp.client.Client
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: request, type: int}
+        - {name: deadline, type: float}
+      outputs:
+        - {type: Any}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/client.py, symbol: Client.wait}
+      signature: 'def wait(self, request: int, deadline: float) -> Any'
+      complexity: {cyclomatic: 4, loc: 9}
+      fingerprint: sha256:8a8bbe2a23b633f3ad7ba1971e1302ba7a7754e073cc75ad2111ebd93742889e
+  - id: intensify.parser.lsp.servers
+    kind: module
+    parent_id: intensify.parser.lsp
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "Language server registry: which server handles which language, the command to start it, and each file's LSP language ID."
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/servers.py}
+      complexity: {loc: 54}
+      fingerprint: sha256:1647563044d30f3ff5c12c1957f600568033ad9e799a70ce9c2349df6125f6c9
+  - id: intensify.parser.lsp.servers.server_language
+    kind: function
+    parent_id: intensify.parser.lsp.servers
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: language, type: str}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/servers.py, symbol: server_language}
+      signature: 'def server_language(language: str) -> str'
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:6243d78c8676b1dacaa2cdffbf182ecca8f4b54f489ff95038e01e2b4c9817e8
+  - id: intensify.parser.lsp.servers.language_id
+    kind: function
+    parent_id: intensify.parser.lsp.servers
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: path, type: str}
+      outputs:
+        - {type: str}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/servers.py, symbol: language_id}
+      signature: 'def language_id(path: str) -> str'
+      complexity: {cyclomatic: 1, loc: 2}
+      fingerprint: sha256:fec02496661135cbc7b3600472e969b9005667d426c2cb647dd7e0b2c9f64abe
+  - id: intensify.parser.lsp.servers.find
+    kind: function
+    parent_id: intensify.parser.lsp.servers
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: language, type: str}
+        - {name: overrides, type: 'Mapping[str, Sequence[str]]'}
+      outputs:
+        - {type: 'list[str] | None'}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/lsp/servers.py, symbol: find}
+      signature: 'def find(language: str, overrides: Mapping[str, Sequence[str]]) -> list[str] | None'
+      complexity: {cyclomatic: 4, loc: 8}
+      fingerprint: sha256:81a87c7f77817cd5e5394b61a86a58bbe147130e719c24cdff2229e6cfe76fb4
   - id: intensify.pipeline
     kind: module
     parent_id: intensify-module
@@ -5218,6 +5604,32 @@ nodes:
       location: {path: tests/unit/parser/test_data.py}
       complexity: {loc: 138}
       fingerprint: sha256:d024845e6f0951ed6df0e7f90303b574020efd98c2c34a06fa61e53b834e7ce2
+  - id: tests.unit.parser.fake_lsp
+    kind: module
+    parent_id: tests.unit.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Fake language server for tests: answers definition requests from a JSON table, with optional delay and request log.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/parser/fake_lsp.py}
+      complexity: {loc: 89}
+      fingerprint: sha256:1104b27837a84842fe7efbfdef1100389ed1dc9f8d2e6c177f287ba76930ea75
+  - id: tests.unit.parser.test_lsp
+    kind: module
+    parent_id: tests.unit.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for parser: lsp, against a fake language server.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/parser/test_lsp.py}
+      complexity: {loc: 204}
+      fingerprint: sha256:9ec44ea584c87b9af5ac6924bcf483be8b2cba6da53778f4c0f5411bc9c26c14
   - id: tests.unit.spec
     kind: module
     parent_id: tests.unit
@@ -5661,3 +6073,32 @@ edges:
   - {from: tests.unit.parser.test_data, to: intensify.parser.data.classify, type: VERIFIES, provenance: analyzed}
   - {from: tests.unit.parser.test_data, to: intensify.parser.data.sql_tables, type: VERIFIES, provenance: analyzed}
   - {from: tests.unit.parser.test_python, to: intensify.parser.python.is_test_path, type: VERIFIES, provenance: analyzed}
+  - {from: intensify.parser.analyze_repo, to: intensify.parser.base.Dependency, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.analyze_repo, to: intensify.parser.lsp.resolve, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.base.AnalysisResult.site, to: intensify.parser.base.CallSite, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.data.detect, to: intensify.parser.base.innermost, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.go, to: intensify.parser.treesitter.name_point, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.java.JavaAnalyzer, to: intensify.parser.treesitter.name_point, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.java.JavaAnalyzer.analyze, to: intensify.parser.java.overloaded_methods, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.kotlin, to: intensify.parser.treesitter.name_point, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.kotlin.KotlinAnalyzer.analyze, to: intensify.parser.java.overloaded_methods, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.lsp, to: intensify.parser.base.innermost, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.lsp.client.Client, to: intensify.parser.lsp.client.LspError, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.lsp.client.Client.__init__, to: intensify.parser.lsp.client.LspError, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.lsp.client.Client.close, to: intensify.parser.lsp.client.Client.notify, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.lsp.client.Client.close, to: intensify.parser.lsp.client.Client.request, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.lsp.client.Client.close, to: intensify.parser.lsp.client.Client.wait, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.lsp.client.Client.definition, to: intensify.parser.lsp.client.Client.request, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.lsp.client.Client.initialize, to: intensify.parser.lsp.client.Client.notify, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.lsp.client.Client.initialize, to: intensify.parser.lsp.client.Client.request, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.lsp.client.Client.initialize, to: intensify.parser.lsp.client.Client.wait, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.lsp.client.Client.initialize, to: intensify.parser.lsp.client.LspError, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.lsp.client.Client.open, to: intensify.parser.lsp.client.Client.notify, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.lsp.resolve, to: intensify.parser.base.Dependency, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.lsp.resolve, to: intensify.parser.lsp.servers.find, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.lsp.resolve, to: intensify.parser.lsp.servers.server_language, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.python.PythonAnalyzer, to: intensify.parser.treesitter.name_point, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.typescript.TypeScriptAnalyzer, to: intensify.parser.treesitter.name_point, type: CALLS, provenance: analyzed}
+  - {from: tests.unit.parser.test_lsp, to: intensify.parser.analyze_repo, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.parser.test_lsp, to: intensify.parser.lsp, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.parser.test_lsp, to: intensify.parser.lsp.LspOptions, type: VERIFIES, provenance: analyzed}

@@ -11,7 +11,7 @@ from tree_sitter import Language, Node, Parser
 
 from intensify.parser import ids
 from intensify.parser.base import AnalysisResult, AnalyzeOptions, Dependency, Symbol
-from intensify.parser.treesitter import fingerprint, header, line_count, text, walk
+from intensify.parser.treesitter import fingerprint, header, line_count, name_point, text, walk
 from intensify.spec.models import EdgeType, NodeKind
 
 LANGUAGE = Language(tree_sitter_python.language())
@@ -68,7 +68,10 @@ class _Module:
     imports: dict[str, str] = field(default_factory=dict)
     """Bound name -> fully qualified import name."""
     star_imports: list[str] = field(default_factory=list)
-    calls: list[tuple[str, list[str], str | None]] = field(default_factory=list)
+    calls: list[tuple[str, list[str], str | None, tuple[int, int]]] = field(default_factory=list)
+    """Scope, callee chain, class context and the position of the called name."""
+    sites: list[tuple[str, tuple[int, int]]] = field(default_factory=list)
+    """Scope and position of calls with no static chain to resolve (``a.b().c()``)."""
     """(scope symbol ID, dotted callee chain, enclosing class ID)."""
     bases: list[tuple[str, list[str]]] = field(default_factory=list)
     """(class ID, base class chain)."""
@@ -125,9 +128,16 @@ class PythonAnalyzer:
                     resolver.bases[class_id].append(target)
                     result.dependencies.append(Dependency(class_id, target, EdgeType.IMPLEMENTS))
         for module in modules:
-            for scope, chain, class_ctx in module.calls:
+            for scope, point in module.sites:
+                source = module.id if module.is_test else scope
+                result.site(source, module.is_test, module.path, point)
+            for scope, chain, class_ctx, point in module.calls:
                 target = resolver.resolve(module, chain, class_ctx)
-                if target is None or target in test_ids:
+                if target is None:
+                    source = module.id if module.is_test else scope
+                    result.site(source, module.is_test, module.path, point)
+                    continue
+                if target in test_ids:
                     continue
                 if module.is_test:
                     result.dependencies.append(Dependency(module.id, target, EdgeType.VERIFIES))
@@ -287,8 +297,12 @@ class PythonAnalyzer:
             return
         nodes = [node, *walk(node, prune=_is_definition if prune_definitions else None)]
         for n in nodes:
-            if n.type == "call" and (chain := _chain(n.child_by_field_name("function"))):
-                module.calls.append((scope, chain, class_ctx))
+            if n.type != "call" or (callee := n.child_by_field_name("function")) is None:
+                continue
+            if chain := _chain(callee):
+                module.calls.append((scope, chain, class_ctx, name_point(callee)))
+            else:
+                module.sites.append((scope, name_point(callee)))
 
 
 class _Resolver:

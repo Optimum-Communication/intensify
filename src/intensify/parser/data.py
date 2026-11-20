@@ -26,7 +26,7 @@ from pathlib import Path, PurePosixPath
 
 from tree_sitter import Language, Node, Parser
 
-from intensify.parser.base import AnalysisResult, Dependency, Symbol
+from intensify.parser.base import AnalysisResult, Dependency, Symbol, innermost
 from intensify.parser.treesitter import text, walk
 from intensify.spec.models import Confidence, EdgeType, NodeKind
 
@@ -485,7 +485,7 @@ def detect(root: Path, result: AnalysisResult) -> None:
     tables = _table_index(models)
     seen: set[Dependency] = set()
     for access in accesses:
-        source_sym = _innermost(symbols_by_path[access.path], access.line)
+        source_sym = innermost(symbols_by_path[access.path], access.line)
         if source_sym is None or source_sym.is_test:
             continue
         if access.model is not None:
@@ -540,17 +540,6 @@ def _nearest(candidates: list[Model], path: str) -> str | None:
     if len(scores) > 1 and scores[0][0] == scores[1][0]:
         return None  # equally close: ambiguous
     return scores[0][1]
-
-
-def _innermost(symbols: list[Symbol], line: int) -> Symbol | None:
-    best: Symbol | None = None
-    for sym in symbols:
-        end = sym.line + sym.complexity.get("loc", 1) - 1
-        if sym.line <= line <= end and (
-            best is None or end - sym.line < best.complexity.get("loc", 1) - 1
-        ):
-            best = sym
-    return best
 
 
 def _scan(f: _File, model_names: set[str], typed: dict[str, str]) -> Iterator[_Access]:
