@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import difflib
 from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -165,14 +166,11 @@ class _Merger:
                     )
                 )
 
-        # 1. Exact location.
-        by_location = {
-            loc: e.node.id for e in unmatched_nodes.values() if (loc := _location(e)) is not None
-        }
+        # 1. Exact location. Overloads share one, so those pair up by fingerprint, then by
+        #    signature, then in declaration order.
         analyzed_locations = {(s.path, s.symbol) for s in self.analysis.symbols}
-        for sym in self.analysis.symbols:
-            node_id = by_location.get((sym.path, sym.symbol))
-            if node_id is not None and node_id not in claimed:
+        for sym, node_id in _location_matches(self.analysis.symbols, unmatched_nodes.values()):
+            if node_id not in claimed:
                 take(sym, node_id)
 
         def stale(entry: NodeEntry) -> bool:
@@ -472,6 +470,47 @@ def _location(entry: NodeEntry) -> tuple[str, str | None] | None:
     if tech is None or tech.location is None:
         return None
     return (tech.location.path, tech.location.symbol)
+
+
+def _location_matches(
+    symbols: Iterable[Symbol], entries: Iterable[NodeEntry]
+) -> list[tuple[Symbol, str]]:
+    """Symbols and nodes at the same location, paired."""
+    nodes_at: dict[tuple[str, str | None], list[NodeEntry]] = defaultdict(list)
+    for node_entry in entries:
+        if (loc := _location(node_entry)) is not None:
+            nodes_at[loc].append(node_entry)
+    syms_at: dict[tuple[str, str | None], list[Symbol]] = defaultdict(list)
+    for sym in symbols:
+        syms_at[(sym.path, sym.symbol)].append(sym)
+    return [pair for loc, syms in syms_at.items() for pair in _pair_overloads(syms, nodes_at[loc])]
+
+
+def _pair_overloads(syms: list[Symbol], entries: list[NodeEntry]) -> list[tuple[Symbol, str]]:
+    """Pair symbols with nodes at the same location: unchanged code first, then by signature,
+    then the rest in order (a single symbol and node always pair)."""
+    pairs: list[tuple[Symbol, str]] = []
+    open_syms, open_entries = list(syms), list(entries)
+    if len(open_syms) > 1 or len(open_entries) > 1:
+        for attribute in ("fingerprint", "signature"):
+            for sym in list(open_syms):
+                value = getattr(sym, attribute)
+                entry = next(
+                    (
+                        e
+                        for e in open_entries
+                        if value
+                        and e.node.technical
+                        and getattr(e.node.technical, attribute) == value
+                    ),
+                    None,
+                )
+                if entry is not None:
+                    pairs.append((sym, entry.node.id))
+                    open_syms.remove(sym)
+                    open_entries.remove(entry)
+    pairs.extend((sym, entry.node.id) for sym, entry in zip(open_syms, open_entries, strict=False))
+    return pairs
 
 
 def _format_location(location: tuple[str, str | None]) -> str:

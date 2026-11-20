@@ -1543,8 +1543,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/merge/__init__.py}
-      complexity: {loc: 535}
-      fingerprint: sha256:754d474cb52688e0ef0ebcf2c2a1213c68628de308d94d3544626065663bbcd7
+      complexity: {loc: 574}
+      fingerprint: sha256:19f594338a7edd96d0f4ebedb1abc5d62044ebed758be1541fb403034004eeba
     governance:
       invariants:
         - {id: human-fields, text: 'Never changes id, intent, governance or hand-written edges, and never deletes nodes.'}
@@ -1655,8 +1655,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/parser/__init__.py}
-      complexity: {loc: 112}
-      fingerprint: sha256:c5df677633debd367a5bc760ac2d8f396ffdb5143c9d9c12c3893b3448816c2c
+      complexity: {loc: 113}
+      fingerprint: sha256:edfc462420b05546378755759fd9163e3649ccc7153d7000baf037d11a1cac0c
     governance:
       invariants:
         - id: no-merge
@@ -1678,7 +1678,7 @@ nodes:
       location: {path: src/intensify/parser/__init__.py, symbol: analyzers}
       signature: def analyzers() -> list[Analyzer]
       complexity: {cyclomatic: 1, loc: 2}
-      fingerprint: sha256:143011d47b801a426c14e5a60318be6930de195b10e9f0623cc9785a107b62c9
+      fingerprint: sha256:7babfc56efa3cf519ec766453f71a4d0e3d5ab436cb3719f87612566b529a287
   - id: intensify.parser.analyze_repo
     kind: function
     parent_id: intensify.parser
@@ -2489,6 +2489,66 @@ nodes:
       signature: 'def analyze(self, root: Path, paths: list[str], options: AnalyzeOptions, allocator: ids.Allocator) -> AnalysisResult'
       complexity: {cyclomatic: 20, loc: 49}
       fingerprint: sha256:310f2a5677c1e8c9051744b88365295c802d6c9fe2d585b1eef9f411723d39f4
+  - id: intensify.parser.kotlin
+    kind: module
+    parent_id: intensify.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Kotlin analyzer: one module per file named by package, classes, objects, companion members, functions, extension functions, overloads, and calls resolved through declared and inferred types, properties and collections.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/parser/kotlin.py}
+      complexity: {loc: 1031}
+      fingerprint: sha256:26ce448bbf59a440ddee3af6854e9ca41c7eb2dda6fdf708a9f7d59202dad190
+  - id: intensify.parser.kotlin.KotlinAnalyzer
+    kind: class
+    parent_id: intensify.parser.kotlin
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/kotlin.py, symbol: KotlinAnalyzer}
+      signature: class KotlinAnalyzer
+      complexity: {loc: 286}
+      fingerprint: sha256:7a525da2304239168ddf93e1a3106bbd306617588a026e08d95c7a73f01d5f98
+  - id: intensify.parser.kotlin.KotlinAnalyzer.__init__
+    kind: function
+    parent_id: intensify.parser.kotlin.KotlinAnalyzer
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/kotlin.py, symbol: KotlinAnalyzer.__init__}
+      signature: def __init__(self) -> None
+      complexity: {cyclomatic: 1, loc: 6}
+      fingerprint: sha256:7ae70575a42d1271eea72d03a67d4c516c579cf5f7b23f218cec955b342c853a
+  - id: intensify.parser.kotlin.KotlinAnalyzer.analyze
+    kind: function
+    parent_id: intensify.parser.kotlin.KotlinAnalyzer
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: root, type: Path}
+        - {name: paths, type: 'list[str]'}
+        - {name: options, type: AnalyzeOptions}
+        - {name: allocator, type: ids.Allocator}
+      outputs:
+        - {type: AnalysisResult}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/kotlin.py, symbol: KotlinAnalyzer.analyze}
+      signature: 'def analyze(self, root: Path, paths: list[str], options: AnalyzeOptions, allocator: ids.Allocator) -> AnalysisResult'
+      complexity: {cyclomatic: 19, loc: 49}
+      fingerprint: sha256:4ec46689bcb5ba0198b86aa4b018cd8685135f962be4b24c18942b18a93dd5b0
   - id: intensify.pipeline
     kind: module
     parent_id: intensify-module
@@ -4960,8 +5020,8 @@ nodes:
     technical:
       language: python
       location: {path: tests/unit/merge/test_merge.py}
-      complexity: {loc: 277}
-      fingerprint: sha256:92c29208bb735d150605b057def2c7ac8a7672bc55f5ccdea8dffba2e99fcdeb
+      complexity: {loc: 301}
+      fingerprint: sha256:035102df7165351a9d85693ea2260696a869d052a4acd90489acb19e786a6ffd
   - id: tests.unit.parser
     kind: module
     parent_id: tests.unit
@@ -5040,6 +5100,19 @@ nodes:
       location: {path: tests/unit/parser/test_go.py}
       complexity: {loc: 189}
       fingerprint: sha256:34e04e57d637d06a8bb5f5fa2ca95ba07bac7212ea9a0d9ad050dde000ea18a4
+  - id: tests.unit.parser.test_kotlin
+    kind: module
+    parent_id: tests.unit.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for parser: kotlin.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/parser/test_kotlin.py}
+      complexity: {loc: 168}
+      fingerprint: sha256:97668304710e6de4704f3649b3e70e8bd1b5bf1ab0930e0da4a969a4b9a01725
   - id: tests.unit.spec
     kind: module
     parent_id: tests.unit
@@ -5104,7 +5177,7 @@ nodes:
       language: python
       location: {path: tests/unit/test_golden.py}
       complexity: {loc: 36}
-      fingerprint: sha256:dd2b4e0c267ef99c7fa5b732ef69cda68f09d2d962f42e1fdc98e7882690156c
+      fingerprint: sha256:579ff0698942036181df4bb4dd2b8aac1fbd44cf43135d44d36ea2b2767e5d53
   - id: tests.unit.cloud
     kind: module
     parent_id: tests.unit
@@ -5456,3 +5529,21 @@ edges:
   - {from: intensify.parser.go.GoAnalyzer.analyze, to: intensify.parser.ids.path_id, type: CALLS, provenance: analyzed}
   - {from: tests.unit.parser.test_go, to: intensify.parser.analyze_repo, type: VERIFIES, provenance: analyzed}
   - {from: tests.unit.parser.test_go, to: intensify.parser.symbol_span, type: VERIFIES, provenance: analyzed}
+  - {from: intensify.parser.analyzers, to: intensify.parser.kotlin.KotlinAnalyzer, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.kotlin, to: intensify.parser.treesitter.squash, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.kotlin, to: intensify.parser.treesitter.text, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.kotlin, to: intensify.parser.treesitter.walk, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.kotlin.KotlinAnalyzer, to: intensify.parser.base.Symbol, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.kotlin.KotlinAnalyzer, to: intensify.parser.ids.join, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.kotlin.KotlinAnalyzer, to: intensify.parser.treesitter.fingerprint, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.kotlin.KotlinAnalyzer, to: intensify.parser.treesitter.line_count, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.kotlin.KotlinAnalyzer, to: intensify.parser.treesitter.text, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.kotlin.KotlinAnalyzer, to: intensify.parser.treesitter.walk, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.kotlin.KotlinAnalyzer.__init__, to: intensify.parser.ids.Allocator, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.kotlin.KotlinAnalyzer.analyze, to: intensify.parser.base.AnalysisResult, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.kotlin.KotlinAnalyzer.analyze, to: intensify.parser.base.Dependency, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.kotlin.KotlinAnalyzer.analyze, to: intensify.parser.ids.join, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.kotlin.KotlinAnalyzer.analyze, to: intensify.parser.ids.path_id, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.kotlin.KotlinAnalyzer.analyze, to: intensify.parser.java.is_test_path, type: CALLS, provenance: analyzed}
+  - {from: tests.unit.parser.test_kotlin, to: intensify.parser.analyze_repo, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.parser.test_kotlin, to: intensify.parser.symbol_span, type: VERIFIES, provenance: analyzed}
