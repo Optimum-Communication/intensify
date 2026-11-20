@@ -1,0 +1,546 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Optimum-Communication/intensify/main/spec/v1.0/schema.json
+#
+# Intensify spec: the intent graph of this repository.
+# Reference: https://github.com/Optimum-Communication/intensify/blob/main/spec/v1.0/spec.md
+intensify: "1.0"
+
+project:
+  id: kotlin-shop
+  name: "kotlin_shop"
+
+config:
+  analyze:
+    depth: function  # finest node kind `intensify analyze` creates: module | class | function
+    public_only: true  # skip private symbols
+  drift:
+    fail_on: [undocumented_edge, contract_mismatch, invariant_violation, missing_node]
+
+nodes:
+  - id: kotlin-shop
+    kind: repo
+    lifecycle_state: active
+    intent:
+      summary: "TODO: describe intent"
+  - id: com.shop.Cart
+    kind: module
+    parent_id: kotlin-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/Cart.kt}
+      complexity: {loc: 47}
+      fingerprint: sha256:d5b686daee8be05d24308ba3c68933ec2cb98b9eec524b2a8a10cf0d826f2fd7
+  - id: com.shop.Cart.Line
+    kind: class
+    parent_id: com.shop.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/Cart.kt, symbol: Line}
+      signature: 'data class Line(val sku: String, val cents: Int, val qty: Int = 1)'
+      complexity: {loc: 3}
+      fingerprint: sha256:cf4bfdceb43727a61c4b2ea7b29cc7de4cd22c01ee58d0cacf983963e0b7de1b
+  - id: com.shop.Cart.Line.amount
+    kind: function
+    parent_id: com.shop.Cart.Line
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: Int}
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/Cart.kt, symbol: Line.amount}
+      signature: 'fun amount(): Int'
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:071506425465457a11462dbf2e1429b42b96c714fb2e9664c76a3ee86d6aa9f5
+  - id: com.shop.Cart.Cart
+    kind: class
+    parent_id: com.shop.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/Cart.kt, symbol: Cart}
+      signature: 'class Cart(private val gateway: Gateway, val rules: List<PriceRule> = emptyList())'
+      complexity: {loc: 35}
+      fingerprint: sha256:028c5db8ca2c43e1a037d987d569a0b4f26ed54420defeec969a88741016fa46
+  - id: com.shop.Cart.Cart.add
+    kind: function
+    parent_id: com.shop.Cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: sku, type: String}
+        - {name: cents, type: Int}
+        - {name: qty, type: Int, required: false}
+      errors:
+        - {type: CartError}
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/Cart.kt, symbol: Cart.add}
+      signature: 'fun add(sku: String, cents: Int, qty: Int = 1)'
+      complexity: {cyclomatic: 3, loc: 8}
+      fingerprint: sha256:8477bf7faa2489efc3834c347498b80139f4dcf83dc5886dc0f9ae65ccb7f6ee
+  - id: com.shop.Cart.Cart.add-2
+    kind: function
+    parent_id: com.shop.Cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: line, type: Line}
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/Cart.kt, symbol: Cart.add}
+      signature: 'fun add(line: Line)'
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:0f897a0721a6d5089fc2a4ac76cd6fb5dcff8f1f8781f538cb90a18be5873c89
+  - id: com.shop.Cart.Cart.total
+    kind: function
+    parent_id: com.shop.Cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: codes, type: vararg String, required: false}
+      outputs:
+        - {type: Int}
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/Cart.kt, symbol: Cart.total}
+      signature: 'fun total(vararg codes: String): Int'
+      complexity: {cyclomatic: 2, loc: 7}
+      fingerprint: sha256:525326f7cd13f56e1e0991324adca186d8e0404166c1af5296170a3aaec672f1
+  - id: com.shop.Cart.Cart.checkout
+    kind: function
+    parent_id: com.shop.Cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: token, type: String}
+      outputs:
+        - {type: String?}
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/Cart.kt, symbol: Cart.checkout}
+      signature: 'fun checkout(token: String): String?'
+      complexity: {cyclomatic: 1, loc: 4}
+      fingerprint: sha256:8fcb1868ef7f073f5866a5519da49284380386fcd8599bdb5ea826c3d8cf6916
+  - id: com.shop.Cart.Cart.empty
+    kind: function
+    parent_id: com.shop.Cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: Cart}
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/Cart.kt, symbol: Cart.empty}
+      signature: 'fun empty(): Cart'
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:2ea716de00c0f17340ce744a0f288921392fba739149e9c9d198472992a2c0d0
+  - id: com.shop.CartError
+    kind: module
+    parent_id: kotlin-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/CartError.kt}
+      complexity: {loc: 4}
+      fingerprint: sha256:62d2110fc4517e0247e1aadbbec533a5722183e4b85de779400438b838622592
+  - id: com.shop.CartError.CartError
+    kind: class
+    parent_id: com.shop.CartError
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/CartError.kt, symbol: CartError}
+      signature: 'class CartError(message: String) : IllegalArgumentException(message)'
+      complexity: {loc: 1}
+      fingerprint: sha256:7561d7237680f106c7cab58166b203babc4eddd28de861b92529ccf0f2919e61
+  - id: com.shop.PriceRule
+    kind: module
+    parent_id: kotlin-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/PriceRule.kt}
+      complexity: {loc: 12}
+      fingerprint: sha256:821bf6fe288693866180b623829a45e403de67509a2352608a472f4393587154
+  - id: com.shop.PriceRule.PriceRule
+    kind: class
+    parent_id: com.shop.PriceRule
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/PriceRule.kt, symbol: PriceRule}
+      signature: fun interface PriceRule
+      complexity: {loc: 3}
+      fingerprint: sha256:4c9ec863d165de096fb220f39bc2a21b780cb858f5da074d31945ba1b493fcc5
+  - id: com.shop.PriceRule.PriceRule.apply
+    kind: function
+    parent_id: com.shop.PriceRule.PriceRule
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: Int}
+      outputs:
+        - {type: Int}
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/PriceRule.kt, symbol: PriceRule.apply}
+      signature: 'fun apply(cents: Int): Int'
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:44985209e393d96a631ead59f9af8d55335732e7b53b7d9fd927aee4d232a3a9
+  - id: com.shop.PriceRule.Discount
+    kind: class
+    parent_id: com.shop.PriceRule
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/PriceRule.kt, symbol: Discount}
+      signature: 'sealed class Discount : PriceRule'
+      complexity: {loc: 5}
+      fingerprint: sha256:1123cb3f778153abb2bdd79f0cbd26d4c68ddc6678e173a98a0e0b7780266675
+  - id: com.shop.PriceRule.Discount.None
+    kind: class
+    parent_id: com.shop.PriceRule.Discount
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/PriceRule.kt, symbol: Discount.None}
+      signature: 'object None : Discount()'
+      complexity: {loc: 3}
+      fingerprint: sha256:4108214c4ff68a165ef023e1479009d6bc757291f7cbd06a51aff5d62ce3a2f2
+  - id: com.shop.PriceRule.Discount.None.apply
+    kind: function
+    parent_id: com.shop.PriceRule.Discount.None
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: Int}
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/PriceRule.kt, symbol: Discount.None.apply}
+      signature: 'override fun apply(cents: Int)'
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:7f561966bee93481088e5678eb1f25f300b06a6fc4ce19a438fd8ba0fa0a06d6
+  - id: com.shop.Pricing
+    kind: module
+    parent_id: kotlin-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/Pricing.kt}
+      complexity: {loc: 30}
+      fingerprint: sha256:1b3f9a7d76c64ce18b869ed8eb1dda3a8722d5674c61aa711c15bb33f6276347
+  - id: com.shop.Pricing.Pricing
+    kind: class
+    parent_id: com.shop.Pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/Pricing.kt, symbol: Pricing}
+      signature: object Pricing
+      complexity: {loc: 13}
+      fingerprint: sha256:154da972455f50cbf111c9a5eec48badb839f41656e34002c46c6f30e350dfda
+  - id: com.shop.Pricing.Pricing.subtotal
+    kind: function
+    parent_id: com.shop.Pricing.Pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: lines, type: List<Line>}
+      outputs:
+        - {type: Int}
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/Pricing.kt, symbol: Pricing.subtotal}
+      signature: 'fun subtotal(lines: List<Line>): Int'
+      complexity: {cyclomatic: 2, loc: 5}
+      fingerprint: sha256:6e39d4e722cf063b9cde884df7f7fb4e696273bb1182d9c929c161ad3c47583d
+  - id: com.shop.Pricing.Pricing.roundCents
+    kind: function
+    parent_id: com.shop.Pricing.Pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: Int}
+      outputs:
+        - {type: Int}
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/Pricing.kt, symbol: Pricing.roundCents}
+      signature: 'fun roundCents(cents: Int): Int'
+      complexity: {cyclomatic: 3, loc: 5}
+      fingerprint: sha256:07c33d377afd873106129163d0eba2405699de4ac7619b4d9cc1f935e31a2a6e
+  - id: com.shop.Pricing.halfTotal
+    kind: function
+    parent_id: com.shop.Pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: Int}
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/Pricing.kt, symbol: halfTotal}
+      signature: 'fun Cart.halfTotal(): Int'
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:364c419d3d710ea61999c3e41e88170decdf139af869b84b4919af64bf0ffdf7
+  - id: com.shop.Pricing.Tier
+    kind: class
+    parent_id: com.shop.Pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/Pricing.kt, symbol: Tier}
+      signature: enum class Tier
+      complexity: {loc: 1}
+      fingerprint: sha256:368cf0ea5c3f4c45ba6e80f8a22ff1c4c9060af65a978d25f7f9157dccbad82c
+  - id: com.shop.payments.Gateway
+    kind: module
+    parent_id: kotlin-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/payments/Gateway.kt}
+      complexity: {loc: 24}
+      fingerprint: sha256:d1bbff4d470af3dbf5edb0324de08bac197344981cbdb4add2f8c3b1517df7c1
+  - id: com.shop.payments.Gateway.Receipt
+    kind: class
+    parent_id: com.shop.payments.Gateway
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/payments/Gateway.kt, symbol: Receipt}
+      signature: 'data class Receipt(val id: String)'
+      complexity: {loc: 1}
+      fingerprint: sha256:96e942af75270388a6fa49556869217aa3f7d9956ee81326be9b4e19e9ba698e
+  - id: com.shop.payments.Gateway.Gateway
+    kind: class
+    parent_id: com.shop.payments.Gateway
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/payments/Gateway.kt, symbol: Gateway}
+      signature: 'open class Gateway(private val retries: Int = 0)'
+      complexity: {loc: 17}
+      fingerprint: sha256:8c364601ad416485af25adf3100c87c08dadbd7a8c76da709e8175f263b4c179
+  - id: com.shop.payments.Gateway.Gateway.charge
+    kind: function
+    parent_id: com.shop.payments.Gateway.Gateway
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: Int}
+        - {name: token, type: String}
+      outputs:
+        - {type: Receipt?}
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/payments/Gateway.kt, symbol: Gateway.charge}
+      signature: 'fun charge(cents: Int, token: String): Receipt?'
+      complexity: {cyclomatic: 2, loc: 8}
+      fingerprint: sha256:d65202ee0b9a9f7c92102127791ae41065e9dab58625f449577f8130df5c65ad
+  - id: com.shop.payments.Gateway.Gateway.send
+    kind: function
+    parent_id: com.shop.payments.Gateway.Gateway
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: Int}
+        - {name: token, type: String}
+      outputs:
+        - {type: Receipt?}
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/payments/Gateway.kt, symbol: Gateway.send}
+      signature: 'protected open fun send(cents: Int, token: String): Receipt?'
+      complexity: {cyclomatic: 3, loc: 2}
+      fingerprint: sha256:fbb5ceb128cfb4f1c8e008be522e2c53f7b18ca6678ce5984428da69f69be3a0
+  - id: com.shop.payments.Gateway.Gateway.sandbox
+    kind: function
+    parent_id: com.shop.payments.Gateway.Gateway
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/payments/Gateway.kt, symbol: Gateway.sandbox}
+      signature: fun sandbox()
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:af58d0a0f474d1ccb133cd1cff424b0e785c5e53c46c2cd77df4cc98ea21f8a7
+  - id: com.shop.util.Log
+    kind: module
+    parent_id: kotlin-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/util/Log.kt}
+      complexity: {loc: 7}
+      fingerprint: sha256:25ff2ff6d73d54542c3c986b123ab65fdc5ad748c2324b6884a279bf7ed9938c
+  - id: com.shop.util.Log.Log
+    kind: class
+    parent_id: com.shop.util.Log
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/util/Log.kt, symbol: Log}
+      signature: object Log
+      complexity: {loc: 4}
+      fingerprint: sha256:f7bfe4be00d9cbc9cdf487c88d65dc28fbb631eaef5dd4377a301df2f2865feb
+  - id: com.shop.util.Log.Log.info
+    kind: function
+    parent_id: com.shop.util.Log.Log
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: msg, type: String}
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/util/Log.kt, symbol: Log.info}
+      signature: 'fun info(msg: String)'
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:aa476c7cab1ddb3cd93dae677acae925a00bd01341d0428563a05035718a9a70
+  - id: com.shop.util.Log.Log.warn
+    kind: function
+    parent_id: com.shop.util.Log.Log
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: msg, type: String}
+    technical:
+      language: kotlin
+      location: {path: src/main/kotlin/com/shop/util/Log.kt, symbol: Log.warn}
+      signature: 'fun warn(msg: String)'
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:19a7f531eff6cfba7a64a1b159bddd1b9baa22ae22f9ec54e8c0091fa72a36a5
+  - id: com.shop.CartTest
+    kind: module
+    parent_id: kotlin-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: kotlin
+      location: {path: src/test/kotlin/com/shop/CartTest.kt}
+      complexity: {loc: 15}
+      fingerprint: sha256:afd929c71d21b8048c4db25245936012c9f2ac1ec2fd94d3cadfaa323f8f81d6
+edges:
+  - {from: com.shop.Cart.Cart.add, to: com.shop.Cart.Line, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Cart.Cart.add, to: com.shop.CartError.CartError, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Cart.Cart.add, to: com.shop.util.Log.Log.info, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Cart.Cart.add-2, to: com.shop.Cart.Cart.add, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Cart.Cart.checkout, to: com.shop.Cart.Cart.total, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Cart.Cart.checkout, to: com.shop.payments.Gateway.Gateway.charge, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Cart.Cart.empty, to: com.shop.payments.Gateway.Gateway.sandbox, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Cart.Cart.total, to: com.shop.PriceRule.PriceRule.apply, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Cart.Cart.total, to: com.shop.Pricing.Pricing.subtotal, type: CALLS, provenance: analyzed}
+  - {from: com.shop.CartTest, to: com.shop.Cart.Cart, type: VERIFIES, provenance: analyzed}
+  - {from: com.shop.CartTest, to: com.shop.Cart.Cart.add, type: VERIFIES, provenance: analyzed}
+  - {from: com.shop.CartTest, to: com.shop.Pricing.halfTotal, type: VERIFIES, provenance: analyzed}
+  - {from: com.shop.CartTest, to: com.shop.payments.Gateway.Gateway, type: VERIFIES, provenance: analyzed}
+  - {from: com.shop.PriceRule.Discount, to: com.shop.PriceRule.PriceRule, type: IMPLEMENTS, provenance: analyzed}
+  - {from: com.shop.Pricing, to: com.shop.PriceRule.PriceRule, type: IMPLEMENTS, provenance: analyzed}
+  - {from: com.shop.Pricing, to: com.shop.util.Log.Log.warn, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Pricing.Pricing.subtotal, to: com.shop.Cart.Line.amount, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Pricing.Pricing.subtotal, to: com.shop.Pricing.Pricing.roundCents, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Pricing.halfTotal, to: com.shop.Cart.Cart.total, type: CALLS, provenance: analyzed}
+  - {from: com.shop.payments.Gateway.Gateway.charge, to: com.shop.payments.Gateway.Gateway.send, type: CALLS, provenance: analyzed}
+  - {from: com.shop.payments.Gateway.Gateway.charge, to: com.shop.util.Log.Log.info, type: CALLS, provenance: analyzed}
+  - {from: com.shop.payments.Gateway.Gateway.send, to: com.shop.payments.Gateway.Receipt, type: CALLS, provenance: analyzed}

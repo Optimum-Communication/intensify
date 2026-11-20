@@ -9,6 +9,7 @@ from intensify.parser.discovery import discover
 from intensify.parser.go import GoAnalyzer
 from intensify.parser.ids import Allocator
 from intensify.parser.java import JavaAnalyzer
+from intensify.parser.kotlin import KotlinAnalyzer
 from intensify.parser.python import PythonAnalyzer
 from intensify.parser.typescript import TypeScriptAnalyzer
 from intensify.spec.models import NodeKind
@@ -19,7 +20,7 @@ _KIND_RANK = {kind: rank for rank, kind in enumerate(NodeKind)}
 
 
 def analyzers() -> list[Analyzer]:
-    return [PythonAnalyzer(), TypeScriptAnalyzer(), JavaAnalyzer(), GoAnalyzer()]
+    return [PythonAnalyzer(), TypeScriptAnalyzer(), JavaAnalyzer(), KotlinAnalyzer(), GoAnalyzer()]
 
 
 def analyze_repo(
