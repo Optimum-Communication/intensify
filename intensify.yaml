@@ -1655,8 +1655,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/parser/__init__.py}
-      complexity: {loc: 110}
-      fingerprint: sha256:046f06fd3fc392d4179975b74cd04079c8632376713cda2d923c3811d2cc15d0
+      complexity: {loc: 111}
+      fingerprint: sha256:4005032e7ecd7b423ba2efa07a1272450678a4104b977c643b5dcaa3f0f6a852
     governance:
       invariants:
         - id: no-merge
@@ -1678,7 +1678,7 @@ nodes:
       location: {path: src/intensify/parser/__init__.py, symbol: analyzers}
       signature: def analyzers() -> list[Analyzer]
       complexity: {cyclomatic: 1, loc: 2}
-      fingerprint: sha256:92c451d5cd0c3bd0efef482239fe88fe244e74543ac87ce0d69881c64f6cf63b
+      fingerprint: sha256:a50d652e67143abffdaa6962495e9ec64195a3df071ff05a4e0a26072f429a96
   - id: intensify.parser.analyze_repo
     kind: function
     parent_id: intensify.parser
@@ -1881,8 +1881,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/parser/discovery.py}
-      complexity: {loc: 87}
-      fingerprint: sha256:49b224cc1ae52e7194c2a494fe462898eb7307a6c1e3614b47f52b971ce423da
+      complexity: {loc: 98}
+      fingerprint: sha256:ccb025f85a9f089be7632fa12105e8bf12ed264e18f306147365d44c06e7bca6
   - id: intensify.parser.discovery.discover
     kind: function
     parent_id: intensify.parser.discovery
@@ -2124,8 +2124,8 @@ nodes:
     technical:
       language: python
       location: {path: src/intensify/parser/treesitter.py}
-      complexity: {loc: 69}
-      fingerprint: sha256:7c48484e450fa7706a7ad1b27209078b655fb8229daa2159b3fb6692b7b5a128
+      complexity: {loc: 70}
+      fingerprint: sha256:9c1791e2187d04bea73afdbc8a92928d5097f9f5d96308899f9071e63c247a1b
   - id: intensify.parser.treesitter.text
     kind: function
     parent_id: intensify.parser.treesitter
@@ -2218,7 +2218,7 @@ nodes:
       location: {path: src/intensify/parser/treesitter.py, symbol: fingerprint}
       signature: 'def fingerprint(node: Node, identifier_types: frozenset[str]) -> str'
       complexity: {cyclomatic: 6, loc: 18}
-      fingerprint: sha256:8565852c6a5c81d856d790885f71893826b2418f7cf3b9c7e9fa400801d98b08
+      fingerprint: sha256:5677a6fd9e4ebc37ee6555098cb2d2d6960e13f03cccca8078f7bf9710457f35
   - id: intensify.parser.treesitter.line_count
     kind: function
     parent_id: intensify.parser.treesitter
@@ -2315,6 +2315,84 @@ nodes:
       signature: 'def analyze(self, root: Path, paths: list[str], options: AnalyzeOptions, allocator: ids.Allocator) -> AnalysisResult'
       complexity: {cyclomatic: 17, loc: 42}
       fingerprint: sha256:8e3948302dd35f76e487bacc9ed42bf3471a80f8d3b6f26f6fa89c9fc8f5ef18
+  - id: intensify.parser.java
+    kind: module
+    parent_id: intensify.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Java analyzer: one module per file named by package, classes, interfaces, enums, records, methods, constructors, overloads, and calls resolved through declared variable and field types.'
+      author: ai
+    technical:
+      language: python
+      location: {path: src/intensify/parser/java.py}
+      complexity: {loc: 597}
+      fingerprint: sha256:e5e6c9c8557421d9db57e35700b945ebb284770a0b1e5ea2d2f3c7b1bd6ecbdb
+  - id: intensify.parser.java.is_test_path
+    kind: function
+    parent_id: intensify.parser.java
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: path, type: str}
+      outputs:
+        - {type: bool}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/java.py, symbol: is_test_path}
+      signature: 'def is_test_path(path: str) -> bool'
+      complexity: {cyclomatic: 5, loc: 10}
+      fingerprint: sha256:e3f7b411da6f0a98d5b8a9e13bc5855a1154058b2a2a3706586e7f54024adf3e
+  - id: intensify.parser.java.JavaAnalyzer
+    kind: class
+    parent_id: intensify.parser.java
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/java.py, symbol: JavaAnalyzer}
+      signature: class JavaAnalyzer
+      complexity: {loc: 231}
+      fingerprint: sha256:50abce5a639d5c967a95d3e1fcd6d8d076eec84d95eef6db54fdb1ee959b6020
+  - id: intensify.parser.java.JavaAnalyzer.__init__
+    kind: function
+    parent_id: intensify.parser.java.JavaAnalyzer
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: python
+      location: {path: src/intensify/parser/java.py, symbol: JavaAnalyzer.__init__}
+      signature: def __init__(self) -> None
+      complexity: {cyclomatic: 1, loc: 7}
+      fingerprint: sha256:f0706fe18884bcb747634fd8d5b2d9625bc34f1099568f9a2c45336b6b5ff040
+  - id: intensify.parser.java.JavaAnalyzer.analyze
+    kind: function
+    parent_id: intensify.parser.java.JavaAnalyzer
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: root, type: Path}
+        - {name: paths, type: 'list[str]'}
+        - {name: options, type: AnalyzeOptions}
+        - {name: allocator, type: ids.Allocator}
+      outputs:
+        - {type: AnalysisResult}
+    technical:
+      language: python
+      location: {path: src/intensify/parser/java.py, symbol: JavaAnalyzer.analyze}
+      signature: 'def analyze(self, root: Path, paths: list[str], options: AnalyzeOptions, allocator: ids.Allocator) -> AnalysisResult'
+      complexity: {cyclomatic: 20, loc: 50}
+      fingerprint: sha256:6c05f6631635fb78a431f83b0dee2241b72a75828ea4722387fc9a017d9492bc
   - id: intensify.pipeline
     kind: module
     parent_id: intensify-module
@@ -4840,6 +4918,19 @@ nodes:
       location: {path: tests/unit/parser/test_typescript.py}
       complexity: {loc: 114}
       fingerprint: sha256:5a59cdfdd1910b76f3ada83ddbeaaedf47bbd2000a4de52404de10a7465d02eb
+  - id: tests.unit.parser.test_java
+    kind: module
+    parent_id: tests.unit.parser
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: 'Tests for parser: java.'
+      author: ai
+    technical:
+      language: python
+      location: {path: tests/unit/parser/test_java.py}
+      complexity: {loc: 158}
+      fingerprint: sha256:84d70cea64a186762bbc8e80caa0b11c00518d7827ea0c0d0519ccf47a941298
   - id: tests.unit.spec
     kind: module
     parent_id: tests.unit
@@ -4904,7 +4995,7 @@ nodes:
       language: python
       location: {path: tests/unit/test_golden.py}
       complexity: {loc: 36}
-      fingerprint: sha256:4abf81aaafb09ebaf2779b7a9dae7f0a71cf8a9df5e88017f0753a00a4beeddd
+      fingerprint: sha256:127fe86835a46142a8f01f0e05b10aa98dd13805575af443307291fa3e6236af
   - id: tests.unit.cloud
     kind: module
     parent_id: tests.unit
@@ -5222,3 +5313,21 @@ edges:
   - {from: intensify.cli.cloud, to: intensify.cloud.sync.git_source_url, type: CALLS, provenance: analyzed}
   - {from: intensify.cloud.sync.git_source_url, to: intensify.cloud.sync.web_url, type: CALLS, provenance: analyzed}
   - {from: tests.unit.cloud.test_cloud, to: intensify.cloud.sync.web_url, type: VERIFIES, provenance: analyzed}
+  - {from: intensify.parser.analyzers, to: intensify.parser.java.JavaAnalyzer, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.java, to: intensify.parser.treesitter.squash, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.java, to: intensify.parser.treesitter.text, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.java, to: intensify.parser.treesitter.walk, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.java.JavaAnalyzer, to: intensify.parser.base.Symbol, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.java.JavaAnalyzer, to: intensify.parser.ids.join, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.java.JavaAnalyzer, to: intensify.parser.treesitter.fingerprint, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.java.JavaAnalyzer, to: intensify.parser.treesitter.line_count, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.java.JavaAnalyzer, to: intensify.parser.treesitter.text, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.java.JavaAnalyzer, to: intensify.parser.treesitter.walk, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.java.JavaAnalyzer.__init__, to: intensify.parser.ids.Allocator, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.java.JavaAnalyzer.analyze, to: intensify.parser.base.AnalysisResult, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.java.JavaAnalyzer.analyze, to: intensify.parser.base.Dependency, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.java.JavaAnalyzer.analyze, to: intensify.parser.ids.join, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.java.JavaAnalyzer.analyze, to: intensify.parser.ids.path_id, type: CALLS, provenance: analyzed}
+  - {from: intensify.parser.java.JavaAnalyzer.analyze, to: intensify.parser.java.is_test_path, type: CALLS, provenance: analyzed}
+  - {from: tests.unit.parser.test_java, to: intensify.parser.analyze_repo, type: VERIFIES, provenance: analyzed}
+  - {from: tests.unit.parser.test_java, to: intensify.parser.symbol_span, type: VERIFIES, provenance: analyzed}

@@ -19,14 +19,17 @@ Run it as often as you like. A second run with no code changes writes nothing.
 |---|---|---|---|
 | Python | `.py` | modules (packages from `__init__.py`), classes, functions and methods | `CALLS`, `IMPLEMENTS` (base classes), `VERIFIES` |
 | TypeScript / JavaScript | `.ts` `.tsx` `.mts` `.cts` `.js` `.jsx` `.mjs` `.cjs` | modules, classes, interfaces (as `class`), functions, `const` arrow functions, methods | `CALLS` (including `new`), `IMPLEMENTS` (`extends` / `implements`), `VERIFIES` |
+| Java | `.java` | modules (one per file, named by package: `com.shop.Cart`), classes, interfaces, enums and records (as `class`), methods and constructors | `CALLS` (including `new`), `IMPLEMENTS` (`extends` / `implements`), `VERIFIES` |
 
 Each node gets `technical.language`, `location`, `signature`, `complexity` (cyclomatic complexity and lines) and a `fingerprint`. Functions also get a `contract` built from their parameters, return type and the exception types they raise or throw.
+
+In Java, `public` and `protected` members are public, and so are interface members that aren't `private`. A call on a variable resolves through the declared type of the local variable, parameter or field (`var x = new T()` counts). Calls on the result of another call, or on a variable's field, aren't followed. Overloaded methods get suffixed IDs (`Cart.add`, `Cart.add-2`), and calls resolve to the first overload. Test files are those under a `test` or `tests` directory (Maven's and Gradle's `src/test/java`), plus `*Test`, `*Tests`, `*TestCase`, `*IT` and `Test*` classes. `package-info.java` and `module-info.java` are skipped.
 
 `READS_FROM` and `WRITES_TO` aren't inferred, because static analysis can't detect them reliably. Add them by hand.
 
 ### Which files
 
-`analyze` reads every file git doesn't ignore. Outside a git repository it reads the root `.gitignore` instead. It always skips `node_modules`, virtualenvs, build output, `.d.ts` files, minified files and anything over 1 MB. Narrow it further with `config.analyze.include` and `exclude` (gitignore-style globs).
+`analyze` reads every file git doesn't ignore. Outside a git repository it reads the root `.gitignore` instead. It always skips `node_modules`, virtualenvs, build output, `.gradle`, `.d.ts` files, minified files and anything over 1 MB. Narrow it further with `config.analyze.include` and `exclude` (gitignore-style globs).
 
 ### Which symbols become nodes
 

@@ -1,0 +1,492 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Optimum-Communication/intensify/main/spec/v1.0/schema.json
+#
+# Intensify spec: the intent graph of this repository.
+# Reference: https://github.com/Optimum-Communication/intensify/blob/main/spec/v1.0/spec.md
+intensify: "1.0"
+
+project:
+  id: java-shop
+  name: "java_shop"
+
+config:
+  analyze:
+    depth: function  # finest node kind `intensify analyze` creates: module | class | function
+    public_only: true  # skip private symbols
+  drift:
+    fail_on: [undocumented_edge, contract_mismatch, invariant_violation, missing_node]
+
+nodes:
+  - id: java-shop
+    kind: repo
+    lifecycle_state: active
+    intent:
+      summary: "TODO: describe intent"
+  - id: com.shop.Cart
+    kind: module
+    parent_id: java-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/Cart.java}
+      complexity: {loc: 51}
+      fingerprint: sha256:22aabbd3704a3600a5c9766573402e9be44e31b628613ca05144f051c4dbad5c
+  - id: com.shop.Cart.Cart
+    kind: class
+    parent_id: com.shop.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/Cart.java, symbol: Cart}
+      signature: public class Cart
+      complexity: {loc: 43}
+      fingerprint: sha256:2d13ccfa269a46f7e93a14c632aa4a272f5071d919011fe72a8f7995be63ea8a
+  - id: com.shop.Cart.Cart.Cart
+    kind: function
+    parent_id: com.shop.Cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: gateway, type: Gateway}
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/Cart.java, symbol: Cart.Cart}
+      signature: public Cart(Gateway gateway)
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:0bdad17a225590992af358deb449f9a7eafc964183cf7f05756feb27d5dcae01
+  - id: com.shop.Cart.Cart.add
+    kind: function
+    parent_id: com.shop.Cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: sku, type: String}
+        - {name: cents, type: int}
+        - {name: qty, type: int}
+      errors:
+        - {type: CartError}
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/Cart.java, symbol: Cart.add}
+      signature: public void add(String sku, int cents, int qty) throws CartError
+      complexity: {cyclomatic: 3, loc: 8}
+      fingerprint: sha256:f6db5c9bad7976162e4cc5c3e71e92aa1f3717b443243121ecb14ecab1484055
+  - id: com.shop.Cart.Cart.add-2
+    kind: function
+    parent_id: com.shop.Cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: sku, type: String}
+        - {name: cents, type: int}
+      errors:
+        - {type: CartError}
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/Cart.java, symbol: Cart.add}
+      signature: public void add(String sku, int cents) throws CartError
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:15294fcd7e71b1b1b4fcc226067bb4a5b4fa9c4a4674fc73f0f59c179ebc93a5
+  - id: com.shop.Cart.Cart.total
+    kind: function
+    parent_id: com.shop.Cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: codes, type: String..., required: false}
+      outputs:
+        - {type: int}
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/Cart.java, symbol: Cart.total}
+      signature: public int total(String... codes)
+      complexity: {cyclomatic: 2, loc: 7}
+      fingerprint: sha256:160a56cf1915de0c5985099fafb9cb7b70a1ae531a0a8aa7414ed88d409b8c7e
+  - id: com.shop.Cart.Cart.checkout
+    kind: function
+    parent_id: com.shop.Cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: boolean}
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/Cart.java, symbol: Cart.checkout}
+      signature: public boolean checkout()
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:9a4b169bb7d8d2cb85ffac7b48bfd24f7ea1ca7cc88422262b94c0cf3a308d9a
+  - id: com.shop.Cart.Cart.Line
+    kind: class
+    parent_id: com.shop.Cart.Cart
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/Cart.java, symbol: Cart.Line}
+      signature: public record Line(String sku, int cents, int qty)
+      complexity: {loc: 5}
+      fingerprint: sha256:a3fe924fe2442342e151499b8044bfd408eaea84854675b9b1dd5b1629181664
+  - id: com.shop.Cart.Cart.Line.amount
+    kind: function
+    parent_id: com.shop.Cart.Cart.Line
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: int}
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/Cart.java, symbol: Cart.Line.amount}
+      signature: public int amount()
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:a878968d2703158f9ffaef9f9304c53e100e70d39f18a147d7432a05ef7a7e79
+  - id: com.shop.CartError
+    kind: module
+    parent_id: java-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/CartError.java}
+      complexity: {loc: 8}
+      fingerprint: sha256:30177995792079c565848de4c25ca2e44db60ca846549a89f7e1b647975c1195
+  - id: com.shop.CartError.CartError
+    kind: class
+    parent_id: com.shop.CartError
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/CartError.java, symbol: CartError}
+      signature: public class CartError extends Exception
+      complexity: {loc: 5}
+      fingerprint: sha256:8f0a96a00e41d49dadb1a375582dadcac0873f846ddca6b1f059ef1b4f7be532
+  - id: com.shop.CartError.CartError.CartError
+    kind: function
+    parent_id: com.shop.CartError.CartError
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: message, type: String}
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/CartError.java, symbol: CartError.CartError}
+      signature: public CartError(String message)
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:7e7df541c5eaaeb9ccad2c762588ad93074f0e1c8efc63dfe5683baa55245128
+  - id: com.shop.PriceRule
+    kind: module
+    parent_id: java-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/PriceRule.java}
+      complexity: {loc: 6}
+      fingerprint: sha256:803d2bf1ea2d18ae3c7c29751a8f681abf5eec0a596ecdc2821f6f042a2d1c05
+  - id: com.shop.PriceRule.PriceRule
+    kind: class
+    parent_id: com.shop.PriceRule
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/PriceRule.java, symbol: PriceRule}
+      signature: public interface PriceRule
+      complexity: {loc: 3}
+      fingerprint: sha256:027fe3eb1db3227d50c6f182c908939fed31c7b1504fe460a44b374acba19a7c
+  - id: com.shop.PriceRule.PriceRule.apply
+    kind: function
+    parent_id: com.shop.PriceRule.PriceRule
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: int}
+      outputs:
+        - {type: int}
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/PriceRule.java, symbol: PriceRule.apply}
+      signature: int apply(int cents)
+      complexity: {cyclomatic: 1, loc: 1}
+      fingerprint: sha256:c31209e8e7945d06d17084499537b2adf3206f8d579dbf5ef1efade59f536543
+  - id: com.shop.Pricing
+    kind: module
+    parent_id: java-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/Pricing.java}
+      complexity: {loc: 38}
+      fingerprint: sha256:b02c918da2a9bc7aa7b4a9c04d1ea86d51e1d60d63ee9b074b32331813f1c5bf
+  - id: com.shop.Pricing.Pricing
+    kind: class
+    parent_id: com.shop.Pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/Pricing.java, symbol: Pricing}
+      signature: public final class Pricing
+      complexity: {loc: 24}
+      fingerprint: sha256:1db520517e71448579657358fe83d30978c7dc6d1b8a0f73a33b59836efa0fcf
+  - id: com.shop.Pricing.Pricing.subtotal
+    kind: function
+    parent_id: com.shop.Pricing.Pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: lines, type: List<Cart.Line>}
+      outputs:
+        - {type: int}
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/Pricing.java, symbol: Pricing.subtotal}
+      signature: public static int subtotal(List<Cart.Line> lines)
+      complexity: {cyclomatic: 2, loc: 7}
+      fingerprint: sha256:77e9cde0e71c6e158bf76f537bbcc108dc0ff91106f599e92e018a67f641101b
+  - id: com.shop.Pricing.Pricing.applyDiscount
+    kind: function
+    parent_id: com.shop.Pricing.Pricing
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: int}
+        - {name: code, type: String}
+      outputs:
+        - {type: int}
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/Pricing.java, symbol: Pricing.applyDiscount}
+      signature: public static int applyDiscount(int cents, String code)
+      complexity: {cyclomatic: 3, loc: 8}
+      fingerprint: sha256:c4206853567c29f1dcda478d2918e839e6eea3611198f6d399525ee651284f4c
+  - id: com.shop.payments.Gateway
+    kind: module
+    parent_id: java-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/payments/Gateway.java}
+      complexity: {loc: 29}
+      fingerprint: sha256:fbeb62a582dea50f9f779e6a826a426f0b78e4e41265a3e1f614337798fa458f
+  - id: com.shop.payments.Gateway.Gateway
+    kind: class
+    parent_id: com.shop.payments.Gateway
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/payments/Gateway.java, symbol: Gateway}
+      signature: public class Gateway
+      complexity: {loc: 24}
+      fingerprint: sha256:e86e0fc446e329c8be9f83b85f3b8cfd47ddae7d2c84c4ab1691360294e1c5b2
+  - id: com.shop.payments.Gateway.Gateway.Status
+    kind: class
+    parent_id: com.shop.payments.Gateway.Gateway
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/payments/Gateway.java, symbol: Gateway.Status}
+      signature: public enum Status
+      complexity: {loc: 8}
+      fingerprint: sha256:252cdd542b8c723d2031426dfc57675030396af282a1e500eecf2e264855fc21
+  - id: com.shop.payments.Gateway.Gateway.Status.ok
+    kind: function
+    parent_id: com.shop.payments.Gateway.Gateway.Status
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      outputs:
+        - {type: boolean}
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/payments/Gateway.java, symbol: Gateway.Status.ok}
+      signature: public boolean ok()
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:58c2f0af35d9301f841a0af9380d9ff4542a88d281ff45f32e9b4be07f40c928
+  - id: com.shop.payments.Gateway.Gateway.charge
+    kind: function
+    parent_id: com.shop.payments.Gateway.Gateway
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: int}
+      outputs:
+        - {type: Status}
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/payments/Gateway.java, symbol: Gateway.charge}
+      signature: public Status charge(int cents)
+      complexity: {cyclomatic: 3, loc: 9}
+      fingerprint: sha256:b570b3e2a4ee2620c5ef9eefb5b6e8912807a0df311f9f8125ba0947a99b7111
+  - id: com.shop.payments.Gateway.Gateway.send
+    kind: function
+    parent_id: com.shop.payments.Gateway.Gateway
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: cents, type: int}
+      outputs:
+        - {type: boolean}
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/payments/Gateway.java, symbol: Gateway.send}
+      signature: protected boolean send(int cents)
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:b8e09107127a472968db9309b591afa1ca4e5aed593589945c006111bc870770
+  - id: com.shop.util.Log
+    kind: module
+    parent_id: java-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/util/Log.java}
+      complexity: {loc: 14}
+      fingerprint: sha256:e4a19e4b02938cb5734232257a5be22c32f1dc98ae2f909495f65d44439e8954
+  - id: com.shop.util.Log.Log
+    kind: class
+    parent_id: com.shop.util.Log
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/util/Log.java, symbol: Log}
+      signature: public final class Log
+      complexity: {loc: 11}
+      fingerprint: sha256:d37f328d62d6a656471611d4af3adbc61677678a751e5111c01e4f2af6e1e6d3
+  - id: com.shop.util.Log.Log.info
+    kind: function
+    parent_id: com.shop.util.Log.Log
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: message, type: String}
+        - {name: args, type: Object..., required: false}
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/util/Log.java, symbol: Log.info}
+      signature: public static void info(String message, Object... args)
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:374977fa86acdcb9491dae18a69415a44c86c8cef255c22736e9d6fbcd5b043a
+  - id: com.shop.util.Log.Log.warn
+    kind: function
+    parent_id: com.shop.util.Log.Log
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    contract:
+      inputs:
+        - {name: message, type: String}
+    technical:
+      language: java
+      location: {path: src/main/java/com/shop/util/Log.java, symbol: Log.warn}
+      signature: public static void warn(String message)
+      complexity: {cyclomatic: 1, loc: 3}
+      fingerprint: sha256:97f131430c38170f6e0394f194f0d5e81056af34755c281e68ca3d5cdaa54902
+  - id: com.shop.CartTest
+    kind: module
+    parent_id: java-shop
+    lifecycle_state: active
+    provenance: analyzed
+    intent:
+      summary: "TODO: describe intent"
+    technical:
+      language: java
+      location: {path: src/test/java/com/shop/CartTest.java}
+      complexity: {loc: 17}
+      fingerprint: sha256:b213e26477b2003b0e78fa21e4d32efa055401982ca6ed7c551316241f035f94
+edges:
+  - {from: com.shop.Cart.Cart.add, to: com.shop.Cart.Cart.Line, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Cart.Cart.add, to: com.shop.CartError.CartError, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Cart.Cart.add, to: com.shop.util.Log.Log.info, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Cart.Cart.add-2, to: com.shop.Cart.Cart.add, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Cart.Cart.checkout, to: com.shop.Cart.Cart.total, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Cart.Cart.checkout, to: com.shop.payments.Gateway.Gateway.charge, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Cart.Cart.total, to: com.shop.Pricing.Pricing.applyDiscount, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Cart.Cart.total, to: com.shop.Pricing.Pricing.subtotal, type: CALLS, provenance: analyzed}
+  - {from: com.shop.CartTest, to: com.shop.Cart.Cart, type: VERIFIES, provenance: analyzed}
+  - {from: com.shop.CartTest, to: com.shop.Cart.Cart.add, type: VERIFIES, provenance: analyzed}
+  - {from: com.shop.CartTest, to: com.shop.Cart.Cart.total, type: VERIFIES, provenance: analyzed}
+  - {from: com.shop.CartTest, to: com.shop.Pricing.Pricing.applyDiscount, type: VERIFIES, provenance: analyzed}
+  - {from: com.shop.CartTest, to: com.shop.payments.Gateway.Gateway, type: VERIFIES, provenance: analyzed}
+  - {from: com.shop.Pricing, to: com.shop.PriceRule.PriceRule, type: IMPLEMENTS, provenance: analyzed}
+  - {from: com.shop.Pricing.Pricing.applyDiscount, to: com.shop.PriceRule.PriceRule.apply, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Pricing.Pricing.applyDiscount, to: com.shop.util.Log.Log.warn, type: CALLS, provenance: analyzed}
+  - {from: com.shop.Pricing.Pricing.subtotal, to: com.shop.Cart.Cart.Line.amount, type: CALLS, provenance: analyzed}
+  - {from: com.shop.payments.Gateway.Gateway.charge, to: com.shop.payments.Gateway.Gateway.send, type: CALLS, provenance: analyzed}
+  - {from: com.shop.payments.Gateway.Gateway.charge, to: com.shop.util.Log.Log.info, type: CALLS, provenance: analyzed}
